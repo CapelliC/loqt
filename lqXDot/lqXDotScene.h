@@ -1,5 +1,5 @@
 /*
-    pqGraphviz   : interfacing SWI-Prolog and Graphviz library
+    lqXDot       : interfacing Qt and Graphviz library
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
@@ -20,8 +20,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef XDOTSCENE_H
-#define XDOTSCENE_H
+#ifndef LQXDOTSCENE_H
+#define LQXDOTSCENE_H
 
 #include <QGraphicsScene>
 #include <QGraphicsItem>
@@ -163,4 +163,4 @@ inline Agraph_t *lqXDotScene::it_graph(QGraphicsItem* i) {
     return g ? g->data(agptr).value<Agraph_t*>() : 0;
 }
 
-#endif // XDOTSCENE_H
+#endif // LQXDOTSCENE_H

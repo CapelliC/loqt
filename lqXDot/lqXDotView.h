@@ -1,5 +1,5 @@
 /*
-    pqGraphviz   : interfacing SWI-Prolog and Graphviz library
+    lqXDot       : interfacing Qt and Graphviz library
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
@@ -20,8 +20,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef GRAPHVIZVIEW_H
-#define GRAPHVIZVIEW_H
+
+#ifndef LQXDOTVIEW_H
+#define LQXDOTVIEW_H
 
 #include "lqXDot_global.h"
 #include "lqXDotScene.h"
@@ -123,4 +124,4 @@ private:
     QString layoutKind_;
 };
 
-#endif // GRAPHVIZVIEW_H
+#endif // LQXDOTVIEW_H

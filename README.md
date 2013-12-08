@@ -1,4 +1,4 @@
 loqt
 ====
 
-Logic Languages and Qt
+Logic Objecs and Qt

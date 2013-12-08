@@ -33,7 +33,7 @@
 
 #include <graphviz/xdot.h>
 
-/** translate a graphviz graph to a QGraphicScene display graph
+/** translate a Graphviz graph to a QGraphicScene display graph
   * each graph object get its concrete representation as QGraphicsItemGroup
   */
 class LQXDOTSHARED_EXPORT lqXDotScene : public QGraphicsScene, public GV_ptr_types

@@ -12,3 +12,6 @@ SUBDIRS += \
     lqUty \
     lqXDot \
     lqXDot_test \
+
+OTHER_FILES += \
+    README.md

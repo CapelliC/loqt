@@ -5,7 +5,7 @@ Logic Objecs and Qt
 
 By now, just a rendering of Graphviz (via library cgraph) to Qt Graphic Scene.
 
-Such rendering play a central role in my next project (to be published), showcasing (SWI)Prolog direct control of Qt via reflection.
+Such rendering plays a role in my next project (to be published), showcasing (SWI)Prolog direct control of Qt via reflection.
 
 Some note about components
 
@@ -22,4 +22,4 @@ with basic file/mode maintenance,
 display both lqXDot/SVG rendering,
 and allow editing with syntax coloring.
 
-lqUty collects some basic Qt interface helpers
+lqUty collects some basic Qt interface helpers.

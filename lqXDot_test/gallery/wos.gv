@@ -1,0 +1,7 @@
+/* script file /home/carlo/cpp/SwiPlay/pqGraphvizTest/gallery/wos.gv
+   created at Sun Oct 13 08:26:57 2013 */
+digraph wos {
+  "wos:texbook" -> "wos:knuth" [label="dc:Creator" style=tapered penwidth=7]
+  "wos:texbook" -> "The TEXbook" [label="dc:Title"]
+  "wos:knuth" -> "Donald Knuth" [label="foaf:name"]
+}

@@ -1,0 +1,151 @@
+digraph familiari {
+ node[style=radial]
+ {rank=same /* generazione 1*/
+  catina [shape=rect,fillcolor="white:red"]
+  eli [shape=rect,fillcolor="white:red"]
+  giosuè [shape=rect,fillcolor="white:cyan"]
+  giovanni [shape=rect,fillcolor="white:cyan"]
+  laura [shape=rect,fillcolor="white:red"]
+ }
+ {rank=same /* generazione 2*/
+  andrea [shape=rect,fillcolor="white:cyan"]
+  angelo [fillcolor="white:cyan"]
+  battista [fillcolor="white:cyan"]
+  caterina [fillcolor="white:red"]
+  chicca [fillcolor="white:red"]
+  clara [fillcolor="white:red"]
+  dorvalina [fillcolor="white:green"]
+  eros [shape=rect,fillcolor="white:cyan"]
+  gabri [shape=rect,fillcolor="white:red"]
+  giacomo [fillcolor="white:green"]
+  gianna [fillcolor="white:red"]
+  leonardo [shape=rect,fillcolor="white:cyan"]
+  luigi [shape=rect,fillcolor="white:cyan"]
+  sandro [shape=rect,fillcolor="white:cyan"]
+  silvana [fillcolor="white:green"]
+  teresa [fillcolor="white:red"]
+  uccel_di_bosco [fillcolor="white:green"]
+ }
+ {rank=same /* generazione 3*/
+  angeloa [fillcolor="white:cyan"]
+  antonia [fillcolor="white:red"]
+  carla [fillcolor="white:red"]
+  carlo [fillcolor="white:cyan"]
+  carlo_s [fillcolor="white:green"]
+  cinzia [fillcolor="white:red"]
+  elena [fillcolor="white:green"]
+  fabio [fillcolor="white:green"]
+  fabrizio [fillcolor="white:green"]
+  freccino [fillcolor="white:cyan"]
+  giorgio [fillcolor="white:cyan"]
+  giulio [fillcolor="white:cyan"]
+  laurag [fillcolor="white:green"]
+  lia [fillcolor="white:red"]
+  maria [fillcolor="white:red"]
+  miriam [fillcolor="white:green"]
+  oscar [fillcolor="white:green"]
+  paolo [fillcolor="white:cyan"]
+  rosanna [fillcolor="white:green"]
+  rudy [fillcolor="white:green"]
+  sergio [fillcolor="white:green"]
+  willy [fillcolor="white:green"]
+ }
+ {rank=same /* generazione 4*/
+  amira [fillcolor="white:red"]
+  arno [fillcolor="white:cyan"]
+  elisa [fillcolor="white:red"]
+  fiore [fillcolor="white:cyan"]
+  ivan [fillcolor="white:cyan"]
+  loris [fillcolor="white:cyan"]
+  mauro [fillcolor="white:green"]
+  nilo [shape=rect,fillcolor="white:cyan"]
+  rais [fillcolor="white:cyan"]
+  sara [shape=rect,fillcolor="white:red"]
+  silvia [fillcolor="white:red"]
+  stella [fillcolor="white:red"]
+ }
+ {rank=same /* generazione 5*/
+  dylan [fillcolor="white:green"]
+  michael [fillcolor="white:green"]
+ }
+laura->leonardo
+laura->chicca
+laura->clara
+laura->teresa
+giovanni->teresa
+giovanni->gabri
+giovanni->eros
+giovanni->caterina
+giovanni->sandro
+giovanni->angelo
+eli->sandro
+eli->angelo
+teresa->carla
+teresa->giorgio
+teresa->lia
+teresa->maria
+teresa->antonia
+teresa->cinzia
+battista->carla
+battista->giorgio
+battista->lia
+battista->maria
+battista->antonia
+battista->cinzia
+maria->stella
+maria->ivan
+carlo->stella
+carlo->ivan
+antonia->nilo
+antonia->rais
+antonia->arno
+antonia->amira
+angeloa->nilo
+angeloa->rais
+angeloa->arno
+angeloa->amira
+lia->loris
+paolo->loris
+carla->sara
+carla->fiore
+carla->silvia
+giulio->sara
+giulio->fiore
+giulio->silvia
+cinzia->elisa
+freccino->elisa
+catina->battista
+catina->gianna
+catina->luigi
+catina->andrea
+giosuè->battista
+giosuè->gianna
+giosuè->luigi
+giosuè->andrea
+andrea->sergio
+andrea->fabio
+dorvalina->sergio
+dorvalina->fabio
+elisa->michael
+elisa->dylan
+mauro->michael
+mauro->dylan
+gianna->fabrizio
+gianna->rudy
+gianna->willy
+gianna->laurag
+gianna->oscar
+giacomo->fabrizio
+giacomo->rudy
+giacomo->willy
+giacomo->laurag
+giacomo->oscar
+leonardo->carlo_s
+leonardo->miriam
+leonardo->rosanna
+silvana->carlo_s
+silvana->miriam
+silvana->rosanna
+silvana->elena
+uccel_di_bosco->elena
+}

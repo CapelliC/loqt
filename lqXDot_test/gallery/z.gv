@@ -1,0 +1,13 @@
+/* script file /home/carlo/cpp/SwiPlay/pqGraphvizTest/gallery/x.gv
+   created at Mon Sep 30 00:08:14 2013 */
+digraph {
+node [style=filled]
+a [fillcolor="/rdylgn11/1"]
+b [fillcolor="/rdylgn11/2"]
+c [fillcolor="/rdylgn11/3"]
+a -> b
+b -> c
+c -> a
+b->a
+a->a
+}

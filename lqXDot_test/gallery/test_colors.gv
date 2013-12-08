@@ -1,0 +1,7 @@
+/* script file /home/carlo/cpp/SwiPlay/pqGraphvizTest/test_colors.gv
+   created at Tue Oct 1 01:23:50 2013 */
+
+graph {
+ node [style=filled]
+ A [fillcolor="#7fc97f"] B [fillcolor="#beaed4"] C [fillcolor="#fdc086"]
+}

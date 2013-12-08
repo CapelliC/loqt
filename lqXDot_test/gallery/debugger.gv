@@ -1,0 +1,108 @@
+/* script file /home/carlo/cpp/SwiPlay/pqGraphvizTest/gallery/debugger.gv
+   created at Mon Sep 30 16:24:25 2013 */
+digraph debugger {
+
+ edge [style=invis]
+rank="same"
+
+subgraph { 
+box [ shape=box ]
+polygon [ shape=polygon ]
+ellipse [ shape=ellipse ]
+oval [ shape=oval ]
+}
+
+subgraph { 
+circle [ shape=circle ]
+point [ shape=point ]
+egg [ shape=egg ]
+triangle [ shape=triangle ]
+}
+
+subgraph {
+plaintext [ shape=plaintext ]
+diamond [ shape=diamond ]
+trapezium [ shape=trapezium ]
+parallelogram [ shape=parallelogram ]
+}
+
+subgraph {
+house [ shape=house ]
+pentagon [ shape=pentagon ]
+hexagon [ shape=hexagon ]
+septagon [ shape=septagon ]
+}
+
+subgraph {
+octagon [ shape=octagon ]
+doublecircle [ shape=doublecircle ]
+doubleoctagon [ shape=doubleoctagon ]
+tripleoctagon [ shape=tripleoctagon ]
+}
+
+subgraph {
+invtriangle [ shape=invtriangle ]
+invtrapezium [ shape=invtrapezium ]
+invhouse [ shape=invhouse ]
+Mdiamond [ shape=Mdiamond ]
+}
+
+subgraph {
+Msquare [ shape=Msquare ]
+Mcircle [ shape=Mcircle ]
+rect [ shape=rect ]
+rectangle [ shape=rectangle ]
+}
+
+subgraph {
+square [ shape=square ]
+star [ shape=star ]
+none [ shape=none ]
+note [ shape=note ]
+}
+
+subgraph {
+tab [ shape=tab ]
+folder [ shape=folder ]
+box3d [ shape=box3d ]
+component [ shape=component ]
+}
+
+subgraph {
+promoter [ shape=promoter ]
+cds [ shape=cds ]
+terminator [ shape=terminator ]
+utr [ shape=utr ]
+}
+
+subgraph {
+primersite [ shape=primersite ]
+restrictionsite [ shape=restrictionsite ]
+fivepoverhang [ shape=fivepoverhang ]
+threepoverhang [ shape=threepoverhang ]
+}
+
+subgraph {
+noverhang [ shape=noverhang ]
+assembly [ shape=assembly ]
+signature [ shape=signature ]
+insulator [ shape=insulator ]
+}
+
+subgraph {
+ribosite [ shape=ribosite ]
+rnastab [ shape=rnastab ]
+proteasesite [ shape=proteasesite ]
+proteinstab [ shape=proteinstab ]
+}
+
+subgraph {
+rpromoter [ shape=rpromoter ]
+rarrow [ shape=rarrow ]
+larrow [ shape=larrow ]
+lpromoter [ shape=lpromoter ]
+}
+
+box -> circle -> plaintext -> house -> octagon -> invtriangle -> Msquare -> square
+        -> tab -> promoter -> primersite -> noverhang -> ribosite -> rpromoter
+}

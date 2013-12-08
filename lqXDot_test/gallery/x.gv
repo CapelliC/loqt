@@ -1,0 +1,8 @@
+/* script file /home/carlo/cpp/SwiPlay/pqGraphvizTest/gallery/x.gv
+   created at Mon Sep 30 00:08:14 2013 */
+digraph {
+AA -> b
+b -> c [label="pippo\npluto"]
+c -> AA
+b -> AA
+}

@@ -51,7 +51,8 @@ Colors and forms symbolize following
 /* ancestor graph from Caroline Bouvier Kennedy */
 
 graph G {
-imagepath = "/home/carlo/cpp/SwiPlay/pqGraphvizTest/gallery/";
+/* we need an appropriate path (more a problem for SVG) */
+imagepath = "../gallery/..";
 
 I5 [shape=ellipse,color=red,style=bold,label="Caroline Bouvier Kennedy\nb. 27.11.1957 New York",image="images/165px-Caroline_Kennedy.jpg",labelloc=b];
 I1 [shape=box,color=blue,style=bold,label="John Fitzgerald Kennedy\nb. 29.5.1917 Brookline\nd. 22.11.1963 Dallas",image="images/kennedyface.jpg",labelloc=b];

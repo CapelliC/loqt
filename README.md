@@ -24,9 +24,3 @@ Some note about components
 
 + lqUty collects some basic Qt interface helpers.
 
-
-==========
-GUI snapshot
-
-
-![cluster](img/cluster.png)

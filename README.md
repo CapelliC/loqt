@@ -29,8 +29,8 @@ Some note about components
 GUI snapshot
 
 
-![cluster](CapelliC.github.com/loqt/img/cluster.png)
+![cluster](img/cluster.png)
 
 --------
 
-![cluster.gv (dot source)](CapelliC.github.com/loqt/img/cluster-dot.png)
+![cluster.gv (dot source)](img/cluster-dot.png)

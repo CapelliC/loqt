@@ -47,10 +47,12 @@ lqXDotScene::lqXDotScene(lqContextGraph *cg) : cg(cg),
     qreal z_node = 2, z_edge = 3;
 
     cg->for_nodes([&](Np n) {
-        add_node(n)->setZValue(dz(z_node));
-        cg->for_edges_out(n, [&](Ep l) {
-            add_edge(l)->setZValue(dz(z_edge));
-        });
+        if (auto N = add_node(n)) {
+            N->setZValue(dz(z_node));
+            cg->for_edges_out(n, [&](Ep e) {
+                if (auto E = add_edge(e)) E->setZValue(dz(z_edge));
+            });
+        }
     });
 
     emit setup_completed();

@@ -30,7 +30,3 @@ GUI snapshot
 
 
 ![cluster](img/cluster.png)
-
---------
-
-![cluster.gv (dot source)](img/cluster-dot.png)

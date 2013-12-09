@@ -1,4 +1,4 @@
-/* script file /home/carlo/cpp/SwiPlay/pqGraphvizTest/gallery/html1.gv
+/* script file /html1.gv
    created at Sat Nov 9 23:53:10 2013 */
 digraph structs {
  node [shape=plaintext]

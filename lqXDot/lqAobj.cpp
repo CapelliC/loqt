@@ -1,5 +1,5 @@
 /*
-    pqGraphviz   : interfacing SWI-Prolog and Graphviz library
+    lqXDot       : interfacing Qt and Graphviz library
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com

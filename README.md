@@ -11,20 +11,16 @@ Such rendering plays a role in my next project (to be published), showcasing (SW
 
 Some note about components
 
-lqUty
-lqXDot
-lqXDot_test
-
 ==========
 
 + lqXDot is the actual Graphviz processor.
-  /lqXDotScene the main component.
-  /lqContextGraph shows a way to encapsulate the Graphviz pointer model in C++.
+  + lqXDotScene the main component.
+  + lqContextGraph shows a way to encapsulate the Graphviz pointer model in C++.
 
-+ lqXDot_test is a utility UI,
++ lqXDot_test is an utility UI,
   with basic file/mode maintenance,
   display both lqXDot/SVG rendering,
-  and allow editing with syntax coloring.
+  and allow editing .dot,.gv with syntax coloring.
 
 + lqUty collects some basic Qt interface helpers.
 

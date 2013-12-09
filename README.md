@@ -24,4 +24,13 @@ Some note about components
 
 + lqUty collects some basic Qt interface helpers.
 
+
+==========
+GUI snapshot
+
+
+![cluster](CapelliC.github.com/loqt/img/cluster.png)
+
 --------
+
+![cluster.gv (dot source)](CapelliC.github.com/loqt/img/cluster-dot.png)

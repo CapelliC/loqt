@@ -93,7 +93,8 @@ OTHER_FILES += \
     gallery/datastruct_gradient.gv \
     gallery/datastruct.gv \
     gallery/colors.gv \
-    gallery/cluster_gradient.gv
+    gallery/cluster_gradient.gv \
+    gallery/tree test.gv
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty

@@ -60,6 +60,9 @@ bool SourceEdit::loadFile(QString fileName) {
     setHtml(file2string(":/SourceEdit.html"), QUrl("qrc:/"));
     return true;
 }
+QString SourceEdit::toPlainText() const {
+    return page()->mainFrame()->evaluateJavaScript("editor.getValue()").toString();
+}
 
 void SourceEdit::loadFinished(bool ok) {
     emit log(QString("loadFinished %1, len %2, ok %3").arg(file).arg(text.length()).arg(ok));
@@ -72,7 +75,7 @@ void SourceEdit::loadFinished(bool ok) {
 }
 
 bool SourceEdit::save() {
-    QString text = page()->mainFrame()->evaluateJavaScript("editor.getValue()").toString();
+    QString text = toPlainText();//page()->mainFrame()->evaluateJavaScript("editor.getValue()").toString();
 
     {   QFile f(file);
         if (!f.open(QFile::WriteOnly)) {
@@ -84,8 +87,8 @@ bool SourceEdit::save() {
 
     status = saved;
     emit setTitle(file, title());
+    emit msg(tr("saved '%1'").arg(symbol()));
 
-    emit msg(QString("saved '%1'").arg(symbol()));
     return true;
 }
 

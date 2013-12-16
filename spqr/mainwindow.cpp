@@ -25,7 +25,6 @@
 #include "lqGvSynCol.h"
 #include "ParenMatching.h"
 #include "blockSig.h"
-#include "pqMiniSyntax.h"
 #include "file2string.h"
 
 #include <QMenu>
@@ -57,7 +56,7 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
 
     fileSource = p.value("fileSource").toString();
     lastDir = p.value("lastDir").toString();
-    lastMode = p.value("lastMode", "dot").toString();
+    //lastMode = p.value("lastMode", "dot").toString();
 
     QMenu *m = menuBar()->addMenu(tr("&File"));
     m->addAction(tr("New..."), this, SLOT(newFile()), QKeySequence::New);
@@ -72,7 +71,7 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     // layouts algorithm by name
     m->addSeparator();
 
-    QString mode = lastMode;
+    /*QString mode = lastMode;
     if (argc == 3)
         mode = argv[2];
 
@@ -81,12 +80,13 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
         a->setCheckable(true);
         a->setChecked(layout == mode);
     }
+    */
 
     m->addSeparator();
     m->addAction(tr("E&xit"), qApp, SLOT(quit()), QKeySequence::Quit);
 
     menuBar()->addSeparator();
-    menuBar()->addAction("&Graph", this, SLOT(viewGraph()));
+    //menuBar()->addAction("&Graph", this, SLOT(viewGraph()));
     menuBar()->addAction("&Source", this, SLOT(viewSource()));
     menuBar()->addAction("&Console", this, SLOT(viewConsole()));
     menuBar()->addAction("&Help", this, SLOT(viewHelp()));
@@ -107,7 +107,7 @@ MainWindow::~MainWindow() {
     p.saveGeometry(this);
     p.setValue("fileSource", fileSource);
     p.setValue("lastDir", lastDir);
-    p.setValue("lastMode", lastMode);
+    //p.setValue("lastMode", lastMode);
     storeMru(p);
     p.save();
     //delete gvsyn;
@@ -186,13 +186,13 @@ void MainWindow::saveFileAs() {
 }
 
 /** refresh graph display from (possibly) dirty script
- */
 void MainWindow::renderFile() {
     if (view()->render_script(source()->toPlainText(), lastMode)) {
         //makeSvg(QString());
         tabs->setCurrentIndex(t_graph);
     }
 }
+ */
 
 /** create a new Prolog script
  */
@@ -235,15 +235,18 @@ void MainWindow::make_tabs() {
 
     setCentralWidget(tabs = new QStackedWidget_KeybTabs);
 
-    tabs->addWidget(new lqXDotView);
-    tabs->addWidget(new SimPrologEdit);
+    //I was thinking about an incremental qcompile(d) approach.
+    //tabs->addWidget(new lqXDotView);
+    //tabs->addWidget(new SimPrologEdit);
+    tabs->addWidget(new SourceEdit);
     tabs->addWidget(con);
     tabs->addWidget(new HelpDocView);
 
+    /*
     source()->setLineWrapMode(QPlainTextEdit::NoWrap);
     connect(source(), SIGNAL(textChanged()), this, SLOT(textChanged()));
     connect(source(), SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
-
+    */
 
     connect(helpDoc(), SIGNAL(loadFinished(bool)), SLOT(adjustLocation()));
     connect(helpDoc(), SIGNAL(titleChanged(QString)), SLOT(adjustTitle()));
@@ -292,15 +295,17 @@ void MainWindow::queryException(QString functor, QString exmsg) {
 /** reinitialize GUI with required script
  */
 void MainWindow::viewDot() {
-    QString f = fileSource;
+    //QString f = fileSource;
     //delete tabs;
 
+    /*
     QString layout;
     foreach (QAction *a, menuBar()->actions()[0]->menu()->actions())
         if (a->isChecked())
             layout = a->text();
     Q_ASSERT(!layout.isEmpty());
-
+    */
+/*
     QFile t(f);
     if (t.open(t.ReadOnly|t.Text)) {
         setWindowTitle(QString("%1[*]").arg(f));
@@ -308,8 +313,8 @@ void MainWindow::viewDot() {
         //make_tabs();
         //lqPreferences p;
 
-        source()->setPlainText(file2string(t));
-        new pqMiniSyntax(source()->document());
+        //source()->setPlainText(file2string(t));
+        //new pqMiniSyntax(source()->document());
 
         // syntax coloring
         mode = highlighting;
@@ -327,6 +332,11 @@ void MainWindow::viewDot() {
     else {
         errbox(tr("Cannot read %1").arg(f), tr("open file failed"));
         removePath(this, f);
+    }
+    */
+    if (!source()->loadFile(fileSource)) {
+        errbox(tr("Cannot read %1").arg(fileSource), tr("open file failed"));
+        removePath(this, fileSource);
     }
 }
 
@@ -350,7 +360,6 @@ void MainWindow::textChanged() {
 }
 
 /** display infomation about cursor
- */
 void MainWindow::cursorPositionChanged() {
     QTextCursor c = source()->textCursor();
 
@@ -368,6 +377,7 @@ void MainWindow::cursorPositionChanged() {
 
     rci.showCursorPosition(source());
 }
+*/
 
 void MainWindow::scriptChanged(QString path) {
     MB req(MB::Warning, tr("Warning"), tr("Script has been modified"), MB::Yes|MB::Ignore, this);
@@ -424,8 +434,8 @@ void MainWindow::finishLoading(bool) {
 void MainWindow::viewGraph() {
     con->engine()->query_run(QString("consult('%1')").arg(fileSource));
     con->engine()->query_run(QFileInfo(fileSource).baseName());
-    statusBar()->showMessage("view Graph",1000);
-    tabs->setCurrentIndex(t_graph);
+    //statusBar()->showMessage("view Graph",1000);
+    //tabs->setCurrentIndex(t_graph);
 }
 
 void MainWindow::viewSource() {

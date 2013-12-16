@@ -37,7 +37,8 @@
 #include "RowColIndicators.h"
 #include "ParenMatching.h"
 #include "ConsoleEdit.h"
-#include "SimPrologEdit.h"
+//#include "SimPrologEdit.h"
+#include "SourceEdit.h"
 #include "HelpDocView.h"
 #include "QStackedWidget_KeybTabs.h"
 
@@ -56,12 +57,13 @@ public:
     MainWindow(int argc, char *argv[], QWidget *parent = 0);
     ~MainWindow();
 
-    enum t_kind { t_graph, t_source, t_console, t_helpdoc };
+    enum t_kind { /*t_graph,*/ t_source, t_console, t_helpdoc };
     template <class V> V* tab(t_kind t) const { return qobject_cast<V*>(tabs->widget(t)); }
     void activate(t_kind k) { tabs->setCurrentIndex(k); }
 
-    lqXDotView*     view() const { return tab<lqXDotView>(t_graph); }
-    SimPrologEdit*  source() const { return tab<SimPrologEdit>(t_source); }
+    //lqXDotView*     view() const { return tab<lqXDotView>(t_graph); }
+    //SimPrologEdit*  source() const { return tab<SimPrologEdit>(t_source); }
+    SourceEdit*     source() const { return tab<SourceEdit>(t_source); }
     ConsoleEdit*    console() const { return tab<ConsoleEdit>(t_console); }
     HelpDocView*    helpDoc() const { return tab<HelpDocView>(t_helpdoc); }
 
@@ -79,11 +81,12 @@ private:
     void viewDot();
     QString fileSource;
     QString lastDir;
-    QString lastMode;
+    //QString lastMode;
 
     //! keep just 1 console
     QPointer<ConsoleEdit> con;
 
+    //! slick interface - move tabs on QMenu
     QPointer<QStackedWidget_KeybTabs> tabs;
 
     typedef ParenMatching::range range;
@@ -110,13 +113,13 @@ public slots:
     void openFile();
     void saveFile();
     void saveFileAs();
-    void renderFile();
+    //void renderFile();
 
     void openFileIndex(int);
     void changeLayout();
 
     void textChanged();
-    void cursorPositionChanged();
+    //void cursorPositionChanged();
 
     void scriptChanged(QString path);
     void engineReady();

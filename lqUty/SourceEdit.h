@@ -48,6 +48,7 @@ public:
 
     bool loadFile(QString fileName);
     QString getFile() const { return file; }
+    QString toPlainText() const;
 
 signals:
 

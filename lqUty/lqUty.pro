@@ -9,7 +9,6 @@
 QT += webkit
 TARGET = lqUty
 TEMPLATE = lib
-
 QMAKE_CXXFLAGS += -std=c++0x
 
 DEFINES += LQUTY_LIBRARY
@@ -22,8 +21,8 @@ SOURCES += lqUty.cpp \
     QStackedWidget_KeybTabs.cpp \
     SourceEdit.cpp
 
-HEADERS += lqUty.h\
-        lqUty_global.h \
+HEADERS += lqUty.h \
+    lqUty_global.h \
     ParenMatching.h \
     do_events.h \
     MruHelper.h \

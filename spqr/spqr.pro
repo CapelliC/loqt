@@ -1,14 +1,15 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2013-12-09T19:06:00
-#
-#-------------------------------------------------
+#--------------------------------------------------
+# spqr.pro: SWI-Prolog Qt Rendering
+#--------------------------------------------------
+# my first loqt component
+#--------------------------------------------------
+# Ing. Capelli Carlo - Brescia 2013
+
+# please, not obsolete compiler
+QMAKE_CXXFLAGS += -std=c++0x
 
 QT += core gui webkit
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
-# please, not obsolete compiler
-!macx: QMAKE_CXXFLAGS += -std=c++0x
 
 TARGET = spqr
 TEMPLATE = app

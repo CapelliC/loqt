@@ -23,11 +23,11 @@
 #ifndef LQCONTEXTGRAPH
 #define LQCONTEXTGRAPH
 
-#include <functional>
 #include "lqXDot.h"
 #include <QObject>
 #include <QMessageBox>
 #include <QGraphicsItem>
+#include <functional>
 
 //! utility to get an applicative meaningful pointer from nested graphic
 template<class T> inline T* ancestor(QGraphicsItem* i) {

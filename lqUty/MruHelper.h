@@ -31,7 +31,6 @@
 #include <QSignalMapper>
 
 /** factorize boring code required to handle MRU
-  * path held in toolTip for each path, path2title exposed, with appropriate indexes
   */
 class LQUTYSHARED_EXPORT MruHelper
 {

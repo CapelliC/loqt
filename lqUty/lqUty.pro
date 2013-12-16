@@ -6,6 +6,7 @@
 #--------------------------------------------------
 # Ing. Capelli Carlo - Brescia 2013
 
+QT += webkit
 TARGET = lqUty
 TEMPLATE = lib
 
@@ -17,7 +18,9 @@ SOURCES += lqUty.cpp \
     ParenMatching.cpp \
     MruHelper.cpp \
     RowColIndicators.cpp \
-    lqPreferences.cpp
+    lqPreferences.cpp \
+    QStackedWidget_KeybTabs.cpp \
+    SourceEdit.cpp
 
 HEADERS += lqUty.h\
         lqUty_global.h \
@@ -26,7 +29,10 @@ HEADERS += lqUty.h\
     MruHelper.h \
     RowColIndicators.h \
     lqPreferences.h \
-    blockSig.h
+    blockSig.h \
+    QStackedWidget_KeybTabs.h \
+    SourceEdit.h \
+    file2string.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -46,3 +52,18 @@ unix:!symbian {
     }
     INSTALLS += target
 }
+
+OTHER_FILES += \
+    SourceEdit.html \
+    codemirror/lib/codemirror.js \
+    codemirror/lib/codemirror.css \
+    codemirror/addon/search/searchcursor.js \
+    codemirror/addon/search/search.js \
+    codemirror/addon/dialog/dialog.js \
+    codemirror/addon/dialog/dialog.css \
+    codemirror/addon/edit/matchbrackets.js \
+    codemirror/mode/prolog/prolog.js \
+    codemirror/mode/prolog/index.html
+
+RESOURCES += \
+    lqUty.qrc

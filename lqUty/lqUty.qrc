@@ -1,0 +1,36 @@
+<RCC>
+    <qresource prefix="/">
+        <file>SourceEdit.html</file>
+        <file>jquery.min.js</file>
+        <file>codemirror/lib/codemirror.css</file>
+        <file>codemirror/lib/codemirror.js</file>
+        <file>codemirror/theme/ambiance.css</file>
+        <file>codemirror/theme/ambiance-mobile.css</file>
+        <file>codemirror/theme/blackboard.css</file>
+        <file>codemirror/theme/cobalt.css</file>
+        <file>codemirror/theme/eclipse.css</file>
+        <file>codemirror/theme/elegant.css</file>
+        <file>codemirror/theme/erlang-dark.css</file>
+        <file>codemirror/theme/lesser-dark.css</file>
+        <file>codemirror/theme/monokai.css</file>
+        <file>codemirror/theme/neat.css</file>
+        <file>codemirror/theme/night.css</file>
+        <file>codemirror/theme/rubyblue.css</file>
+        <file>codemirror/theme/twilight.css</file>
+        <file>codemirror/theme/vibrant-ink.css</file>
+        <file>codemirror/theme/xq-dark.css</file>
+        <file>codemirror/theme/solarized.css</file>
+        <file>codemirror/mode/clike/clike.js</file>
+        <file>codemirror/mode/css/css.js</file>
+        <file>codemirror/mode/htmlembedded/htmlembedded.js</file>
+        <file>codemirror/mode/javascript/javascript.js</file>
+        <file>codemirror/mode/prolog/prolog.js</file>
+        <file>codemirror/mode/sparql/sparql.js</file>
+        <file>codemirror/addon/dialog/dialog.css</file>
+        <file>codemirror/addon/dialog/dialog.js</file>
+        <file>codemirror/addon/search/search.js</file>
+        <file>codemirror/addon/search/searchcursor.js</file>
+        <file>codemirror/addon/edit/matchbrackets.js</file>
+        <file>codemirror/addon/fold/foldcode.js</file>
+    </qresource>
+</RCC>

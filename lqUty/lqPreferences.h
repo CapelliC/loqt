@@ -27,10 +27,11 @@
 #include <QColor>
 #include <QSettings>
 #include <QTextCharFormat>
+#include "lqUty_global.h"
 
 /** some configurable user preference
  */
-class lqPreferences : public QSettings
+class LQUTYSHARED_EXPORT lqPreferences : public QSettings
 {
     Q_OBJECT
 public:

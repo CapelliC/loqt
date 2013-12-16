@@ -1,5 +1,5 @@
 /*
-    lqXDot_test   : interfacing Qt and Graphviz library
+    spqr          : SWI-Prolog Qt Rendering
 
     Author        : Carlo Capelli
     E-mail        : cc.carlo.cap@gmail.com
@@ -24,32 +24,49 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QTabWidget>
 #include <QTextEdit>
 #include <QMessageBox>
 #include <QCloseEvent>
 #include <QFileSystemWatcher>
+#include <QTextBrowser>
+#include <QWebView>
 
 #include "lqXDotView.h"
 #include "lqGvSynCol.h"
 #include "MruHelper.h"
-#include "SvgView.h"
 #include "RowColIndicators.h"
 #include "ParenMatching.h"
+#include "ConsoleEdit.h"
+#include "SimPrologEdit.h"
+#include "HelpDocView.h"
+#include "QStackedWidget_KeybTabs.h"
 
 /** display a single graph (dot file)
-  * - lqXDotView main viewer
-  * - the SVG rendering of the same
-  * - DOT source file
-  * - SVG source file
+  * - Graph: a view
+  * - Prolog: start is same as filename
+  * - Console: Prolog debug/error report
+  * - Help: live SWI-Prolog documentation server
   */
 class MainWindow : public QMainWindow, MruHelper
 {
     Q_OBJECT
-    
+
 public:
+
     MainWindow(int argc, char *argv[], QWidget *parent = 0);
     ~MainWindow();
+
+    enum t_kind { t_graph, t_source, t_console, t_helpdoc };
+    template <class V> V* tab(t_kind t) const { return qobject_cast<V*>(tabs->widget(t)); }
+    void activate(t_kind k) { tabs->setCurrentIndex(k); }
+
+    lqXDotView*     view() const { return tab<lqXDotView>(t_graph); }
+    SimPrologEdit*  source() const { return tab<SimPrologEdit>(t_source); }
+    ConsoleEdit*    console() const { return tab<ConsoleEdit>(t_console); }
+    HelpDocView*    helpDoc() const { return tab<HelpDocView>(t_helpdoc); }
+
+    //! access  http://localhost document server
+    enum { DOC_PORT = 4000 };
 
 protected:
 
@@ -60,36 +77,32 @@ private:
     void saveViewDot(QString file, QString script, QString errmsg);
 
     void viewDot();
-    QString fileDot;
-
+    QString fileSource;
     QString lastDir;
     QString lastMode;
 
-    enum t_kind { t_view, t_svgv, t_source, t_svgxml };
-    QPointer<QTabWidget> tabs;
+    //! keep just 1 console
+    QPointer<ConsoleEdit> con;
+
+    QPointer<QStackedWidget_KeybTabs> tabs;
 
     typedef ParenMatching::range range;
     range paren;
 
-    template <class V> V* tab(t_kind t) const { return qobject_cast<V*>(tabs->widget(t)); }
-
-    lqXDotView *view() const { return tab<lqXDotView>(t_view); }
-    SvgView *svgv() const { return tab<SvgView>(t_svgv); }
-    QTextEdit *source() const { return tab<QTextEdit>(t_source); }
-    QTextEdit *svgxml() const { return tab<QTextEdit>(t_svgxml); }
-
+private:
     enum { highlighting, editing } mode;
     RowColIndicators rci;
 
     void saveFile(QString file);
-    void makeSvg(QString f = QString());
 
     typedef QMessageBox MB;
     MB::StandardButton errbox(QString msg, QString info, MB::StandardButtons bnts = MB::Ok, MB::Icon icon = MB::Critical, QString title = QString());
 
     QFileSystemWatcher monitorScript;
+    void make_tabs();
 
-    QPointer<lqGvSynCol> gvsyn;
+    QPointer<QLineEdit> locationEdit;
+    int progress;
 
 public slots:
 
@@ -106,6 +119,23 @@ public slots:
     void cursorPositionChanged();
 
     void scriptChanged(QString path);
+    void engineReady();
+
+protected slots:
+
+    void adjustLocation();
+    void changeLocation();
+    void adjustTitle();
+    void setProgress(int p);
+    void finishLoading(bool);
+
+    void viewGraph();
+    void viewSource();
+    void viewConsole();
+    void viewHelp();
+
+    void queryComplete(QString query, int tot_occurrences);
+    void queryException(QString functor, QString exmsg);
 };
 
 #endif // MAINWINDOW_H

@@ -1,5 +1,5 @@
 /*
-    lqXDot       : interfacing Qt and Graphviz library
+    lqUty        : loqt utilities
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
@@ -20,32 +20,25 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "lqXDot.h"
-#include "lqXDotView.h"
-#include <QDebug>
+#ifndef QSTACKEDWIDGET_KEYBTABS_H
+#define QSTACKEDWIDGET_KEYBTABS_H
 
-lqXDot::lqXDot()
+#include "lqUty_global.h"
+#include <QStackedWidget>
+
+class LQUTYSHARED_EXPORT QStackedWidget_KeybTabs : public QStackedWidget
 {
-}
+    Q_OBJECT
+public:
 
-int lqXDot::mt_lqXDotView;
+    explicit QStackedWidget_KeybTabs(QWidget *parent = 0);
+    
+signals:
+    
+public slots:
 
-int lqXDot::mt_GVC_t;
-int lqXDot::mt_Agraph_t;
-int lqXDot::mt_Agnode_t;
-int lqXDot::mt_Agedge_t;
-int lqXDot::mt_Agsym_t;
-int lqXDot::mt_Agrec_t;
+protected:
+    virtual void keyPressEvent(QKeyEvent *);
+};
 
-//! make available thru reflection
-void lqXDot::registerMetaTypes()
-{
-    mt_lqXDotView = qRegisterMetaType<lqXDotView>("lqXDotView");
-
-    mt_GVC_t      = qRegisterMetaType< GVC_t    *>("GVC_t*");
-    mt_Agraph_t   = qRegisterMetaType< Agraph_t *>("Agraph_t*");
-    mt_Agnode_t   = qRegisterMetaType< Agnode_t *>("Agnode_t*");
-    mt_Agedge_t   = qRegisterMetaType< Agedge_t *>("Agedge_t*");
-    mt_Agsym_t    = qRegisterMetaType< Agsym_t  *>("Agsym_t*");
-    mt_Agrec_t    = qRegisterMetaType< Agrec_t  *>("Agrec_t*");
-}
+#endif // QSTACKEDWIDGET_KEYBTABS_H

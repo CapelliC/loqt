@@ -1,5 +1,5 @@
 /*
-    lqXDot_test   : interfacing Qt and Graphviz library
+    spqr          : SWI-Prolog Qt Rendering
 
     Author        : Carlo Capelli
     E-mail        : cc.carlo.cap@gmail.com
@@ -25,7 +25,7 @@
 #include "lqGvSynCol.h"
 #include "ParenMatching.h"
 #include "blockSig.h"
-#include "XmlSyntaxHighlighter.h"
+#include "pqMiniSyntax.h"
 #include "file2string.h"
 
 #include <QMenu>
@@ -38,25 +38,31 @@
 #include <QTextCodec>
 #include <QTextStream>
 #include <QDebug>
+#include <QLineEdit>
 
 /** GUI setup
  */
 MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
-    : QMainWindow(parent), MruHelper("dots")
+    : QMainWindow(parent), MruHelper("spqr")
 {
     rci.initializeStatusBar(statusBar());
 
     lqPreferences p;
     p.loadGeometry(this);
 
-    fileDot = p.value("fileDot").toString();
+    con = new ConsoleEdit(argc, argv);
+    connect(con, SIGNAL(engine_ready()), this, SLOT(engineReady()));
+
+    make_tabs();
+
+    fileSource = p.value("fileSource").toString();
     lastDir = p.value("lastDir").toString();
     lastMode = p.value("lastMode", "dot").toString();
 
-    QMenu *m = menuBar()->addMenu("&File");
+    QMenu *m = menuBar()->addMenu(tr("&File"));
     m->addAction(tr("New..."), this, SLOT(newFile()), QKeySequence::New);
     m->addAction(tr("Open..."), this, SLOT(openFile()), QKeySequence::Open);
-    m->addMenu(mruMenu = new QMenu("Recent &Files..."));
+    m->addMenu(mruMenu = new QMenu(tr("Recent &Files...")));
     loadMru(p, this);
     m->addSeparator();
     m->addAction(tr("Save"), this, SLOT(saveFile()), QKeySequence::Save);
@@ -70,7 +76,6 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     if (argc == 3)
         mode = argv[2];
 
-    //foreach (QString layout, QString("dot neato fdp sfdp twopi circo").split(' ')) {
     foreach (QString layout, QString("dot neato fdp sfdp twopi circo").split(' ')) {
         auto a = m->addAction(layout, this, SLOT(changeLayout()));
         a->setCheckable(true);
@@ -80,10 +85,16 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     m->addSeparator();
     m->addAction(tr("E&xit"), qApp, SLOT(quit()), QKeySequence::Quit);
 
-    if (argc >= 2)
-        fileDot = argv[1];
+    menuBar()->addSeparator();
+    menuBar()->addAction("&Graph", this, SLOT(viewGraph()));
+    menuBar()->addAction("&Source", this, SLOT(viewSource()));
+    menuBar()->addAction("&Console", this, SLOT(viewConsole()));
+    menuBar()->addAction("&Help", this, SLOT(viewHelp()));
 
-    if (fileDot.length())
+    if (argc >= 2)
+        fileSource = argv[1];
+
+    if (fileSource.length())
         viewDot();
 
     connect(&monitorScript, SIGNAL(fileChanged(QString)), this, SLOT(scriptChanged(QString)));
@@ -94,13 +105,12 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
 MainWindow::~MainWindow() {
     lqPreferences p;
     p.saveGeometry(this);
-    p.setValue("fileDot", fileDot);
+    p.setValue("fileSource", fileSource);
     p.setValue("lastDir", lastDir);
     p.setValue("lastMode", lastMode);
     storeMru(p);
     p.save();
-
-    delete gvsyn;
+    //delete gvsyn;
 }
 
 /** handle details on application quit
@@ -109,8 +119,8 @@ void MainWindow::closeEvent(QCloseEvent *e) {
     if (isWindowModified()) {
         QMessageBox box(this);
         box.setIcon(box.Warning);
-        box.setInformativeText(tr("the current script has been modified!"));
-        box.setText(tr("do you want to save your changes ?"));
+        box.setInformativeText(tr("Current file has been modified!"));
+        box.setText(tr("Do you want to save your changes?"));
         box.setStandardButtons(box.Save|box.Discard|box.Cancel);
         box.setDefaultButton(box.Save);
         switch (box.exec()) {
@@ -125,15 +135,15 @@ void MainWindow::closeEvent(QCloseEvent *e) {
     }
 }
 
-inline QString dotFiles() { return QObject::tr("Dot Scripts (*.gv *.dot)"); }
+inline QString Prolog_Exts() { return QObject::tr("Prolog (*.lp *.pl *.pro)"); }
 
 /** run selection dialog and run selected file
  */
 void MainWindow::openFile() {
-    QFileDialog d(this, tr("Open Dot Script"), lastDir, dotFiles());
+    QFileDialog d(this, tr("Open Prolog file"), lastDir, Prolog_Exts());
     if (d.exec()) {
         lastDir = d.directory().path();
-        fileDot = d.selectedFiles()[0];
+        fileSource = d.selectedFiles()[0];
         viewDot();
     }
 }
@@ -146,7 +156,7 @@ void MainWindow::saveViewDot(QString file, QString script, QString errmsg) {
     if (f.open(f.WriteOnly|f.Text)) {
         f.write(script.toUtf8());
         f.close();
-        fileDot = file;
+        fileSource = file;
         viewDot();
         setWindowModified(false);
     }
@@ -157,88 +167,133 @@ void MainWindow::saveViewDot(QString file, QString script, QString errmsg) {
 /** make backup and save script file
  */
 void MainWindow::saveFile() {
-    QString fileBak = fileDot + ".bak";
+    QString fileBak = fileSource + ".bak";
     QFile::remove(fileBak);
-    if (!QFile::copy(fileDot, fileBak))
+    if (!QFile::copy(fileSource, fileBak))
         errbox(tr("error writing %1").arg(fileBak), tr("cannot make backup copy"));
 
-    saveViewDot(fileDot, source()->toPlainText(), tr("cannot save Dot Script"));
-}
-
-/** render current graph as SVG, in a temporary file name
- */
-void MainWindow::makeSvg(QString f) {
-    if (*view()) {
-        QString name;
-        if (f.isEmpty())
-            name = QString("%1/XXXXXX.svg").arg(lastDir);
-        else {
-            QFileInfo i(f);
-            name = QString("%1/%2.svg").arg(i.absoluteDir().canonicalPath(), i.baseName());
-        }
-        qDebug() << name;
-        if (gvRenderFilename(view()->getContext(), view()->getGraph(), "svg", name.toUtf8().constData()) == 0) {
-            svgv()->openFile(name);
-            QFile f(name);
-            if (f.open(QFile::ReadOnly))
-                svgxml()->setPlainText(file2string(f));
-            new XmlSyntaxHighlighter(svgxml()->document());
-        }
-        else
-            errbox(tr("cannot generate SVG file"), tr("error opening '%1'").arg(name));
-    }
+    saveViewDot(fileSource, source()->toPlainText(), tr("cannot save Dot Script"));
 }
 
 /** get name and make a new file of it
  */
 void MainWindow::saveFileAs() {
-    QFileDialog fd(this, tr("Save Dot Script As"), lastDir, dotFiles());
+    QFileDialog fd(this, tr("Save Prolog file as"), lastDir, Prolog_Exts());
     fd.setAcceptMode(fd.AcceptSave);
-    fd.setDefaultSuffix("gv");
+    fd.setDefaultSuffix("loqt");
     if (fd.exec())
-        saveViewDot(fd.selectedFiles()[0], source()->toPlainText(), tr("cannot save Dot Script"));
+        saveViewDot(fd.selectedFiles()[0], source()->toPlainText(), tr("cannot save Prolog source"));
 }
 
 /** refresh graph display from (possibly) dirty script
  */
 void MainWindow::renderFile() {
     if (view()->render_script(source()->toPlainText(), lastMode)) {
-        makeSvg(QString());
-        tabs->setCurrentIndex(t_view);
+        //makeSvg(QString());
+        tabs->setCurrentIndex(t_graph);
     }
 }
 
-/** create a new dot script
+/** create a new Prolog script
  */
 void MainWindow::newFile() {
-    QFileDialog fd(this, tr("New Dot Script"), lastDir, dotFiles());
+    QFileDialog fd(this, tr("New Prolog file"), lastDir, Prolog_Exts());
     fd.setAcceptMode(fd.AcceptSave);
-    fd.setDefaultSuffix("gv");
+    fd.setDefaultSuffix("lp");
     if (fd.exec()) {
         QString newPath = fd.selectedFiles()[0];
         saveViewDot(newPath,
-                    tr("/* script file %1\n"
+                    tr("/* Prolog source %1\n"
                        " * created at %2\n"
                        " */\n"
-                       "digraph %3 {\n"
-                       "}\n"
+                       ":- module(%3, [%3/0]).\n"
+                       /** ":- use_module(gv_uty).\n" */
+                       "\n"
+                       "% entry point\n"
+                       "%3 :- graph_window(%3(G), G, [window_title(hello)]).\n"
+                       "\n"
+                       "%% %3(+G) is det.\n"
+                       "%  build some graph\n"
+                       "%3(G) :-\n"
+                       "\tmake_node(G, hello, H),\n"
+                       "\tmake_node(G, world, W),\n"
+                       "\tnew_edge(G, H, W).\n"
                     ).arg(newPath, QDateTime::currentDateTime().toString(), QFileInfo(newPath).baseName().replace(' ', '_')),
-                    tr("cannot create new dot script"));
+                    tr("cannot create new Prolog file"));
     }
 }
 
 /** this is default as required by MruHelper
  */
 void MainWindow::openFileIndex(int i) {
-    fileDot = files[i];
+    fileSource = files[i];
     viewDot();
+}
+
+void MainWindow::make_tabs() {
+    delete tabs;
+
+    setCentralWidget(tabs = new QStackedWidget_KeybTabs);
+
+    tabs->addWidget(new lqXDotView);
+    tabs->addWidget(new SimPrologEdit);
+    tabs->addWidget(con);
+    tabs->addWidget(new HelpDocView);
+
+    source()->setLineWrapMode(QPlainTextEdit::NoWrap);
+    connect(source(), SIGNAL(textChanged()), this, SLOT(textChanged()));
+    connect(source(), SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
+
+
+    connect(helpDoc(), SIGNAL(loadFinished(bool)), SLOT(adjustLocation()));
+    connect(helpDoc(), SIGNAL(titleChanged(QString)), SLOT(adjustTitle()));
+    connect(helpDoc(), SIGNAL(loadProgress(int)), SLOT(setProgress(int)));
+    connect(helpDoc(), SIGNAL(loadFinished(bool)), SLOT(finishLoading(bool)));
+}
+
+void MainWindow::engineReady() {
+    connect(con->engine(), SIGNAL(query_complete(QString,int)), this, SLOT(queryComplete(QString,int)));
+    connect(con->engine(), SIGNAL(query_exception(QString,QString)), this, SLOT(queryException(QString,QString)));
+
+    SwiPrologEngine::in_thread it;
+    foreach (auto m, QString("gv_uty").split(',')) {
+        bool rc = it.resource_module(m);
+        qDebug() << m << rc;
+    }
+
+//    con->engine()->query_run(QString("pqConsole:load_resource_module(%1)").arg("gv_uty"));
+//    con->engine()->query_run("['/home/carlo/cpp/loqt/spqr/prolog/gv_uty.pl']");
+    con->engine()->query_run("use_module(library(pldoc))");
+    con->engine()->query_run(QString("doc_server(%1)").arg(DOC_PORT));
+}
+
+void MainWindow::queryComplete(QString query, int tot_occurrences) {
+    qDebug() << "queryComplete" << query << tot_occurrences;
+
+    if (query.indexOf("doc_server") == 0) {
+        helpDoc()->setUrl(QString("http://localhost:%1").arg(DOC_PORT));
+        //con->engine()->query_run(QString("pqConsole:load_resource_module(%1)").arg("gv_uty"));
+        //con->engine()->query_run("['/home/carlo/cpp/loqt/spqr/prolog/gv_uty.pl']");
+        //con->engine()->query_run(QString("pqConsole:load_resource_module(%1)").arg("gv_uty"));
+    }
+
+    /*
+    QString use_module = QString("use_module('%1')").arg(fileSource);
+    if (query.indexOf("pqConsole:load_resource_module") == 0)
+        con->engine()->query_run(use_module);
+    if (query.indexOf(use_module) == 0)
+        con->engine()->query_run(QFileInfo(fileSource).baseName());
+    */
+}
+void MainWindow::queryException(QString functor, QString exmsg) {
+    qDebug() << "queryException" << functor << exmsg;
 }
 
 /** reinitialize GUI with required script
  */
 void MainWindow::viewDot() {
-    QString f = fileDot;
-    delete tabs;
+    QString f = fileSource;
+    //delete tabs;
 
     QString layout;
     foreach (QAction *a, menuBar()->actions()[0]->menu()->actions())
@@ -246,42 +301,28 @@ void MainWindow::viewDot() {
             layout = a->text();
     Q_ASSERT(!layout.isEmpty());
 
-    setWindowTitle(QString("%1[*]").arg(f));
-
     QFile t(f);
     if (t.open(t.ReadOnly|t.Text)) {
-        setCentralWidget(tabs = new QTabWidget);
-        tabs->addTab(new lqXDotView, "lq&XDot view");
-        tabs->addTab(new SvgView, "&Svg view");
-        tabs->addTab(new QTextEdit, "&Dot source");
-        tabs->addTab(new QTextEdit, "Svg Xml sourc&e");
+        setWindowTitle(QString("%1[*]").arg(f));
 
-        lqPreferences p;
-        //source()->setFont(p.console_font);
-        source()->setLineWrapMode(QTextEdit::NoWrap);
-
-        //svgxml()->setFont(p.console_font);
-        svgxml()->setLineWrapMode(QTextEdit::NoWrap);
+        //make_tabs();
+        //lqPreferences p;
 
         source()->setPlainText(file2string(t));
-
-        connect(source(), SIGNAL(textChanged()), this, SLOT(textChanged()));
-        connect(source(), SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
+        new pqMiniSyntax(source()->document());
 
         // syntax coloring
         mode = highlighting;
 
-        delete gvsyn;
-        gvsyn = new lqGvSynCol(source());
-
-        if (view()->render_file(f, lastMode = layout))
-            makeSvg(f);
+        //delete gvsyn;
+        //gvsyn = new lqGvSynCol(source());
+        //if (view()->render_file(f, lastMode = layout)) { }
 
         // keep MRU updated
         insertPath(this, f);
 
         // get notified on file changes
-        monitorScript.addPath(fileDot);
+        monitorScript.addPath(fileSource);
     }
     else {
         errbox(tr("Cannot read %1").arg(f), tr("open file failed"));
@@ -311,7 +352,6 @@ void MainWindow::textChanged() {
 /** display infomation about cursor
  */
 void MainWindow::cursorPositionChanged() {
-
     QTextCursor c = source()->textCursor();
 
     if (paren.size()) {
@@ -329,8 +369,7 @@ void MainWindow::cursorPositionChanged() {
     rci.showCursorPosition(source());
 }
 
-void MainWindow::scriptChanged(QString path)
-{
+void MainWindow::scriptChanged(QString path) {
     MB req(MB::Warning, tr("Warning"), tr("Script has been modified"), MB::Yes|MB::Ignore, this);
     req.setInformativeText(tr("Do you want to reload '%1'").arg(path));
     if (req.exec() == MB::Yes)
@@ -345,4 +384,61 @@ QMessageBox::StandardButton MainWindow::errbox(QString msg, QString info, MB::St
     MB box(ic, title, msg, buttons, this);
     box.setInformativeText(info);
     return MB::StandardButton(box.exec());
+}
+
+//! [4]
+void MainWindow::adjustLocation() {
+    if (locationEdit)
+        locationEdit->setText(helpDoc()->url().toString());
+}
+
+void MainWindow::changeLocation() {
+    QUrl url = QUrl(locationEdit->text());
+    helpDoc()->load(url);
+    helpDoc()->setFocus();
+}
+//! [4]
+
+//! [5]
+void MainWindow::adjustTitle() {
+    if (progress <= 0 || progress >= 100)
+        setWindowTitle(helpDoc()->title());
+    else
+        setWindowTitle(QString("%1 (%2%)").arg(helpDoc()->title()).arg(progress));
+}
+
+void MainWindow::setProgress(int p) {
+    progress = p;
+    adjustTitle();
+}
+//! [5]
+
+//! [6]
+void MainWindow::finishLoading(bool) {
+    progress = 100;
+    adjustTitle();
+    //view->page()->mainFrame()->evaluateJavaScript(jQuery);
+    //rotateImages(rotateAction->isChecked());
+}
+
+void MainWindow::viewGraph() {
+    con->engine()->query_run(QString("consult('%1')").arg(fileSource));
+    con->engine()->query_run(QFileInfo(fileSource).baseName());
+    statusBar()->showMessage("view Graph",1000);
+    tabs->setCurrentIndex(t_graph);
+}
+
+void MainWindow::viewSource() {
+    statusBar()->showMessage("view Source",1000);
+    tabs->setCurrentIndex(t_source);
+}
+
+void MainWindow::viewConsole() {
+    statusBar()->showMessage("view Console",1000);
+    tabs->setCurrentIndex(t_console);
+}
+
+void MainWindow::viewHelp() {
+    statusBar()->showMessage("view Help",1000);
+    tabs->setCurrentIndex(t_helpdoc);
 }

@@ -23,6 +23,7 @@
 #ifndef LQCONTEXTGRAPH
 #define LQCONTEXTGRAPH
 
+#include <functional>
 #include "lqXDot.h"
 #include <QObject>
 #include <QMessageBox>

@@ -56,3 +56,7 @@ else:unix: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
 
 INCLUDEPATH += $$PWD/../lqUty
 DEPENDPATH += $$PWD/../lqUty
+
+OTHER_FILES +=
+
+RESOURCES +=

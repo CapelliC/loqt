@@ -1,5 +1,5 @@
 /*
-    lqXDot       : interfacing Qt and Graphviz library
+    lqUty        : loqt utilities
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
@@ -20,32 +20,24 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "lqXDot.h"
-#include "lqXDotView.h"
+#include "QStackedWidget_KeybTabs.h"
+#include <QKeyEvent>
 #include <QDebug>
 
-lqXDot::lqXDot()
+QStackedWidget_KeybTabs::QStackedWidget_KeybTabs(QWidget *parent) :
+    QStackedWidget(parent)
 {
 }
 
-int lqXDot::mt_lqXDotView;
-
-int lqXDot::mt_GVC_t;
-int lqXDot::mt_Agraph_t;
-int lqXDot::mt_Agnode_t;
-int lqXDot::mt_Agedge_t;
-int lqXDot::mt_Agsym_t;
-int lqXDot::mt_Agrec_t;
-
-//! make available thru reflection
-void lqXDot::registerMetaTypes()
+void QStackedWidget_KeybTabs::keyPressEvent(QKeyEvent *e)
 {
-    mt_lqXDotView = qRegisterMetaType<lqXDotView>("lqXDotView");
-
-    mt_GVC_t      = qRegisterMetaType< GVC_t    *>("GVC_t*");
-    mt_Agraph_t   = qRegisterMetaType< Agraph_t *>("Agraph_t*");
-    mt_Agnode_t   = qRegisterMetaType< Agnode_t *>("Agnode_t*");
-    mt_Agedge_t   = qRegisterMetaType< Agedge_t *>("Agedge_t*");
-    mt_Agsym_t    = qRegisterMetaType< Agsym_t  *>("Agsym_t*");
-    mt_Agrec_t    = qRegisterMetaType< Agrec_t  *>("Agrec_t*");
+    //qDebug() << e->modifiers();
+    if (e->modifiers() & Qt::CTRL) {
+        if (e->modifiers() & Qt::SHIFT) {
+            if (e->key() == Qt::Key_Backtab)
+                setCurrentIndex(currentIndex() > 0 ? currentIndex() - 1 : count() - 1);
+        }
+        else if (e->key() == Qt::Key_Tab)
+            setCurrentIndex((currentIndex() + 1) % count());
+    }
 }

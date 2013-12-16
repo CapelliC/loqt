@@ -3,13 +3,19 @@ loqt
 
 Logic Objecs and Qt
 
-By now, just a rendering of Graphviz (via library cgraph,xdot) to Qt Graphic Scene.
++ spqr
+  a basic SWI-Prolog Graphviz interface
+  + pqConsole control
+  + editing Prolog files via CodeMirror (requires QtWebKit)
+  + inline plDoc help (requires QtWebKit)
 
-Such rendering plays a role in my next project (to be published), showcasing (SWI)Prolog direct control of Qt via reflection.
++ lqXDot
+  Just a rendering of Graphviz (via library cgraph,xdot) to Qt Graphic Scene.
+  Such rendering plays a role in my next project (to be published), showcasing (SWI)Prolog direct control of Qt via reflection.
 
 ---------
 
-Some note about components
+Some note about lqXDot components
 
 ==========
 

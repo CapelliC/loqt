@@ -36,17 +36,17 @@
 
 SourceEdit::SourceEdit() {
     status = idle;
-}
-
-SourceEdit::SourceEdit(const SourceEdit &e) : QWebView() {
-    status = e.status;
+    connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
 }
 
 SourceEdit::SourceEdit(QString file) {
     status = idle;
-    QWebView* pbase = this;
-    connect(pbase, SIGNAL(loadFinished(bool)), this, SLOT(loadFinished(bool)));
     loadFile(file);
+    connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
+}
+
+SourceEdit::SourceEdit(const SourceEdit &e) : QWebView() {
+    status = e.status;
 }
 
 QString SourceEdit::symbol() const { return QFileInfo(file).baseName(); }
@@ -75,19 +75,17 @@ void SourceEdit::loadFinished(bool ok) {
 }
 
 bool SourceEdit::save() {
-    QString text = toPlainText();//page()->mainFrame()->evaluateJavaScript("editor.getValue()").toString();
-
     {   QFile f(file);
         if (!f.open(QFile::WriteOnly)) {
             emit err(tr("Can't open %1 for writing!").arg(file));
             return false;
         }
-        f.write(text.toUtf8());
+        f.write(toPlainText().toUtf8());
     }
 
     status = saved;
     emit setTitle(file, title());
-    emit msg(tr("saved '%1'").arg(symbol()));
+    emit msg(tr("Saved '%1'").arg(symbol()));
 
     return true;
 }

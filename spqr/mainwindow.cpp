@@ -38,14 +38,13 @@
 #include <QTextStream>
 #include <QDebug>
 #include <QLineEdit>
+#include <QStatusBar>
 
 /** GUI setup
  */
 MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     : QMainWindow(parent), MruHelper("spqr")
 {
-    rci.initializeStatusBar(statusBar());
-
     lqPreferences p;
     p.loadGeometry(this);
 
@@ -56,7 +55,6 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
 
     fileSource = p.value("fileSource").toString();
     lastDir = p.value("lastDir").toString();
-    //lastMode = p.value("lastMode", "dot").toString();
 
     QMenu *m = menuBar()->addMenu(tr("&File"));
     m->addAction(tr("New..."), this, SLOT(newFile()), QKeySequence::New);
@@ -235,18 +233,9 @@ void MainWindow::make_tabs() {
 
     setCentralWidget(tabs = new QStackedWidget_KeybTabs);
 
-    //I was thinking about an incremental qcompile(d) approach.
-    //tabs->addWidget(new lqXDotView);
-    //tabs->addWidget(new SimPrologEdit);
     tabs->addWidget(new SourceEdit);
     tabs->addWidget(con);
     tabs->addWidget(new HelpDocView);
-
-    /*
-    source()->setLineWrapMode(QPlainTextEdit::NoWrap);
-    connect(source(), SIGNAL(textChanged()), this, SLOT(textChanged()));
-    connect(source(), SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
-    */
 
     connect(helpDoc(), SIGNAL(loadFinished(bool)), SLOT(adjustLocation()));
     connect(helpDoc(), SIGNAL(titleChanged(QString)), SLOT(adjustTitle()));
@@ -264,29 +253,15 @@ void MainWindow::engineReady() {
         qDebug() << m << rc;
     }
 
-//    con->engine()->query_run(QString("pqConsole:load_resource_module(%1)").arg("gv_uty"));
-//    con->engine()->query_run("['/home/carlo/cpp/loqt/spqr/prolog/gv_uty.pl']");
     con->engine()->query_run("use_module(library(pldoc))");
     con->engine()->query_run(QString("doc_server(%1)").arg(DOC_PORT));
 }
 
 void MainWindow::queryComplete(QString query, int tot_occurrences) {
     qDebug() << "queryComplete" << query << tot_occurrences;
-
     if (query.indexOf("doc_server") == 0) {
         helpDoc()->setUrl(QString("http://localhost:%1").arg(DOC_PORT));
-        //con->engine()->query_run(QString("pqConsole:load_resource_module(%1)").arg("gv_uty"));
-        //con->engine()->query_run("['/home/carlo/cpp/loqt/spqr/prolog/gv_uty.pl']");
-        //con->engine()->query_run(QString("pqConsole:load_resource_module(%1)").arg("gv_uty"));
     }
-
-    /*
-    QString use_module = QString("use_module('%1')").arg(fileSource);
-    if (query.indexOf("pqConsole:load_resource_module") == 0)
-        con->engine()->query_run(use_module);
-    if (query.indexOf(use_module) == 0)
-        con->engine()->query_run(QFileInfo(fileSource).baseName());
-    */
 }
 void MainWindow::queryException(QString functor, QString exmsg) {
     qDebug() << "queryException" << functor << exmsg;
@@ -295,45 +270,6 @@ void MainWindow::queryException(QString functor, QString exmsg) {
 /** reinitialize GUI with required script
  */
 void MainWindow::viewDot() {
-    //QString f = fileSource;
-    //delete tabs;
-
-    /*
-    QString layout;
-    foreach (QAction *a, menuBar()->actions()[0]->menu()->actions())
-        if (a->isChecked())
-            layout = a->text();
-    Q_ASSERT(!layout.isEmpty());
-    */
-/*
-    QFile t(f);
-    if (t.open(t.ReadOnly|t.Text)) {
-        setWindowTitle(QString("%1[*]").arg(f));
-
-        //make_tabs();
-        //lqPreferences p;
-
-        //source()->setPlainText(file2string(t));
-        //new pqMiniSyntax(source()->document());
-
-        // syntax coloring
-        mode = highlighting;
-
-        //delete gvsyn;
-        //gvsyn = new lqGvSynCol(source());
-        //if (view()->render_file(f, lastMode = layout)) { }
-
-        // keep MRU updated
-        insertPath(this, f);
-
-        // get notified on file changes
-        monitorScript.addPath(fileSource);
-    }
-    else {
-        errbox(tr("Cannot read %1").arg(f), tr("open file failed"));
-        removePath(this, f);
-    }
-    */
     if (!source()->loadFile(fileSource)) {
         errbox(tr("Cannot read %1").arg(fileSource), tr("open file failed"));
         removePath(this, fileSource);
@@ -359,26 +295,6 @@ void MainWindow::textChanged() {
         setWindowModified(true);
 }
 
-/** display infomation about cursor
-void MainWindow::cursorPositionChanged() {
-    QTextCursor c = source()->textCursor();
-
-    if (paren.size()) {
-        blockSig bs(source()->document());
-        paren.format_both(c);
-        paren = range();
-    }
-
-    ParenMatching pm(c);
-    if (pm) {
-        blockSig bs(source()->document());
-        (paren = pm.positions).format_both(c, paren.bold());
-    }
-
-    rci.showCursorPosition(source());
-}
-*/
-
 void MainWindow::scriptChanged(QString path) {
     MB req(MB::Warning, tr("Warning"), tr("Script has been modified"), MB::Yes|MB::Ignore, this);
     req.setInformativeText(tr("Do you want to reload '%1'").arg(path));
@@ -396,7 +312,6 @@ QMessageBox::StandardButton MainWindow::errbox(QString msg, QString info, MB::St
     return MB::StandardButton(box.exec());
 }
 
-//! [4]
 void MainWindow::adjustLocation() {
     if (locationEdit)
         locationEdit->setText(helpDoc()->url().toString());
@@ -407,9 +322,7 @@ void MainWindow::changeLocation() {
     helpDoc()->load(url);
     helpDoc()->setFocus();
 }
-//! [4]
 
-//! [5]
 void MainWindow::adjustTitle() {
     if (progress <= 0 || progress >= 100)
         setWindowTitle(helpDoc()->title());
@@ -427,28 +340,33 @@ void MainWindow::setProgress(int p) {
 void MainWindow::finishLoading(bool) {
     progress = 100;
     adjustTitle();
-    //view->page()->mainFrame()->evaluateJavaScript(jQuery);
-    //rotateImages(rotateAction->isChecked());
 }
 
 void MainWindow::viewGraph() {
     con->engine()->query_run(QString("consult('%1')").arg(fileSource));
     con->engine()->query_run(QFileInfo(fileSource).baseName());
-    //statusBar()->showMessage("view Graph",1000);
-    //tabs->setCurrentIndex(t_graph);
 }
 
 void MainWindow::viewSource() {
-    statusBar()->showMessage("view Source",1000);
     tabs->setCurrentIndex(t_source);
 }
 
 void MainWindow::viewConsole() {
-    statusBar()->showMessage("view Console",1000);
     tabs->setCurrentIndex(t_console);
 }
 
 void MainWindow::viewHelp() {
-    statusBar()->showMessage("view Help",1000);
     tabs->setCurrentIndex(t_helpdoc);
+}
+
+void MainWindow::log(QString msg) {
+    qDebug() << msg;
+}
+
+void MainWindow::msg(QString msg) {
+    statusBar()->showMessage(msg);
+}
+
+void MainWindow::err(QString msg) {
+    errbox(tr("Error"), msg);
 }

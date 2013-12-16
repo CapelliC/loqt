@@ -22,6 +22,7 @@
 
 #include <QtGui/QApplication>
 #include "mainwindow.h"
+#include "lqXDot.h"
 
 int main(int argc, char *argv[])
 {

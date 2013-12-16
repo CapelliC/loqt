@@ -28,25 +28,19 @@
 #include <QMessageBox>
 #include <QCloseEvent>
 #include <QFileSystemWatcher>
-#include <QTextBrowser>
 #include <QWebView>
+#include <QPointer>
 
-#include "lqXDotView.h"
-#include "lqGvSynCol.h"
 #include "MruHelper.h"
-#include "RowColIndicators.h"
-#include "ParenMatching.h"
 #include "ConsoleEdit.h"
-//#include "SimPrologEdit.h"
 #include "SourceEdit.h"
 #include "HelpDocView.h"
 #include "QStackedWidget_KeybTabs.h"
 
 /** display a single graph (dot file)
-  * - Graph: a view
-  * - Prolog: start is same as filename
+  * - Source : Prolog script, keep same entry point as filename
   * - Console: Prolog debug/error report
-  * - Help: live SWI-Prolog documentation server
+  * - Help   : live SWI-Prolog plDoc documentation server
   */
 class MainWindow : public QMainWindow, MruHelper
 {
@@ -57,12 +51,10 @@ public:
     MainWindow(int argc, char *argv[], QWidget *parent = 0);
     ~MainWindow();
 
-    enum t_kind { /*t_graph,*/ t_source, t_console, t_helpdoc };
+    enum t_kind { t_source, t_console, t_helpdoc };
     template <class V> V* tab(t_kind t) const { return qobject_cast<V*>(tabs->widget(t)); }
     void activate(t_kind k) { tabs->setCurrentIndex(k); }
 
-    //lqXDotView*     view() const { return tab<lqXDotView>(t_graph); }
-    //SimPrologEdit*  source() const { return tab<SimPrologEdit>(t_source); }
     SourceEdit*     source() const { return tab<SourceEdit>(t_source); }
     ConsoleEdit*    console() const { return tab<ConsoleEdit>(t_console); }
     HelpDocView*    helpDoc() const { return tab<HelpDocView>(t_helpdoc); }
@@ -93,8 +85,8 @@ private:
     range paren;
 
 private:
+
     enum { highlighting, editing } mode;
-    RowColIndicators rci;
 
     void saveFile(QString file);
 
@@ -113,16 +105,18 @@ public slots:
     void openFile();
     void saveFile();
     void saveFileAs();
-    //void renderFile();
 
     void openFileIndex(int);
     void changeLayout();
 
     void textChanged();
-    //void cursorPositionChanged();
 
     void scriptChanged(QString path);
     void engineReady();
+
+    void log(QString msg);
+    void msg(QString msg);
+    void err(QString msg);
 
 protected slots:
 

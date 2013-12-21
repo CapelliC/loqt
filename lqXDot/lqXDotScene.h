@@ -62,17 +62,20 @@ public:
     static Gp it_graph(QGraphicsItem* i);
 
     lqNode *find_node(Np obj) const;
-    QGraphicsItemGroup *find_edge(Ep obj) const;
-    QGraphicsItemGroup *find_graph(Gp obj) const;
+    lqEdge *find_edge(Ep obj) const;
+    lqGraph *find_graph(Gp obj) const;
 
     typedef QList<QGraphicsItem*> l_items;
 
     //! change the content to get node folded
-    bool fold(lqNode* node);
+    bool f_old(lqNode *node);
+    bool fold(lqNode *node);
 
     //! dump to debugger output
     void dump(QString m) const;
 
+    //! perform translation from layout to graphics primitives
+    void build();
 
     QRectF graph_bb(Gp graph);
 

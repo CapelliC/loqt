@@ -84,7 +84,7 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     m->addAction(tr("E&xit"), qApp, SLOT(quit()), QKeySequence::Quit);
 
     menuBar()->addSeparator();
-    //menuBar()->addAction("&Graph", this, SLOT(viewGraph()));
+    menuBar()->addAction("&Graph", this, SLOT(viewGraph()));
     menuBar()->addAction("&Source", this, SLOT(viewSource()));
     menuBar()->addAction("&Console", this, SLOT(viewConsole()));
     menuBar()->addAction("&Help", this, SLOT(viewHelp()));
@@ -261,6 +261,7 @@ void MainWindow::queryComplete(QString query, int tot_occurrences) {
     qDebug() << "queryComplete" << query << tot_occurrences;
     if (query.indexOf("doc_server") == 0) {
         helpDoc()->setUrl(QString("http://localhost:%1").arg(DOC_PORT));
+        con->engine()->query_run(QString("(%1)").arg(DOC_PORT));
     }
 }
 void MainWindow::queryException(QString functor, QString exmsg) {

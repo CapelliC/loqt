@@ -55,7 +55,6 @@ inline QString attr_qstr(void* obj, cstr name) {
     return QString::fromUtf8(agget(obj, ccstr(name)));
 }
 
-
 //! display a box -- TBD log to file
 inline void critical(QString msg) {
     QMessageBox::critical(0, QObject::tr("Critical Error"), msg);
@@ -88,6 +87,7 @@ struct GV_ptr_types {
     typedef QList<Ep> edges;
     typedef QList<Np> nodes;
 
+    //! functors needed to access graph structure
     typedef std::function<void(Gp)> Gf;
     typedef std::function<void(Np)> Nf;
     typedef std::function<void(Ep)> Ef;
@@ -141,26 +141,30 @@ public:
     bool parse(QString f);
 
     //! access in context structure
-    void for_edges_out(Np n, Ef f) {
-        for (Ep e = agfstout(graph, n); e; e = agnxtout(graph, e))
+    void for_edges_out(Gp g, Np n, Ef f) {
+        for (Ep e = agfstout(g, n); e; e = agnxtout(g, e))
             f(e);
     }
-    void for_nodes(Nf f) {
-        for (Np n = agfstnode(graph); n; n = agnxtnode(graph, n))
+    void for_edges_out(Np n, Ef f) { for_edges_out(graph, n, f); }
+
+    void for_nodes(Gp g, Nf f) {
+        for (Np n = agfstnode(g); n; n = agnxtnode(g, n))
             f(n);
     }
+    void for_nodes(Nf f) { for_nodes(graph, f); }
+
     void for_subgraphs(Gp r, Gf f) {
         for (Gp subg = agfstsubg(r); subg; subg = agnxtsubg(subg))
             f(subg);
     }
 
-    Gp clone(Gp source);
-    Np clone(Np source);
-    Ep clone(Ep source);
-
     void depth_first(Np root, Nf nv);
     void depth_first(Np root, Nf nv, Ef ev);
     void depth_first(Gf gv, Gp g = 0);
+
+    bool is_folded(Np n) const;
+    void fold(Np n);
+    void unfold(Np n);
 
 signals:
     
@@ -172,8 +176,7 @@ private:
     Gp graph;
 
     Gp buffer;
-    Gp buffer_();
-
+    Gp buff(bool decl_attrs = false);
 
     //! basic access to Graphviz error report system
     static QStringList errors;

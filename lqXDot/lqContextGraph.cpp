@@ -22,6 +22,9 @@
 
 #include "lqContextGraph.h"
 #include <QStack>
+#include <QDebug>
+
+inline void OK(int rc) { Q_ASSERT(rc == 0); }
 
 lqContextGraph::lqContextGraph(QObject *parent) :
     QObject(parent), context(0), graph(0), buffer(0)
@@ -39,8 +42,7 @@ lqContextGraph::~lqContextGraph()
 
 /** hopefully remove cleanup all memory used
  */
-void lqContextGraph::clear()
-{
+void lqContextGraph::clear() {
     if (context) {
         if (graph) {
             gvFreeLayout(context, graph);
@@ -83,8 +85,7 @@ bool lqContextGraph::run_with_error_report(std::function<QString()> worker) {
     return true;
 }
 
-bool lqContextGraph::in_context()
-{
+bool lqContextGraph::in_context() {
     if (!context && (context = gvContext()) == 0) {
         critical(tr("gvContext() failed"));
         return false;
@@ -92,8 +93,7 @@ bool lqContextGraph::in_context()
     return true;
 }
 
-bool lqContextGraph::layout(QString algo)
-{
+bool lqContextGraph::layout(QString algo) {
     if (!in_context())
         return false;
 
@@ -108,8 +108,7 @@ bool lqContextGraph::layout(QString algo)
     return false;
 }
 
-bool lqContextGraph::render(QString algo)
-{
+bool lqContextGraph::render(QString algo) {
     if (!in_context())
         return false;
     if (gvRender(context, graph, algo.toUtf8().data(), 0) == 0) {
@@ -120,8 +119,7 @@ bool lqContextGraph::render(QString algo)
     return false;
 }
 
-bool lqContextGraph::repeatOperations()
-{
+bool lqContextGraph::repeatOperations() {
     if (freeLayout()) {
         if (layout(last_layout))
             if (render(last_render))
@@ -131,8 +129,7 @@ bool lqContextGraph::repeatOperations()
     return false;
 }
 
-bool lqContextGraph::freeLayout()
-{
+bool lqContextGraph::freeLayout() {
     if (gvFreeLayout(context, graph)) {
         critical(tr("gvFreeLayout failed"));
         return false;
@@ -149,27 +146,17 @@ bool lqContextGraph::parse(QString script) {
 
 typedef lqContextGraph cg;
 
-cg::Gp cg::clone(Gp source) {
-    return source;
-}
-cg::Np cg::clone(Np source) {
-    Np target = agnode(buffer_(), agnameof(source), 1);
-    Q_ASSERT(target);
-
-    int c = agcopyattr(source, target);
-    Q_ASSERT(c == 0);
-    return target;
-}
-cg::Ep cg::clone(Ep source) { return source; }
-
-cg::Gp cg::buffer_() {
+cg::Gp cg::buff(bool decl_attrs) {
     if (!buffer) {
         bool strict = agisstrict(graph);
         Agdesc_t desc = agisdirected(graph) ? (strict ? Agstrictdirected : Agdirected) : (strict ? Agstrictundirected : Agundirected);
         buffer = agopen(ccstr("#buffer#"), desc, 0);
-
+    }
+    if (decl_attrs) {
         for (Agsym_t* sym = 0; (sym = agnxtattr(graph, AGNODE, sym)); )
             agattr(buffer, AGNODE, sym->name, sym->defval);
+        for (Agsym_t* sym = 0; (sym = agnxtattr(graph, AGEDGE, sym)); )
+            agattr(buffer, AGEDGE, sym->name, sym->defval);
     }
     Q_ASSERT(buffer);
     return buffer;
@@ -200,12 +187,76 @@ void cg::depth_first(Gf gv, Gp root) {
     }
 }
 
-/*
-QStack<Gp> s;
-s.push(*cg);
-while (!s.isEmpty()) {
-    Gp t = s.pop();
-    qDebug() << "graph" << gvname(t) << CVP(find_graph(t));
-    cg->for_subgraphs(t, [&](Gp subg) { s.push(subg); });
+
+bool lqContextGraph::is_folded(Np n) const {
+    Q_ASSERT(agraphof(n) == graph);
+    return buffer != 0 && agnode(buffer, agnameof(n), 0) != 0;
 }
-*/
+
+/** make structural changes required to fold node n
+ */
+void cg::fold(Np n) {
+    Q_ASSERT(!is_folded(n));
+
+    edges edel;
+    nodes ndel;
+
+    Np folded = agnode(buff(true), agnameof(n), 1);
+    OK(agcopyattr(n, folded));
+
+    for_edges_out(n, [&](Ep e)
+    {
+        // move edges from hidden to source
+        edel << e;
+
+        Np h = agnode(buff(), agnameof(e->node), 1);
+        OK(agcopyattr(e->node, h));
+
+        Ep E = agedge(buff(), folded, h, agnameof(e), 1);
+        OK(agcopyattr(e, E));
+
+        if (!ndel.contains(e->node))    // multiple edges ?
+            // remove node
+            ndel << e->node;
+    });
+
+    foreach(auto x, edel)
+        agdeledge(graph, x);
+    foreach(auto x, ndel)
+        agdelnode(graph, x);
+
+    OK(agsafeset(n, ccstr("shape"), ccstr("folder"), ccstr("ellipse")));
+}
+
+/** make structural changes required to unfold node n
+ */
+void cg::unfold(Np n) {
+    Q_ASSERT(is_folded(n));
+
+    edges edel;
+    nodes ndel;
+
+    Np t = agnode(buff(true), agnameof(n), 0);
+    OK(agcopyattr(t, n));
+
+    ndel << t;
+
+    for_edges_out(buff(), t, [&](Ep e)
+    {
+        edel << e;
+
+        Np h = agnode(graph, agnameof(e->node), 1);
+        OK(agcopyattr(e->node, h));
+
+        Ep E = agedge(graph, n, h, agnameof(e), 1);
+        OK(agcopyattr(e, E));
+
+        if (!ndel.contains(e->node))    // multiple edges ?
+            ndel << e->node;
+    });
+
+    foreach(auto x, edel)
+        agdeledge(buff(), x);
+    foreach(auto x, ndel)
+        agdelnode(buff(), x);
+}

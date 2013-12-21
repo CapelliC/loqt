@@ -5,7 +5,7 @@ digraph tree_foldable {
 	r -> a
 	r -> b
 	r -> c
-
+c [color=red]
 	c -> d
 	c -> e
 }

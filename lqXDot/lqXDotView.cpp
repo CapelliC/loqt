@@ -56,7 +56,7 @@ lqXDotView::lqXDotView(const lqXDotView &v)
 void lqXDotView::setup()
 {
     setTruecolor(false);
-    setFoldNodes(false);
+    setFoldNodes(true);
 
     cg = new lqContextGraph(this);
 
@@ -168,7 +168,12 @@ void lqXDotView::contextMenuEvent(QContextMenuEvent *event)
         if (Np n = scene()->it_node(item)) {
             qDebug() << "menu on " << gvname(n);
             QMenu menu(this);
-            QAction *a = menu.addAction(tr("&Fold"), this, SLOT(toggleFolding()));
+            QString s;
+            if (cg->is_folded(n))
+                s = tr("&Unfold");
+            else
+                s = tr("&Fold");
+            QAction *a = menu.addAction(s, this, SLOT(toggleFolding()));
             lqNode *N = ancestor<lqNode>(item);
             a->setData(QVariant::fromValue(N));
             menu.exec(event->globalPos());
@@ -213,7 +218,15 @@ void lqXDotView::show_context_graph_layout(GVC_t* context, Agraph_t *graph, QStr
     QGraphicsView::show();
 
     char *LC = setlocale(LC_ALL, "C");
-
+    setLayoutKind(layout);
+    QString err;
+    if (render_layout(err)) {
+        render_graph();
+        cg->freeLayout();
+    }
+    else
+        critical(err);
+    /*
     if (cg->layout(layout)) {
         if (cg->render("xdot"))
             render_graph();
@@ -223,6 +236,7 @@ void lqXDotView::show_context_graph_layout(GVC_t* context, Agraph_t *graph, QStr
     }
     else
         critical(tr("gvLayout() failed"));
+    */
 
     setlocale(LC_ALL, LC);
 }
@@ -242,7 +256,26 @@ void lqXDotView::toggleFolding()
 {
     if (foldNodes()) {
         lqNode *i = qobject_cast<QAction*>(sender())->data().value<lqNode *>();
+        /*
         if (scene()->fold(i)) {
+        }
+        */
+        Np n = scene()->it_node(i);   // n is undergoing folding
+        Q_ASSERT(n);
+
+        // mandatory to recompute...
+        if (!cg->freeLayout())
+            Q_ASSERT(false);
+
+        //dump("before");
+        if (cg->is_folded(n))
+            cg->unfold(n);
+        else
+            cg->fold(n);
+
+        if (cg->repeatOperations()) {
+            scene()->clear();
+            scene()->build();
         }
     }
 }

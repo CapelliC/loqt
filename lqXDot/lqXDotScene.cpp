@@ -37,6 +37,11 @@ inline qreal dz(qreal &v) { v += .0001; return v; }
 lqXDotScene::lqXDotScene(lqContextGraph *cg) : cg(cg),
     truecolor_()
 {
+    build();
+}
+
+void lqXDotScene::build()
+{
     QString tc = attr_str(Gp(*cg), "truecolor");
     truecolor_ = tc == "yes" || tc == "true";
 
@@ -273,12 +278,6 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
 {
     l_items l;
 
-    auto _ellipse = [this](const xdot_rect& r) {
-        return addEllipse(rect_spec(r));
-    };
-    auto _polygon = [this](const xdot_polyline& l) {
-        return addPolygon(poly_spec(l));
-    };
     auto _bezier = [this](const xdot_polyline& l) {
         t_poly pts = poly_spec(l);
         QPainterPath path;
@@ -287,20 +286,13 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
             path.cubicTo(pts[i], pts[i+1], pts[i+2]);
         return addPath(path);
     };
-    auto _polyline = [this](const xdot_polyline& l) {
-        return addPolygon(poly_spec(l));
-    };
 
-    auto str_color = [this](QString color) {
-        return parse_color(color, truecolor());
-    };
-
-    auto _gradient = [str_color, this](const xdot_color &dc) {
+    auto _gradient = [this](const xdot_color &dc) {
         if (dc.type == xd_linear) {
             const xdot_linear_grad &l = dc.u.ling;
             QLinearGradient grad(QPointF(l.x0, cy(l.y0)), QPointF(l.x1, cy(l.y1)));
             for (int s = 0; s < l.n_stops; ++s)
-                grad.setColorAt(l.stops[s].frac, str_color(l.stops[s].color));
+                grad.setColorAt(l.stops[s].frac, parse_color(l.stops[s].color, truecolor()));
             return QBrush(grad);
         }
         else {
@@ -308,7 +300,7 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
             const xdot_radial_grad &r = dc.u.ring;
             QRadialGradient grad(QPointF(r.x1, cy(r.y1)), r.r1, QPointF(r.x0, cy(r.y0)), r.r0);
             for (int s = 0; s < r.n_stops; ++s)
-                grad.setColorAt(r.stops[s].frac, str_color(r.stops[s].color));
+                grad.setColorAt(r.stops[s].frac, parse_color(r.stops[s].color, truecolor()));
             return QBrush(grad);
         }
     };
@@ -324,27 +316,27 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
     perform_attrs(obj, b_ops, [&](const xdot_op &op) {
         switch (op.kind) {
         case xd_filled_ellipse: {
-            auto p = _ellipse(op.u.ellipse);
+            auto p = addEllipse(rect_spec(op.u.ellipse));
             p->setBrush(brush);
             p->setPen(pen);
             l << p;
         }   break;
 
         case xd_unfilled_ellipse: {
-            auto p = _ellipse(op.u.ellipse);
+            auto p = addEllipse(rect_spec(op.u.ellipse));
             p->setPen(pen);
             l << p;
         }   break;
 
         case xd_filled_polygon: {
-            auto p = _polygon(op.u.polygon);
+            auto p = addPolygon(poly_spec(op.u.polygon));
             p->setBrush(brush);
             p->setPen(pen);
             l << p;
         }   break;
 
         case xd_unfilled_polygon: {
-            auto p = _polygon(op.u.polygon);
+            auto p = addPolygon(poly_spec(op.u.polygon));
             p->setPen(pen);
             l << p;
         }   break;
@@ -363,7 +355,7 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
         }   break;
 
         case xd_polyline: {
-            auto p = _polyline(op.u.polyline);
+            auto p = addPolygon(poly_spec(op.u.polyline));
             l << p;
         }   break;
 
@@ -379,7 +371,7 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
             font.setPixelSize(fontsize);
 
             QGraphicsTextItem *t = addText(text = text.replace("\\n", "\n"), font);
-            t->setDefaultTextColor(str_color(currcolor));
+            t->setDefaultTextColor(parse_color(currcolor, truecolor()));
 
             // this is difficult to get right
             QFontMetricsF fm(font);
@@ -401,11 +393,11 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
         }   break;
 
         case xd_fill_color:
-            brush = QBrush(str_color(currcolor = op.u.color));
+            brush = QBrush(parse_color(currcolor = op.u.color, truecolor()));
             break;
 
         case xd_pen_color:
-            pen = QPen(str_color(currcolor = op.u.color));
+            pen = QPen(parse_color(currcolor = op.u.color, truecolor()));
             break;
 
         case xd_font:
@@ -488,7 +480,7 @@ protected:
 
 /** perform scene manipulation to get a node folded
  */
-bool lqXDotScene::fold(lqNode* i)
+bool lqXDotScene::f_old(lqNode* i)
 {
     QStateMachine *m = new QStateMachine;
 
@@ -603,6 +595,69 @@ bool lqXDotScene::fold(lqNode* i)
 
     m->start();
     return true;
+}
+
+/** perform scene manipulation to get a node folded
+ */
+bool lqXDotScene::fold(lqNode* i)
+{
+    Np n = it_node(i);   // n is undergoing folding
+    Q_ASSERT(n);
+
+    dump("before");
+    if (cg->is_folded(n))
+        cg->unfold(n);
+    else
+        cg->fold(n);
+    /*
+    if (cg->cloned.contains(n)) {
+        // unfold
+        cg->restore(n);
+    }
+    else {
+        edges edel;
+        nodes ndel;
+
+        Np N = cg->clone(n);
+
+        // structural changes
+        cg->for_edges_out(n, [&](Ep e) {
+            Np h = e->node;
+
+            // move edges from hidden to source
+            edel << e;
+            cg->clone(n, e);
+
+            //Ep E = agedge(agraphof(N), N, H);
+            //Ep E = cg->clone(e);
+
+            if (!ndel.contains(h)) {    // multiple edges ?
+                // remove node
+                ndel << h;
+            }
+        });
+
+        // mandatory to recompute...
+        if (!cg->freeLayout())
+            return false;
+
+        foreach(auto x, edel)
+            agdeledge(*cg, x);
+        foreach(auto x, ndel)
+            agdelnode(*cg, x);
+
+        int xc = agsafeset(n, ccstr("shape"), ccstr("folder"), ccstr("ellipse"));
+        Q_ASSERT(xc == 0);
+    }
+    */
+
+    if (cg->repeatOperations()) {
+        clear();
+        build();
+        return true;
+    }
+
+    return false;
 }
 
 void lqXDotScene::msg(QString m) {

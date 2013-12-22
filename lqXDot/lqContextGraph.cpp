@@ -24,17 +24,25 @@
 #include <QStack>
 #include <QDebug>
 
+/** shortcuts */
 inline void OK(int rc) { Q_ASSERT(rc == 0); }
 
+/** allocate empty
+ */
 lqContextGraph::lqContextGraph(QObject *parent) :
     QObject(parent), context(0), graph(0), buffer(0)
 {
 }
+
+/** keep pointers allocated elsewhere (Prolog, in first use case)
+ */
 lqContextGraph::lqContextGraph(GVC_t* context, Agraph_t *graph, QObject *parent) :
     QObject(parent), context(context), graph(graph), buffer(0)
 {
 }
 
+/** release resources
+ */
 lqContextGraph::~lqContextGraph()
 {
     clear();
@@ -50,6 +58,7 @@ void lqContextGraph::clear() {
             graph = 0;
         }
         if (buffer) {
+            // no layout performed on buffer
             agclose(buffer);
             buffer = 0;
         }
@@ -58,14 +67,21 @@ void lqContextGraph::clear() {
     }
 }
 
+/** keep a static list to collect errors from global handler
+ */
 QStringList lqContextGraph::errors;
+const int max_errors = 10;
 
 int lqContextGraph::store_errors(char *msg) {
-    if (errors.count() < 10)
+    if (errors.count() < max_errors)
         errors.append(QString::fromUtf8(msg));
     return 0;
 }
 
+/** perform task
+ *  display a box with errors (upto max_errors), if any
+ *  return true if no error happened
+ */
 bool lqContextGraph::run_with_error_report(std::function<QString()> worker) {
 
     QString err;
@@ -85,6 +101,8 @@ bool lqContextGraph::run_with_error_report(std::function<QString()> worker) {
     return true;
 }
 
+/** ensure context available for subsequent operations
+ */
 bool lqContextGraph::in_context() {
     if (!context && (context = gvContext()) == 0) {
         critical(tr("gvContext() failed"));
@@ -93,6 +111,8 @@ bool lqContextGraph::in_context() {
     return true;
 }
 
+/** perform required layout with basic error handling
+ */
 bool lqContextGraph::layout(QString algo) {
     if (!in_context())
         return false;
@@ -108,6 +128,8 @@ bool lqContextGraph::layout(QString algo) {
     return false;
 }
 
+/** perform rendering with basic error handling
+ */
 bool lqContextGraph::render(QString algo) {
     if (!in_context())
         return false;
@@ -119,6 +141,8 @@ bool lqContextGraph::render(QString algo) {
     return false;
 }
 
+/** repeat layout and render operations with basic error handling
+ */
 bool lqContextGraph::repeatOperations() {
     if (freeLayout()) {
         if (layout(last_layout))
@@ -129,6 +153,8 @@ bool lqContextGraph::repeatOperations() {
     return false;
 }
 
+/** release layout memory with basic error handling
+ */
 bool lqContextGraph::freeLayout() {
     if (gvFreeLayout(context, graph)) {
         critical(tr("gvFreeLayout failed"));
@@ -137,16 +163,22 @@ bool lqContextGraph::freeLayout() {
     return true;
 }
 
+/** read from file
+ */
 bool lqContextGraph::parse(FILE *fp) {
     return (graph = agread(fp, 0)) ? true : false;
 }
+
+/** read from string
+ */
 bool lqContextGraph::parse(QString script) {
     return (graph = agmemread(script.toUtf8())) ? true : false;
 }
 
-typedef lqContextGraph cg;
-
-cg::Gp cg::buff(bool decl_attrs) {
+/** allocate a spare graph, to store elements
+ *  on structure change (folding/unfolding)
+ */
+lqContextGraph::Gp lqContextGraph::buff(bool decl_attrs) {
     if (!buffer) {
         bool strict = agisstrict(graph);
         Agdesc_t desc = agisdirected(graph) ? (strict ? Agstrictdirected : Agdirected) : (strict ? Agstrictundirected : Agundirected);
@@ -162,10 +194,12 @@ cg::Gp cg::buff(bool decl_attrs) {
     return buffer;
 }
 
-void cg::depth_first(Np root, Nf nv) {
+/** a simple depth first visit starting on <root>
+ */
+void lqContextGraph::depth_first(Np root, Nf nv) {
     depth_first(root, nv, [](Ep){});
 }
-void cg::depth_first(Np root, Nf nv, Ef ev) {
+void lqContextGraph::depth_first(Np root, Nf nv, Ef ev) {
     QStack<Np> s; s.push(root);
     nodes visited;
     while (!s.isEmpty()) {
@@ -178,7 +212,9 @@ void cg::depth_first(Np root, Nf nv, Ef ev) {
     }
 }
 
-void cg::depth_first(Gf gv, Gp root) {
+/** a simple depth first visit
+ */
+void lqContextGraph::depth_first(Gf gv, Gp root) {
     QStack<Gp> s; s.push(root ? root : graph);
     while (!s.isEmpty()) {
         Gp n = s.pop();
@@ -187,15 +223,18 @@ void cg::depth_first(Gf gv, Gp root) {
     }
 }
 
-
+/** this test must be performed only on 'user available' nodes
+ */
 bool lqContextGraph::is_folded(Np n) const {
     Q_ASSERT(agraphof(n) == graph);
     return buffer != 0 && agnode(buffer, agnameof(n), 0) != 0;
 }
 
-/** make structural changes required to fold node n
+/** make structural changes required to fold node <n>
+ *  all nodes reachable from n are merged to n (removed and buffered in context),
+ *  and edges are routed to arguably preserve the structure
  */
-void cg::fold(Np n) {
+void lqContextGraph::fold(Np n) {
     Q_ASSERT(!is_folded(n));
 
     edges edel;
@@ -228,9 +267,9 @@ void cg::fold(Np n) {
     OK(agsafeset(n, ccstr("shape"), ccstr("folder"), ccstr("ellipse")));
 }
 
-/** make structural changes required to unfold node n
+/** make structural changes required to unfold node <n>
  */
-void cg::unfold(Np n) {
+void lqContextGraph::unfold(Np n) {
     Q_ASSERT(is_folded(n));
 
     edges edel;

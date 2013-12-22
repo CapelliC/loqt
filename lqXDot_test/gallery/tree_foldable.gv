@@ -5,7 +5,9 @@ digraph tree_foldable {
 	r -> a
 	r -> b
 	r -> c
-c [color=red]
+	c -> d
 	c -> d
 	c -> e
+	e -> c
+	c [color=red tooltip="foldable!"]
 }

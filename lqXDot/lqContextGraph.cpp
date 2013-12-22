@@ -280,7 +280,7 @@ void lqContextGraph::unfold(Np n) {
 
     ndel << t;
 
-    for_edges_out(buff(), t, [&](Ep e)
+    for_edges_out(t, [&](Ep e)
     {
         edel << e;
 
@@ -292,7 +292,7 @@ void lqContextGraph::unfold(Np n) {
 
         if (!ndel.contains(e->node))    // multiple edges ?
             ndel << e->node;
-    });
+    }, buff());
 
     foreach(auto x, edel)
         agdeledge(buff(), x);

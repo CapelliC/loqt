@@ -140,30 +140,38 @@ public:
     //! serial input - from string
     bool parse(QString f);
 
-    //! access in context structure
-    void for_edges_out(Gp g, Np n, Ef f) {
+    //! iterate functor <f> on each edge exiting <n> (access in context structure)
+    void for_edges_out(Np n, Ef f, Gp g = 0) {
+        if (g == 0) g = graph;
         for (Ep e = agfstout(g, n); e; e = agnxtout(g, e))
             f(e);
     }
-    void for_edges_out(Np n, Ef f) { for_edges_out(graph, n, f); }
 
-    void for_nodes(Gp g, Nf f) {
+    //! iterate functor <f> on each node of graph <g> (access in context structure)
+    void for_nodes(Nf f, Gp g = 0) {
+        if (g == 0) g = graph;
         for (Np n = agfstnode(g); n; n = agnxtnode(g, n))
             f(n);
     }
-    void for_nodes(Nf f) { for_nodes(graph, f); }
 
+    //! iterate functor <f> on subgraphs of <r>
     void for_subgraphs(Gp r, Gf f) {
         for (Gp subg = agfstsubg(r); subg; subg = agnxtsubg(subg))
             f(subg);
     }
 
+    //!  visiting in context structure
     void depth_first(Np root, Nf nv);
     void depth_first(Np root, Nf nv, Ef ev);
     void depth_first(Gf gv, Gp g = 0);
 
+    //! structure manipulation - status check of node <n>
     bool is_folded(Np n) const;
+
+    //! structure manipulation - fold node <n>
     void fold(Np n);
+
+    //! structure manipulation - unfold node <n>
     void unfold(Np n);
 
 signals:

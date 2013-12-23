@@ -119,8 +119,6 @@ QColor lqXDotScene::parse_color(QString color, bool truecolor)
     return r;
 }
 
-typedef const void* CVP;
-
 QGraphicsItem* lqXDotScene::add_node(Np n)
 {
     qDebug() << "add_node" << CVP(n) << gvname(n);
@@ -137,7 +135,7 @@ QGraphicsItem* lqXDotScene::add_node(Np n)
             tooltip.replace("\\n", "\n");
             g->setToolTip(tooltip);
         }
-
+        qDebug() << CVP(g) << g->type();
         return g;
     }
     return 0;
@@ -179,7 +177,7 @@ void lqXDotScene::subgraphs(Gp graph, qreal off_z)
         ig->setZValue(dz(off_z));
     }
 
-    cg->for_subgraphs(graph, [&](Gp g) { subgraphs(g, off_z); });
+    cg->for_subgraphs([&](Gp g) { subgraphs(g, off_z); }, graph);
 }
 
 void lqXDotScene::perform_attrs(void* obj, int b_ops, std::function<void(const xdot_op& op)> worker)
@@ -455,24 +453,14 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
 
 /** debugging utility, dump graph structure to trace
  */
-void lqXDotScene::dump(QString m) const {
-    qDebug() << m;
-    cg->depth_first([&](Gp t) { qDebug() << "graph" << gvname(t) << CVP(find_graph(t)); });
-    qDebug() << "nodes";
-    cg->for_nodes([&](Np n) {
-        qDebug() << "node" << gvname(n) << CVP(find_node(n));
-        cg->for_edges_out(n, [&](Ep e) {
-            qDebug() << "edge" << gvname(e) << CVP(find_edge(e)) << "to" << gvname(e->node) << CVP(find_node(e->node));
-        });
-    });
-}
+void lqXDotScene::dump(QString m) const { cg->dump(m); }
 
 class cleanUpState : public QFinalState {
 public:
     cleanUpState(QStateMachine *m) : QFinalState(m) {}
 protected:
     void onEntry(QEvent *event) {
-        qDebug() << CVP(machine()) << "machine()->deleteLater()";
+        //qDebug() << CVP(machine()) << "machine()->deleteLater()";
         QFinalState::onEntry(event);
         machine()->deleteLater();
     }

@@ -27,6 +27,7 @@
 #include <QObject>
 #include <QMessageBox>
 #include <QGraphicsItem>
+#include <QHash>
 #include <functional>
 
 //! utility to get an applicative meaningful pointer from nested graphic
@@ -81,7 +82,7 @@ struct GV_ptr_types {
     typedef Agedge_t* Ep;
 
     //! graphviz keeps strings/symbols unique (TBD exploit in scene creation)
-    typedef const Agsym_t* Sp;
+    typedef Agsym_t* Sp;
 
     //! utilities
     typedef QList<Ep> edges;
@@ -91,6 +92,9 @@ struct GV_ptr_types {
     typedef std::function<void(Gp)> Gf;
     typedef std::function<void(Np)> Nf;
     typedef std::function<void(Ep)> Ef;
+
+    //! utility to make a pointer
+    typedef const void* CVP;
 };
 
 /** a container for paired Graphviz pointers
@@ -155,7 +159,8 @@ public:
     }
 
     //! iterate functor <f> on subgraphs of <r>
-    void for_subgraphs(Gp r, Gf f) {
+    void for_subgraphs(Gf f, Gp r = 0) {
+        if (r == 0) r = graph;
         for (Gp subg = agfstsubg(r); subg; subg = agnxtsubg(subg))
             f(subg);
     }
@@ -174,6 +179,9 @@ public:
     //! structure manipulation - unfold node <n>
     void unfold(Np n);
 
+    //! debugging utility, dump graph structure to trace
+    void dump(QString m);
+
 signals:
     
 public slots:
@@ -183,10 +191,12 @@ private:
     Cp context;
     Gp graph;
 
-    Gp buffer;
-    Gp buff(bool decl_attrs = false);
+    typedef QHash<QString, Gp> t_buffers;
+    t_buffers buffers;
 
-    Np copy(Np n);
+    Gp buff(Np n, bool decl_attrs = false);
+    Np copy(Np n, Gp g = 0);
+    Ep copy(Ep e, Gp g = 0, bool nodes = true);
 
     //! basic access to Graphviz error report system
     static QStringList errors;

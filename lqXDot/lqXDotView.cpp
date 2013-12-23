@@ -164,7 +164,7 @@ void lqXDotView::wheelEvent(QWheelEvent* event)
 void lqXDotView::contextMenuEvent(QContextMenuEvent *event)
 {
     if (QGraphicsItem *item = itemAt(event->pos())) {
-        qDebug() << (const void*)(item);
+        qDebug() << CVP(item) << item->type();
         if (Np n = scene()->it_node(item)) {
             qDebug() << "menu on " << gvname(n);
             QMenu menu(this);

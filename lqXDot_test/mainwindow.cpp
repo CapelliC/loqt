@@ -54,14 +54,14 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     lastMode = p.value("lastMode", "dot").toString();
 
     QMenu *m = menuBar()->addMenu("&File");
-    m->addAction(tr("New..."), this, SLOT(newFile()), QKeySequence::New);
-    m->addAction(tr("Open..."), this, SLOT(openFile()), QKeySequence::Open);
+    m->addAction(tr("&New..."), this, SLOT(newFile()), QKeySequence::New);
+    m->addAction(tr("&Open..."), this, SLOT(openFile()), QKeySequence::Open);
     m->addMenu(mruMenu = new QMenu("Recent &Files..."));
     loadMru(p, this);
     m->addSeparator();
-    m->addAction(tr("Save"), this, SLOT(saveFile()), QKeySequence::Save);
-    m->addAction(tr("Save As..."), this, SLOT(saveFileAs()), QKeySequence::SaveAs);
-    m->addAction(tr("Render..."), this, SLOT(renderFile()), tr("Ctrl+R"));
+    m->addAction(tr("&Save"), this, SLOT(saveFile()), QKeySequence::Save);
+    m->addAction(tr("Save &As..."), this, SLOT(saveFileAs()), QKeySequence::SaveAs);
+    m->addAction(tr("&Render..."), this, SLOT(renderFile()), tr("Ctrl+R"));
 
     // layouts algorithm by name
     m->addSeparator();

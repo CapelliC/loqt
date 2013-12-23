@@ -9,5 +9,5 @@ digraph tree_foldable {
 	c -> d
 	c -> e
 	e -> c
-	c [color=red tooltip="foldable!"]
+	c [color=red tooltip="foldable!" style="dashed"]
 }

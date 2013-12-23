@@ -30,14 +30,14 @@ inline void OK(int rc) { Q_ASSERT(rc == 0); }
 /** allocate empty
  */
 lqContextGraph::lqContextGraph(QObject *parent) :
-    QObject(parent), context(0), graph(0), buffer(0)
+    QObject(parent), context(0), graph(0)
 {
 }
 
 /** keep pointers allocated elsewhere (Prolog, in first use case)
  */
 lqContextGraph::lqContextGraph(GVC_t* context, Agraph_t *graph, QObject *parent) :
-    QObject(parent), context(context), graph(graph), buffer(0)
+    QObject(parent), context(context), graph(graph)
 {
 }
 
@@ -57,11 +57,11 @@ void lqContextGraph::clear() {
             agclose(graph);
             graph = 0;
         }
-        if (buffer) {
-            // no layout performed on buffer
-            agclose(buffer);
-            buffer = 0;
-        }
+
+        // no layout performed on buffers
+        foreach(auto p, buffers)
+            agclose(p);
+
         gvFreeContext(context);
         context = 0;
     }
@@ -178,19 +178,28 @@ bool lqContextGraph::parse(QString script) {
 /** allocate a spare graph, to store elements
  *  on structure change (folding/unfolding)
  */
-lqContextGraph::Gp lqContextGraph::buff(bool decl_attrs) {
-    if (!buffer) {
+lqContextGraph::Gp lqContextGraph::buff(Np n, bool decl_attrs) {
+    Gp buffer = 0;
+
+    QString N = agnameof(n);
+    t_buffers::iterator p = buffers.find(N);
+    if (p != buffers.end())
+        buffer = p.value();
+    else {
         bool strict = agisstrict(graph);
         Agdesc_t desc = agisdirected(graph) ? (strict ? Agstrictdirected : Agdirected) : (strict ? Agstrictundirected : Agundirected);
-        buffer = agopen(ccstr("#buffer#"), desc, 0);
+        buffer = agopen(ccstr(QString("#buffer#%1#%2").arg(buffers.count()).arg(agnameof(n)).toUtf8()), desc, 0);
+        Q_ASSERT(buffer);
+        buffers.insert(N, buffer);
     }
+
     if (decl_attrs) {
-        for (Agsym_t* sym = 0; (sym = agnxtattr(graph, AGNODE, sym)); )
+        for (Sp sym = 0; (sym = agnxtattr(graph, AGNODE, sym)); )
             agattr(buffer, AGNODE, sym->name, sym->defval);
-        for (Agsym_t* sym = 0; (sym = agnxtattr(graph, AGEDGE, sym)); )
+        for (Sp sym = 0; (sym = agnxtattr(graph, AGEDGE, sym)); )
             agattr(buffer, AGEDGE, sym->name, sym->defval);
     }
-    Q_ASSERT(buffer);
+
     return buffer;
 }
 
@@ -222,7 +231,7 @@ void lqContextGraph::depth_first(Gf gv, Gp root) {
     while (!s.isEmpty()) {
         Gp n = s.pop();
         gv(n);
-        for_subgraphs(n, [&](Gp g){ s.push(g); });
+        for_subgraphs([&](Gp g){ s.push(g); }, n);
     }
 }
 
@@ -230,7 +239,7 @@ void lqContextGraph::depth_first(Gf gv, Gp root) {
  */
 bool lqContextGraph::is_folded(Np n) const {
     Q_ASSERT(agraphof(n) == graph);
-    return buffer != 0 && agnode(buffer, agnameof(n), 0) != 0;
+    return buffers.contains(agnameof(n));
 }
 
 /** make structural changes required to fold node <n>
@@ -240,134 +249,80 @@ bool lqContextGraph::is_folded(Np n) const {
 void lqContextGraph::fold(Np n) {
     Q_ASSERT(!is_folded(n));
 
-    edges edel;
-    nodes ndel;
+    QSet<Ep> edel;
+    QSet<Np> ndel;
 
-    Gp B = buff(true);
+    Gp B = buff(n, true);
 
     Nf N = [&](Np v) {
-        Np t = agnode(B, agnameof(v), 1);
-        OK(agcopyattr(v, t));
-        if (v != n && !ndel.contains(v))
+        copy(v, B);
+        if (v != n)
             ndel << v;
     };
     Ef E = [&](Ep e) {
-        Ep t = agedge(B, copy(agtail(e)), copy(aghead(e)), agnameof(e), 1);
-        OK(agcopyattr(e, t));
-        if (!edel.contains(e))
-            edel << e;
+        copy(e, B);
+        edel << e;
     };
     depth_first(n, N, E);
 
     foreach(auto x, edel)
-        agdeledge(graph, x);
+        OK(agdeledge(graph, x));
     foreach(auto x, ndel)
-        agdelnode(graph, x);
+        OK(agdelnode(graph, x));
 
-    OK(agsafeset(n, ccstr("shape"), ccstr("folder"), ccstr("ellipse")));
+    //OK(agsafeset(n, ccstr("shape"), ccstr("folder"), ccstr("ellipse")));
 }
-    /*
-void lqContextGraph::fold(Np n) {
-    Q_ASSERT(!is_folded(n));
-
-    edges edel;
-    nodes ndel;
-
-    Np folded = agnode(buff(true), agnameof(n), 1);
-    OK(agcopyattr(n, folded));
-
-    for_edges_out(n, [&](Ep e)
-    {
-        // move edges from hidden to source
-        edel << e;
-
-        Np h = agnode(buff(), agnameof(e->node), 1);
-        OK(agcopyattr(e->node, h));
-
-        Ep E = agedge(buff(), folded, h, agnameof(e), 1);
-        OK(agcopyattr(e, E));
-
-        if (!ndel.contains(e->node))    // multiple edges ?
-            // remove node
-            ndel << e->node;
-    });
-
-    foreach(auto x, edel)
-        agdeledge(graph, x);
-    foreach(auto x, ndel)
-        agdelnode(graph, x);
-
-    OK(agsafeset(n, ccstr("shape"), ccstr("folder"), ccstr("ellipse")));
-}
-*/
 
 /** make structural changes required to unfold node <n>
  */
-    /*
 void lqContextGraph::unfold(Np n) {
     Q_ASSERT(is_folded(n));
 
-    edges edel;
-    nodes ndel;
-
-    Np t = agnode(buff(true), agnameof(n), 0);
-    OK(agcopyattr(t, n));
-
-    ndel << t;
-
-    for_edges_out(t, [&](Ep e)
-    {
-        edel << e;
-
-        Np h = agnode(graph, agnameof(e->node), 1);
-        OK(agcopyattr(e->node, h));
-
-        Ep E = agedge(graph, n, h, agnameof(e), 1);
-        OK(agcopyattr(e, E));
-
-        if (!ndel.contains(e->node))    // multiple edges ?
-            ndel << e->node;
-    }, buff());
-
-    foreach(auto x, edel)
-        agdeledge(buff(), x);
-    foreach(auto x, ndel)
-        agdelnode(buff(), x);
-}
-*/
-void lqContextGraph::unfold(Np n) {
-    Q_ASSERT(is_folded(n));
-
-    Gp B = buff(true);
-
-    edges edel;
-    nodes ndel;
+    Gp B = buff(n, true);
 
     Np t = agnode(B, agnameof(n), 0);
     OK(agcopyattr(t, n));
 
     Nf N = [&](Np v) {
-        Np t = agnode(graph, agnameof(v), 1);
-        OK(agcopyattr(v, t));
-        if (!ndel.contains(v))
-            ndel << v;
+        copy(v, graph);
     };
     Ef E = [&](Ep e) {
-        Ep t = agedge(graph, copy(agtail(e)), copy(aghead(e)), agnameof(e), 1);
-        OK(agcopyattr(e, t));
-        if (!edel.contains(e))
-            edel << e;
+        copy(e, graph);
     };
     depth_first(t, N, E, B);
 
-    foreach(auto x, edel)
-        agdeledge(B, x);
-    foreach(auto x, ndel)
-        agdelnode(B, x);
+    OK(agclose(B));
+    buffers.remove(agnameof(n));
 }
-lqContextGraph::Np lqContextGraph::copy(Np n) {
-    Gp g = agraphof(n) == graph ? buff() : graph;
+
+/** make a copy of node <n> with attributes
+ *  switch to alternative buffer
+ */
+GV_ptr_types::Np lqContextGraph::copy(Np n, Gp g) {
+    Q_ASSERT(g);
+    Q_ASSERT(agraphof(n) != g);
     Np t = agnode(g, agnameof(n), 1);
     OK(agcopyattr(n, t));
     return t;
+}
+
+GV_ptr_types::Ep lqContextGraph::copy(Ep e, Gp g, bool nodes) {
+    Q_ASSERT(g);
+    Q_ASSERT(agraphof(e) != g);
+    Q_ASSERT(nodes);
+    Ep t = agedge(g, copy(agtail(e), g), copy(aghead(e), g), agnameof(e), 1);
+    OK(agcopyattr(e, t));
+    return t;
+}
+
+void lqContextGraph::dump(QString m) {
+    qDebug() << m;
+    depth_first([&](Gp t) { qDebug() << "graph" << gvname(t) /* << CVP(find_graph(t)) */; });
+    qDebug() << "nodes";
+    for_nodes([&](Np n) {
+        qDebug() << "node" << gvname(n) /*<< CVP(find_node(n))*/;
+        for_edges_out(n, [&](Ep e) {
+            qDebug() << "edge" << gvname(e) /*<< CVP(find_edge(e))*/ << "to" << gvname(e->node) /* << CVP(find_node(e->node)) */;
+        });
+    });
 }

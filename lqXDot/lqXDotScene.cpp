@@ -49,7 +49,7 @@ void lqXDotScene::build()
 
     subgraphs(Gp(*cg), 1);
 
-    qreal z_node = 2, z_edge = 3;
+    qreal z_node = 2, z_edge = 1;
 
     cg->for_nodes([&](Np n) {
         if (auto N = add_node(n)) {
@@ -311,6 +311,15 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
     qreal fontsize = 0;
     QFont font;
 
+    enum {
+        dashed  = 1<<0,
+        dotted  = 1<<1,
+        solid   = 1<<2,
+        invis   = 1<<3,
+        bold    = 1<<4
+    };
+    int b_style = 0;
+
     perform_attrs(obj, b_ops, [&](const xdot_op &op) {
         switch (op.kind) {
         case xd_filled_ellipse: {
@@ -354,6 +363,7 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
 
         case xd_polyline: {
             auto p = addPolygon(poly_spec(op.u.polyline));
+            p->setPen(pen);
             l << p;
         }   break;
 
@@ -396,6 +406,14 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
 
         case xd_pen_color:
             pen = QPen(parse_color(currcolor = op.u.color, truecolor()));
+            if ((b_style & (dashed|dotted)) == (dashed|dotted))
+                pen.setStyle(Qt::DashDotLine);
+            else if (b_style & dashed)
+                pen.setStyle(Qt::DashLine);
+            else if (b_style & dotted)
+                pen.setStyle(Qt::DotLine);
+            if (b_style & bold)
+                pen.setWidth(3);
             break;
 
         case xd_font:
@@ -403,8 +421,22 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
             fontname = op.u.font.name;
             break;
 
-        case xd_style:
-            /** even without implementing this I get good results ! */
+        case xd_style: {
+            /** from http://www.graphviz.org/content/attrs#dstyle
+                At present, the recognized style names are "dashed", "dotted", "solid", "invis" and "bold" for nodes and edges,
+                "tapered" for edges only, and "filled", "striped", "wedged", "diagonals" and "rounded" for nodes only.
+                The styles "filled", "striped" and "rounded" are recognized for clusters.
+                The style "radial" is recognized for nodes, clusters and graphs, and indicates a radial-style gradient fill if applicable.
+            */
+            //enum N_style { dashed, dotted, solid, invis, bold, filled, striped, wedged, diagonals, rounded };
+            //enum E_style { dashed, dotted, solid, invis, bold, tapered };
+            //enum G_style { filled, striped, rounded };
+            foreach (QString s, QString(op.u.style).split(','))
+                if (s == "dashed")  b_style |= dashed; else
+                if (s == "dotted")  b_style |= dotted; else
+                if (s == "bold")    b_style |= bold; else
+                if (s != "solid")   qDebug() << "unhandled style" << op.u.style;
+            }
             break;
 
         case xd_image: {

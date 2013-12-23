@@ -161,8 +161,8 @@ public:
     }
 
     //!  visiting in context structure
-    void depth_first(Np root, Nf nv);
-    void depth_first(Np root, Nf nv, Ef ev);
+    void depth_first(Np root, Nf nv, Gp g = 0);
+    void depth_first(Np root, Nf nv, Ef ev, Gp g = 0);
     void depth_first(Gf gv, Gp g = 0);
 
     //! structure manipulation - status check of node <n>
@@ -185,6 +185,8 @@ private:
 
     Gp buffer;
     Gp buff(bool decl_attrs = false);
+
+    Np copy(Np n);
 
     //! basic access to Graphviz error report system
     static QStringList errors;

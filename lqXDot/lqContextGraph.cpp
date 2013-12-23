@@ -196,10 +196,13 @@ lqContextGraph::Gp lqContextGraph::buff(bool decl_attrs) {
 
 /** a simple depth first visit starting on <root>
  */
-void lqContextGraph::depth_first(Np root, Nf nv) {
-    depth_first(root, nv, [](Ep){});
+void lqContextGraph::depth_first(Np root, Nf nv, Gp g) {
+    depth_first(root, nv, [](Ep){}, g);
 }
-void lqContextGraph::depth_first(Np root, Nf nv, Ef ev) {
+
+/** a simple depth first visit starting on <root>
+ */
+void lqContextGraph::depth_first(Np root, Nf nv, Ef ev, Gp g) {
     QStack<Np> s; s.push(root);
     nodes visited;
     while (!s.isEmpty()) {
@@ -207,7 +210,7 @@ void lqContextGraph::depth_first(Np root, Nf nv, Ef ev) {
         if (!visited.contains(n)) {
             visited << n;
             nv(n);
-            for_edges_out(n, [&](Ep e){ ev(e); s.push(e->node); });
+            for_edges_out(n, [&](Ep e){ ev(e); s.push(e->node); }, g);
         }
     }
 }
@@ -240,6 +243,36 @@ void lqContextGraph::fold(Np n) {
     edges edel;
     nodes ndel;
 
+    Gp B = buff(true);
+
+    Nf N = [&](Np v) {
+        Np t = agnode(B, agnameof(v), 1);
+        OK(agcopyattr(v, t));
+        if (v != n && !ndel.contains(v))
+            ndel << v;
+    };
+    Ef E = [&](Ep e) {
+        Ep t = agedge(B, copy(agtail(e)), copy(aghead(e)), agnameof(e), 1);
+        OK(agcopyattr(e, t));
+        if (!edel.contains(e))
+            edel << e;
+    };
+    depth_first(n, N, E);
+
+    foreach(auto x, edel)
+        agdeledge(graph, x);
+    foreach(auto x, ndel)
+        agdelnode(graph, x);
+
+    OK(agsafeset(n, ccstr("shape"), ccstr("folder"), ccstr("ellipse")));
+}
+    /*
+void lqContextGraph::fold(Np n) {
+    Q_ASSERT(!is_folded(n));
+
+    edges edel;
+    nodes ndel;
+
     Np folded = agnode(buff(true), agnameof(n), 1);
     OK(agcopyattr(n, folded));
 
@@ -266,9 +299,11 @@ void lqContextGraph::fold(Np n) {
 
     OK(agsafeset(n, ccstr("shape"), ccstr("folder"), ccstr("ellipse")));
 }
+*/
 
 /** make structural changes required to unfold node <n>
  */
+    /*
 void lqContextGraph::unfold(Np n) {
     Q_ASSERT(is_folded(n));
 
@@ -298,4 +333,41 @@ void lqContextGraph::unfold(Np n) {
         agdeledge(buff(), x);
     foreach(auto x, ndel)
         agdelnode(buff(), x);
+}
+*/
+void lqContextGraph::unfold(Np n) {
+    Q_ASSERT(is_folded(n));
+
+    Gp B = buff(true);
+
+    edges edel;
+    nodes ndel;
+
+    Np t = agnode(B, agnameof(n), 0);
+    OK(agcopyattr(t, n));
+
+    Nf N = [&](Np v) {
+        Np t = agnode(graph, agnameof(v), 1);
+        OK(agcopyattr(v, t));
+        if (!ndel.contains(v))
+            ndel << v;
+    };
+    Ef E = [&](Ep e) {
+        Ep t = agedge(graph, copy(agtail(e)), copy(aghead(e)), agnameof(e), 1);
+        OK(agcopyattr(e, t));
+        if (!edel.contains(e))
+            edel << e;
+    };
+    depth_first(t, N, E, B);
+
+    foreach(auto x, edel)
+        agdeledge(B, x);
+    foreach(auto x, ndel)
+        agdelnode(B, x);
+}
+lqContextGraph::Np lqContextGraph::copy(Np n) {
+    Gp g = agraphof(n) == graph ? buff() : graph;
+    Np t = agnode(g, agnameof(n), 1);
+    OK(agcopyattr(n, t));
+    return t;
 }

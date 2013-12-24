@@ -24,13 +24,22 @@
 
 #include <QTime>
 #include <QDebug>
+#include <QCheckBox>
 #include <QFinalState>
 #include <QFontMetrics>
 #include <QSignalMapper>
 #include <QStateMachine>
 #include <QPropertyAnimation>
 #include <QAbstractTransition>
+#include <QGraphicsProxyWidget>
 #include <QParallelAnimationGroup>
+
+/** need some plane height offset because nodes and edges overlap
+ *  place nodes on top
+ */
+const int Z_NODE = 2;
+const int Z_EDGE = 1;
+const int Z_FOLD = Z_NODE + 1;
 
 inline qreal dz(qreal &v) { v += .0001; return v; }
 
@@ -49,7 +58,7 @@ void lqXDotScene::build()
 
     subgraphs(Gp(*cg), 1);
 
-    qreal z_node = 2, z_edge = 1;
+    qreal z_node = Z_NODE, z_edge = Z_EDGE;
 
     cg->for_nodes([&](Np n) {
         if (auto N = add_node(n)) {
@@ -91,6 +100,9 @@ QGraphicsItemGroup *lqXDotScene::find_graph(Agraph_t *obj) const
     }, items());
 }
 
+/** translate a color specification string to Qt class QColor
+ *  this decode function doesn't depend on XDOT
+ */
 QColor lqXDotScene::parse_color(QString color, bool truecolor)
 {
     QColor r;
@@ -119,12 +131,15 @@ QColor lqXDotScene::parse_color(QString color, bool truecolor)
     return r;
 }
 
+/** translate <n> XDOT attributes to graphics, add some default behaviour
+ */
 QGraphicsItem* lqXDotScene::add_node(Np n)
 {
     qDebug() << "add_node" << CVP(n) << gvname(n);
 
     l_items l = build_graphic(n);
     if (!l.isEmpty()) {
+
         lqNode* g = new lqNode(this, l);
 
         g->setData(agptr, QVariant::fromValue(n));
@@ -136,6 +151,15 @@ QGraphicsItem* lqXDotScene::add_node(Np n)
             g->setToolTip(tooltip);
         }
         qDebug() << CVP(g) << g->type();
+
+        if (cg->is_folded(n)) {
+            QCheckBox *cb = new QCheckBox;
+            cb->setChecked(true);
+            QGraphicsProxyWidget *ck = addWidget(cb);
+            ck->setZValue(Z_FOLD);
+            ck->setPos(g->boundingRect().topLeft());
+        }
+
         return g;
     }
     return 0;
@@ -152,9 +176,9 @@ QGraphicsItem* lqXDotScene::add_edge(Ep e)
     return 0;
 }
 
-// subgraphs are an important way to specify structure
-// when prefix named with "cluster" they get a frame around
-//
+/** subgraphs are an important way to specify structure
+ *  when prefix named with "cluster" they get a frame around
+ */
 void lqXDotScene::subgraphs(Gp graph, qreal off_z)
 {
     QRectF bb = graph_bb(graph);
@@ -180,6 +204,8 @@ void lqXDotScene::subgraphs(Gp graph, qreal off_z)
     cg->for_subgraphs([&](Gp g) { subgraphs(g, off_z); }, graph);
 }
 
+/** apply XDOT attributes <b_ops> rendering to required object <obj>
+ */
 void lqXDotScene::perform_attrs(void* obj, int b_ops, std::function<void(const xdot_op& op)> worker)
 {
     static const char *ops[] = {"_draw_", "_ldraw_", "_hdraw_", "_tdraw_", "_hldraw_", "_htdraw_"};
@@ -680,10 +706,14 @@ bool lqXDotScene::fold(lqNode* i)
     return false;
 }
 
+/** really a logging utility
+ */
 void lqXDotScene::msg(QString m) {
     qDebug() << QTime::currentTime() << m;
 }
 
+/** parse the bounding rect attribute on <graph> to QRectF
+ */
 QRectF lqXDotScene::graph_bb(Gp graph)
 {
     QRectF bb;
@@ -691,8 +721,13 @@ QRectF lqXDotScene::graph_bb(Gp graph)
     if (bbs.length()) {
         qreal left, top, width, height;
         QChar s;
-        if ((QTextStream(&bbs) >> left >> s >> top >> s >> width >> s >> height).status() == QTextStream::Ok)
+        if ((QTextStream(&bbs) >> left >> s >> top >> s >> width >> s >> height).status() == QTextStream::Ok) {
             bb = QRectF(left, top, width, height);
+            /*
+            QString sty = attr_str(graph, "style");
+            if (sty.length()) {}
+            */
+        }
         else
             msg(tr("invalid bb on %1").arg(gvname(graph)));
     }

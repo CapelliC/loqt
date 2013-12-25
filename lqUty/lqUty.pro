@@ -19,7 +19,8 @@ SOURCES += lqUty.cpp \
     RowColIndicators.cpp \
     lqPreferences.cpp \
     QStackedWidget_KeybTabs.cpp \
-    SourceEdit.cpp
+    SourceEdit.cpp \
+    FindReplace.cpp
 
 HEADERS += lqUty.h \
     lqUty_global.h \
@@ -31,7 +32,8 @@ HEADERS += lqUty.h \
     blockSig.h \
     QStackedWidget_KeybTabs.h \
     SourceEdit.h \
-    file2string.h
+    file2string.h \
+    FindReplace.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

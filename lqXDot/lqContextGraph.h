@@ -182,6 +182,9 @@ public:
     //! debugging utility, dump graph structure to trace
     void dump(QString m);
 
+    //! make a slow linear search by now
+    Gp find_inner_subgraph(Np n, Gp g = 0);
+
 signals:
     
 public slots:
@@ -201,6 +204,8 @@ private:
     //! basic access to Graphviz error report system
     static QStringList errors;
     static int store_errors(char *msg);
+
+    static void declattrs(Gp src, Gp dst, int kind);
 };
 
 #endif // LQCONTEXTGRAPH

@@ -23,9 +23,10 @@
 #include "lqAobj.h"
 #include <QGraphicsScene>
 
-lqNode::lqNode(QGraphicsScene *s, QList<QGraphicsItem *> items)
+lqItem::lqItem(QGraphicsScene *s, items l)
 {
     s->addItem(this);
-    foreach(auto i, items)
+    foreach(auto i, l)
         addToGroup(i);
 }
+

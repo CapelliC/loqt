@@ -5,9 +5,12 @@ digraph tree_foldable {
 	r -> a
 	r -> b
 	r -> c
+	subgraph cluster_1 {
+	style="rounded,dashed"
 	c -> d
 	c -> d
 	c -> e
 	e -> c
 	c [color=red tooltip="foldable!" style="dotted"]
+	}
 }

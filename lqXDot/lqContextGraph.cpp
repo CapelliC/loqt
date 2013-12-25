@@ -194,13 +194,25 @@ lqContextGraph::Gp lqContextGraph::buff(Np n, bool decl_attrs) {
     }
 
     if (decl_attrs) {
+        /*
+        for (Sp sym = 0; (sym = agnxtattr(graph, AGRAPH, sym)); )
+            agattr(buffer, AGRAPH, sym->name, sym->defval);
         for (Sp sym = 0; (sym = agnxtattr(graph, AGNODE, sym)); )
             agattr(buffer, AGNODE, sym->name, sym->defval);
         for (Sp sym = 0; (sym = agnxtattr(graph, AGEDGE, sym)); )
             agattr(buffer, AGEDGE, sym->name, sym->defval);
+        */
+        declattrs(graph, buffer, AGRAPH);
+        declattrs(graph, buffer, AGNODE);
+        declattrs(graph, buffer, AGEDGE);
     }
 
     return buffer;
+}
+
+void lqContextGraph::declattrs(Gp src, Gp dst, int kind) {
+    for (Sp sym = 0; (sym = agnxtattr(src, kind, sym)); )
+        agattr(dst, kind, sym->name, sym->defval);
 }
 
 /** a simple depth first visit starting on <root>
@@ -255,7 +267,12 @@ void lqContextGraph::fold(Np n) {
     Gp B = buff(n, true);
 
     Nf N = [&](Np v) {
-        copy(v, B);
+        if (Gp s = find_inner_subgraph(v)) {
+            Gp S = agsubg(B, agnameof(s), 1);
+            copy(v, S);
+        }
+        else
+            copy(v, B);
         if (v != n)
             ndel << v;
     };
@@ -284,7 +301,12 @@ void lqContextGraph::unfold(Np n) {
     OK(agcopyattr(t, n));
 
     Nf N = [&](Np v) {
-        copy(v, graph);
+        if (Gp s = find_inner_subgraph(v, B)) {
+            Gp S = agsubg(graph, agnameof(s), 1);
+            copy(v, S);
+        }
+        else
+            copy(v, graph);
     };
     Ef E = [&](Ep e) {
         copy(e, graph);
@@ -325,4 +347,19 @@ void lqContextGraph::dump(QString m) {
             qDebug() << "edge" << gvname(e) /*<< CVP(find_edge(e))*/ << "to" << gvname(e->node) /* << CVP(find_node(e->node)) */;
         });
     });
+}
+
+/** I have not yet found a better way,
+ *  so make a slow linear search by now
+ */
+GV_ptr_types::Gp lqContextGraph::find_inner_subgraph(Np s, Gp g) {
+    if (!g) g = graph;
+    Gp found = 0;
+l:  for (Gp subg = agfstsubg(g); subg; subg = agnxtsubg(subg))
+        for (Np n = agfstnode(subg); n; n = agnxtnode(subg, n))
+            if (n == s) {
+                g = found = subg;
+                goto l;
+            }
+    return found;
 }

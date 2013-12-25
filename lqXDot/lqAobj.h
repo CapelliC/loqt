@@ -29,7 +29,7 @@
 
 /** subclass to get animations working
  */
-class LQXDOTSHARED_EXPORT lqNode : public QObject, public QGraphicsItemGroup
+class LQXDOTSHARED_EXPORT lqItem : public QObject, public QGraphicsItemGroup
 {
     Q_OBJECT
 
@@ -41,8 +41,27 @@ class LQXDOTSHARED_EXPORT lqNode : public QObject, public QGraphicsItemGroup
 
 public:
 
+    typedef QList<QGraphicsItem *> items;
+
     //! construct with graphics primitives
-    lqNode(QGraphicsScene *s, QList<QGraphicsItem *> items);
+    lqItem(QGraphicsScene *s, items objs);
+
+signals:
+
+public slots:
+
+};
+
+/** an animatable node
+ */
+class LQXDOTSHARED_EXPORT lqNode : public lqItem
+{
+    Q_OBJECT
+
+public:
+
+    //! construct with graphics primitives
+    lqNode(QGraphicsScene *s, items l) : lqItem(s, l) {}
 
     //! fullfill qgraphics_cast requirements
     enum { Type = UserType + 1 };

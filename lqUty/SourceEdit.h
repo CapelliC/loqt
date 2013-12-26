@@ -37,31 +37,39 @@ class ConsoleEdit;
 class LQUTYSHARED_EXPORT SourceEdit : public QWebView {
 
     Q_OBJECT
+
+    //! load script text to CodeMirror
     Q_PROPERTY(QString data READ data)
+
+    //! syntax color (TBD)
     Q_PROPERTY(QString syncol READ syncol)
+
+    Q_ENUMS(msg_kind)
 
 public:
 
     explicit SourceEdit();
     SourceEdit(const SourceEdit &);
+
+    //! real entry point
     SourceEdit(QString file);
 
+    //! script file interface
     bool loadFile(QString fileName);
     QString getFile() const { return file; }
     QString toPlainText() const;
+
+    enum msg_kind { info, err, log };
 
 signals:
 
     //! hosting GUI must react and expose the title string
     void setTitle(QString file, QString title);
-
-    void msg(QString msg);
-    void err(QString msg);
-    void log(QString msg);
+    void msg(msg_kind kind, QString text);
 
 public slots:
 
-    void setModified();
+    void onChange();
 
     void newFile();
     bool save();

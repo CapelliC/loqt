@@ -5,6 +5,8 @@ digraph tree_foldable {
 	r -> a
 	r -> b
 	r -> c
+a -> u
+b -> u
 	subgraph cluster_1 {
 	style="rounded,dashed"
 	c -> d

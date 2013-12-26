@@ -65,19 +65,19 @@ QString SourceEdit::toPlainText() const {
 }
 
 void SourceEdit::loadFinished(bool ok) {
-    emit log(QString("loadFinished %1, len %2, ok %3").arg(file).arg(text.length()).arg(ok));
+    emit msg(log, QString("loadFinished %1, len %2, ok %3").arg(file).arg(text.length()).arg(ok));
     if (ok) {
         auto f = page()->mainFrame();
         f->addToJavaScriptWindowObject("proxy", this);
         f->evaluateJavaScript("editor.setValue(proxy.data)");//.toString();
-        f->evaluateJavaScript("editor.on(\"change\", function() { proxy.setModified() })");
+        f->evaluateJavaScript("editor.on(\"change\", function() { proxy.onChange() })");
     }
 }
 
 bool SourceEdit::save() {
     {   QFile f(file);
         if (!f.open(QFile::WriteOnly)) {
-            emit err(tr("Can't open %1 for writing!").arg(file));
+            emit msg(err, tr("Can't open %1 for writing!").arg(file));
             return false;
         }
         f.write(toPlainText().toUtf8());
@@ -85,7 +85,7 @@ bool SourceEdit::save() {
 
     status = saved;
     emit setTitle(file, title());
-    emit msg(tr("Saved '%1'").arg(symbol()));
+    emit msg(info, tr("Saved '%1'").arg(symbol()));
 
     return true;
 }
@@ -136,7 +136,7 @@ bool SourceEdit::maybeSave() {
 }
 
 // callback from JS
-void SourceEdit::setModified() {
+void SourceEdit::onChange() {
     if (status != modified) {
         status = modified;
         emit setTitle(file, title());

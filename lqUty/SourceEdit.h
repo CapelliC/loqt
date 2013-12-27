@@ -69,13 +69,14 @@ signals:
 
 public slots:
 
+    //! CodeMirror events
     void onChange();
 
     void newFile();
     bool save();
     bool saveAs();
 
-    //! do select specific area
+    //! callback to HTML! do select specific area
     void show_call(long from, long stop);
 
 public:

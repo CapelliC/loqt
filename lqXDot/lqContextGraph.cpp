@@ -60,7 +60,7 @@ void lqContextGraph::clear() {
 
         // no layout performed on buffers
         foreach(auto p, buffers)
-            agclose(p);
+            agclose(p.spare_graph);
 
         gvFreeContext(context);
         context = 0;
@@ -178,36 +178,28 @@ bool lqContextGraph::parse(QString script) {
 /** allocate a spare graph, to store elements
  *  on structure change (folding/unfolding)
  */
-lqContextGraph::Gp lqContextGraph::buff(Np n, bool decl_attrs) {
-    Gp buffer = 0;
+lqContextGraph::buffer* lqContextGraph::buff(Np n, bool decl_attrs) {
+    buffer *buf = 0;
 
     QString N = agnameof(n);
     t_buffers::iterator p = buffers.find(N);
     if (p != buffers.end())
-        buffer = p.value();
+        buf = &p.value();
     else {
         bool strict = agisstrict(graph);
         Agdesc_t desc = agisdirected(graph) ? (strict ? Agstrictdirected : Agdirected) : (strict ? Agstrictundirected : Agundirected);
-        buffer = agopen(ccstr(QString("#buffer#%1#%2").arg(buffers.count()).arg(agnameof(n)).toUtf8()), desc, 0);
-        Q_ASSERT(buffer);
-        buffers.insert(N, buffer);
+        buffer b;
+        b.spare_graph = agopen(ccstr(QString("#buffer#%1#%2").arg(buffers.count()).arg(agnameof(n)).toUtf8()), desc, 0);
+        buf = &buffers.insert(N, b).value();
     }
 
     if (decl_attrs) {
-        /*
-        for (Sp sym = 0; (sym = agnxtattr(graph, AGRAPH, sym)); )
-            agattr(buffer, AGRAPH, sym->name, sym->defval);
-        for (Sp sym = 0; (sym = agnxtattr(graph, AGNODE, sym)); )
-            agattr(buffer, AGNODE, sym->name, sym->defval);
-        for (Sp sym = 0; (sym = agnxtattr(graph, AGEDGE, sym)); )
-            agattr(buffer, AGEDGE, sym->name, sym->defval);
-        */
-        declattrs(graph, buffer, AGRAPH);
-        declattrs(graph, buffer, AGNODE);
-        declattrs(graph, buffer, AGEDGE);
+        declattrs(graph, buf->spare_graph, AGRAPH);
+        declattrs(graph, buf->spare_graph, AGNODE);
+        declattrs(graph, buf->spare_graph, AGEDGE);
     }
 
-    return buffer;
+    return buf;
 }
 
 void lqContextGraph::declattrs(Gp src, Gp dst, int kind) {
@@ -264,30 +256,39 @@ void lqContextGraph::fold(Np n) {
     QSet<Ep> edel;
     QSet<Np> ndel;
 
-    Gp B = buff(n, true);
+    buffer* B = buff(n, true);
 
     Nf N = [&](Np v) {
         if (Gp s = find_inner_subgraph(v)) {
-            Gp S = agsubg(B, agnameof(s), 1);
+            Gp S = agsubg(B->spare_graph, agnameof(s), 1);
             copy(v, S);
         }
         else
-            copy(v, B);
+            copy(v, B->spare_graph);
         if (v != n)
             ndel << v;
     };
     Ef E = [&](Ep e) {
-        copy(e, B);
+        copy(e, B->spare_graph);
         edel << e;
     };
     depth_first(n, N, E);
 
     foreach(auto x, edel)
         OK(agdeledge(graph, x));
-    foreach(auto x, ndel)
+    foreach(auto x, ndel) {
+        for_edges_in(x, [&](Ep e) {
+            QString tn = agnameof(agtail(e));
+            if (!agnode(B->spare_graph, qcstr(tn), 0)) {
+                QString cn = agnameof(e);
+                QString hn = agnameof(aghead(e));
+                Ep E = agedge(graph, agtail(e), n, 0, 1);
+                agsafeset(E, ccstr("style"), ccstr("dotted"), ccstr(""));
+                B->fake_edges << fake_edge {tn, hn, cn};
+            }
+        });
         OK(agdelnode(graph, x));
-
-    //OK(agsafeset(n, ccstr("shape"), ccstr("folder"), ccstr("ellipse")));
+    }
 }
 
 /** make structural changes required to unfold node <n>
@@ -295,13 +296,13 @@ void lqContextGraph::fold(Np n) {
 void lqContextGraph::unfold(Np n) {
     Q_ASSERT(is_folded(n));
 
-    Gp B = buff(n, true);
+    buffer* B = buff(n, true);
 
-    Np t = agnode(B, agnameof(n), 0);
+    Np t = agnode(B->spare_graph, agnameof(n), 0);
     OK(agcopyattr(t, n));
 
     Nf N = [&](Np v) {
-        if (Gp s = find_inner_subgraph(v, B)) {
+        if (Gp s = find_inner_subgraph(v, B->spare_graph)) {
             Gp S = agsubg(graph, agnameof(s), 1);
             copy(v, S);
         }
@@ -311,9 +312,17 @@ void lqContextGraph::unfold(Np n) {
     Ef E = [&](Ep e) {
         copy(e, graph);
     };
-    depth_first(t, N, E, B);
+    depth_first(t, N, E, B->spare_graph);
 
-    OK(agclose(B));
+    foreach(auto i, B->fake_edges) {
+        Np H = agnode(graph, qcstr(i.n_head), 0);
+        Np T = agnode(graph, qcstr(i.n_tail), 0);
+        Ep E = agedge(graph, T, n, 0, 0);
+        OK(agdeledge(graph, E));
+        agedge(graph, T, H, qcstr(i.n_save), 1);
+    }
+
+    OK(agclose(B->spare_graph));
     buffers.remove(agnameof(n));
 }
 

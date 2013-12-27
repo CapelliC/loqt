@@ -46,6 +46,11 @@ inline char* ccstr(cstr s) {
     return const_cast<char*>(s);
 }
 
+//! ditto, about QString
+inline char* qcstr(QString s) {
+    return s.toUtf8().data();
+}
+
 //! get Graphviz string attributes preserving CV qualifiers
 inline cstr attr_str(void* obj, cstr name) {
     return agget(obj, ccstr(name));
@@ -151,6 +156,13 @@ public:
             f(e);
     }
 
+    //! iterate functor <f> on each edge entering <n> (access in context structure)
+    void for_edges_in(Np n, Ef f, Gp g = 0) {
+        if (g == 0) g = graph;
+        for (Ep e = agfstin(g, n); e; e = agnxtin(g, e))
+            f(e);
+    }
+
     //! iterate functor <f> on each node of graph <g> (access in context structure)
     void for_nodes(Nf f, Gp g = 0) {
         if (g == 0) g = graph;
@@ -194,10 +206,20 @@ private:
     Cp context;
     Gp graph;
 
-    typedef QHash<QString, Gp> t_buffers;
+    struct fake_edge { QString n_tail, n_head, n_save; };
+
+    struct buffer {
+        //! store copies of deleted nodes
+        Gp spare_graph;
+        //! remember fake new edges
+        QList<fake_edge> fake_edges;
+    };
+
+    typedef QHash<QString, buffer> t_buffers;
+
     t_buffers buffers;
 
-    Gp buff(Np n, bool decl_attrs = false);
+    buffer* buff(Np n, bool decl_attrs = false);
     Np copy(Np n, Gp g = 0);
     Ep copy(Ep e, Gp g = 0, bool nodes = true);
 

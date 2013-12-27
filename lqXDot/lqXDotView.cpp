@@ -256,10 +256,9 @@ void lqXDotView::toggleFolding()
 {
     if (foldNodes()) {
         lqNode *i = qobject_cast<QAction*>(sender())->data().value<lqNode *>();
-        /*
         if (scene()->fold(i)) {
         }
-        */
+        /*
         Np n = scene()->it_node(i);   // n is undergoing folding
         Q_ASSERT(n);
 
@@ -277,5 +276,6 @@ void lqXDotView::toggleFolding()
             scene()->clear();
             scene()->build();
         }
+        */
     }
 }

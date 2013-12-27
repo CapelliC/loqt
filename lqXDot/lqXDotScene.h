@@ -25,7 +25,6 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsItem>
-#include <QStateMachine>
 #include <QPointer>
 
 #include "lqContextGraph.h"
@@ -55,7 +54,7 @@ public:
 
     static QColor parse_color(QString color, bool truecolor);
 
-    // mapping visual objects
+    //! mapping visual objects
     enum { agptr };
     static Np it_node(QGraphicsItem* i);
     static Ep it_edge(QGraphicsItem* i);
@@ -90,13 +89,13 @@ private:
     //! context/graph for root object
     QPointer<lqContextGraph> cg;
 
-    // when enabled, accept colors with alpha component
+    //! when enabled, accept colors with alpha component
     bool truecolor_;
 
-    // required when displaying images in rendered graph
+    //! required when displaying images in rendered graph
     QString imagepath_;
 
-    // constructing visual objects
+    //! constructing visual objects
     QGraphicsItem* add_node(Np n);
     QGraphicsItem* add_edge(Ep e);
     void subgraphs(Gp graph, qreal off_z);
@@ -145,7 +144,7 @@ private:
 
     static void perform_attrs(void* obj, int attrs, std::function<void(const xdot_op& op)> worker);
 
-    // map graphviz coordinates to scene
+    //! map graphviz coordinates to scene
     QRectF bbscene;
     qreal cy(qreal y) const { return bbscene.height() - y; }
 
@@ -153,6 +152,8 @@ public slots:
     void msg(QString);
 };
 
+/** recover actual object underneath a graphic primitive
+ */
 inline Agnode_t *lqXDotScene::it_node(QGraphicsItem* i) {
     lqNode* n = ancestor<lqNode>(i);
     return n ? n->data(agptr).value<Agnode_t*>() : 0;

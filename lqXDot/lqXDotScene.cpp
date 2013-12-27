@@ -650,52 +650,15 @@ bool lqXDotScene::fold(lqNode* i)
     Np n = it_node(i);   // n is undergoing folding
     Q_ASSERT(n);
 
-    dump("before");
+    // mandatory to recompute...
+    if (!cg->freeLayout())
+        Q_ASSERT(false);
+
+    //dump("before");
     if (cg->is_folded(n))
         cg->unfold(n);
     else
         cg->fold(n);
-    /*
-    if (cg->cloned.contains(n)) {
-        // unfold
-        cg->restore(n);
-    }
-    else {
-        edges edel;
-        nodes ndel;
-
-        Np N = cg->clone(n);
-
-        // structural changes
-        cg->for_edges_out(n, [&](Ep e) {
-            Np h = e->node;
-
-            // move edges from hidden to source
-            edel << e;
-            cg->clone(n, e);
-
-            //Ep E = agedge(agraphof(N), N, H);
-            //Ep E = cg->clone(e);
-
-            if (!ndel.contains(h)) {    // multiple edges ?
-                // remove node
-                ndel << h;
-            }
-        });
-
-        // mandatory to recompute...
-        if (!cg->freeLayout())
-            return false;
-
-        foreach(auto x, edel)
-            agdeledge(*cg, x);
-        foreach(auto x, ndel)
-            agdelnode(*cg, x);
-
-        int xc = agsafeset(n, ccstr("shape"), ccstr("folder"), ccstr("ellipse"));
-        Q_ASSERT(xc == 0);
-    }
-    */
 
     if (cg->repeatOperations()) {
         clear();
@@ -723,10 +686,6 @@ QRectF lqXDotScene::graph_bb(Gp graph)
         QChar s;
         if ((QTextStream(&bbs) >> left >> s >> top >> s >> width >> s >> height).status() == QTextStream::Ok) {
             bb = QRectF(left, top, width, height);
-            /*
-            QString sty = attr_str(graph, "style");
-            if (sty.length()) {}
-            */
         }
         else
             msg(tr("invalid bb on %1").arg(gvname(graph)));

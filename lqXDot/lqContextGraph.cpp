@@ -61,6 +61,7 @@ void lqContextGraph::clear() {
         // no layout performed on buffers
         foreach(auto p, buffers)
             agclose(p.spare_graph);
+        buffers.clear();
 
         gvFreeContext(context);
         context = 0;
@@ -172,7 +173,8 @@ bool lqContextGraph::parse(FILE *fp) {
 /** read from string
  */
 bool lqContextGraph::parse(QString script) {
-    return (graph = agmemread(script.toUtf8())) ? true : false;
+    clear();
+    return in_context() && (graph = agmemread(script.toUtf8())) ? true : false;
 }
 
 /** allocate a spare graph, to store elements

@@ -59,9 +59,6 @@ PREDICATE(gvContext, 1) {
  *  Beware! naked pointers. Need to introduce guarded allocation.
  */
 PREDICATE(gvFreeContext, 1) {
-    // Q_UNUSED(PL_A1);
-    // disabled
-    // throw PlException("disabled");
     gvFreeContext(gvc(PL_A1));
     return TRUE;
 }
@@ -99,7 +96,7 @@ PREDICATE(agopen, 4) {
     if (type_ == "Agstrictdirected") type = Agstrictdirected; else
     if (type_ == "Agundirected") type = Agundirected; else
     if (type_ == "Agstrictundirected") type = Agstrictundirected; else
-        PlException("invalid graph type").cppThrow();
+        throw PlException("invalid graph type");
 
     if (Agraph_t *G = agopen(CP(PL_A1), type, 0))
         return PL_A4 = G;
@@ -133,7 +130,6 @@ PREDICATE(agclose, 1) {
 PREDICATE(agnode, 4) {
     if (Agnode_t* N = agnode(graph(PL_A1), CP(PL_A2), PL_A3))
         return PL_A4 = N;
-    //throw PlException("agnode failed");
     return false;
 }
 
@@ -153,7 +149,6 @@ PREDICATE(agnode, 4) {
 PREDICATE(agedge, 6) {
     if (Agedge_t *E = agedge(graph(PL_A1), node(PL_A2), node(PL_A3), CP(PL_A4), PL_A5))
         return PL_A6 = E;
-    //throw PlException("agedge failed");
     return false;
 }
 
@@ -393,4 +388,3 @@ PREDICATE(agsubnode, 4) {
 PREDICATE(agsubedge, 4) {
     return PL_A4 = agsubedge(graph(PL_A1), edge(PL_A2), PL_A3);
 }
-

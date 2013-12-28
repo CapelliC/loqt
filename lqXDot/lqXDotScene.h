@@ -56,9 +56,28 @@ public:
 
     //! mapping visual objects
     enum { agptr };
+    /*
     static Np it_node(QGraphicsItem* i);
     static Ep it_edge(QGraphicsItem* i);
     static Gp it_graph(QGraphicsItem* i);
+    */
+
+    static Np to_node(lqNode* n) { return n->data(agptr).value<Agnode_t*>(); }
+    static Ep to_edge(lqEdge* e) { return e->data(agptr).value<Agedge_t*>(); }
+    static Gp to_graph(lqGraph *g) { return g->data(agptr).value<Agraph_t*>(); }
+
+    static Np it_node(QGraphicsItem* i) {
+        lqNode* n = ancestor<lqNode>(i);
+        return n ? to_node(n) : 0;
+    }
+    static Ep it_edge(QGraphicsItem* i) {
+        lqEdge* e = ancestor<lqEdge>(i);
+        return e ? to_edge(e) : 0;
+    }
+    static Gp it_graph(QGraphicsItem* i) {
+        lqGraph *g = ancestor<lqGraph>(i);
+        return g ? to_graph(g) : 0;
+    }
 
     lqNode *find_node(Np obj) const;
     lqEdge *find_edge(Ep obj) const;
@@ -153,7 +172,6 @@ public slots:
 };
 
 /** recover actual object underneath a graphic primitive
- */
 inline Agnode_t *lqXDotScene::it_node(QGraphicsItem* i) {
     lqNode* n = ancestor<lqNode>(i);
     return n ? n->data(agptr).value<Agnode_t*>() : 0;
@@ -166,5 +184,6 @@ inline Agraph_t *lqXDotScene::it_graph(QGraphicsItem* i) {
     QGraphicsItemGroup *g = ancestor<QGraphicsItemGroup>(i);
     return g ? g->data(agptr).value<Agraph_t*>() : 0;
 }
+ */
 
 #endif // LQXDOTSCENE_H

@@ -20,7 +20,8 @@ SOURCES += lqUty.cpp \
     lqPreferences.cpp \
     QStackedWidget_KeybTabs.cpp \
     SourceEdit.cpp \
-    FindReplace.cpp
+    FindReplace.cpp \
+    CodeMirroring.cpp
 
 HEADERS += lqUty.h \
     lqUty_global.h \
@@ -33,7 +34,8 @@ HEADERS += lqUty.h \
     QStackedWidget_KeybTabs.h \
     SourceEdit.h \
     file2string.h \
-    FindReplace.h
+    FindReplace.h \
+    CodeMirroring.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

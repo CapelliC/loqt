@@ -149,12 +149,11 @@ find_cluster(G, Name, C) :-
         spqr:agsubg(G, Id, 0, C).
 
 %% set_attr(+Objects:list, +Attrs:list)
+%% set_attr(+Object:pointer, +Attrs:list)
 %
 set_attr(Os, As) :-
         is_list(Os) -> forall(member(O, Os), set_attr(O, As)).
 
-%% set_attr(+Object:pointer, +Attrs:list)
-%
 set_attr(O, As) :-
         is_list(As) ->
         maplist(set_attr(O), As)

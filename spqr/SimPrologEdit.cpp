@@ -31,7 +31,9 @@ SimPrologEdit::SimPrologEdit(QWidget *parent) :
 
 void SimPrologEdit::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key() == Qt::Key_F1) {
+    switch (e->key()) {
+
+    case Qt::Key_F1: {
         QTextCursor c = textCursor();
         c.select(c.WordUnderCursor);
         QString s = c.selectedText();
@@ -44,14 +46,15 @@ void SimPrologEdit::keyPressEvent(QKeyEvent *e)
                                 .arg(m->DOC_PORT).arg(s));
                     break;
                 }
-    }
-    if (e->key() == Qt::Key_Tab) {
+    }   break;
+
+    case Qt::Key_Tab:
+        e->ignore();
+        return;
+    case Qt::Key_Backtab:
         e->ignore();
         return;
     }
-    if (e->key() == Qt::Key_Backtab) {
-        e->ignore();
-        return;
-    }
+
     SimPrologEditBase::keyPressEvent(e);
 }

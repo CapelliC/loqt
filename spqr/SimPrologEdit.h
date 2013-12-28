@@ -26,6 +26,7 @@
 #include <QPlainTextEdit>
 
 typedef QPlainTextEdit SimPrologEditBase;
+
 class SimPrologEdit : public SimPrologEditBase
 {
     Q_OBJECT

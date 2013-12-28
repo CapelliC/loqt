@@ -647,8 +647,35 @@ bool lqXDotScene::f_old(lqNode* i)
  */
 bool lqXDotScene::fold(lqNode* i)
 {
+    auto m = new QStateMachine;
+
     Np n = it_node(i);   // n is undergoing folding
     Q_ASSERT(n);
+
+    dump("before");
+
+    auto sm = new QSignalMapper(m);
+    connect(sm, SIGNAL(mapped(QString)), this, SLOT(msg(QString)));
+
+    auto pmsg = [&](QObject* emitter, const char* sig, QString m) {
+        connect(emitter, sig, sm, SLOT(map()));
+        sm->setMapping(emitter, m);
+    };
+
+    // compute animation
+    QState *source = new QState(m);
+    m->setInitialState(source);
+
+    auto target = new QState(m);
+
+    QAbstractTransition *s2t = source->addTransition(target);
+
+    auto all = new QParallelAnimationGroup;
+    s2t->addAnimation(all);
+
+    // delete machine after animation
+    target->addTransition(all, SIGNAL(finished()), new cleanUpState(m));
+    pmsg(m, SIGNAL(finished()), "machine finished");
 
     // mandatory to recompute...
     if (!cg->freeLayout())
@@ -657,12 +684,39 @@ bool lqXDotScene::fold(lqNode* i)
     //dump("before");
     if (cg->is_folded(n))
         cg->unfold(n);
-    else
+    else {
         cg->fold(n);
+
+        QRectF N = bb_rect(n);
+        QPointF Nd = i->boundingRect().center() - N.center();
+
+        foreach(QGraphicsItem* g, items()) {
+            if (g != i && g->type() == lqNode::Type) {
+                auto j = qgraphicsitem_cast<lqNode*>(g);
+                Np J = to_node(j);
+                QRectF Q = j->boundingRect();
+                QPointF X_p = N.center() - Q.center() + Nd;
+                if (agnode(*cg, agnameof(J), 0)) {
+                    // not folded: move to new pos
+                }
+                else {
+                    // folded: move to <n> pos
+                }
+                target->assignProperty(j, "pos", X_p);
+                all->addAnimation(new QPropertyAnimation(j, "pos"));
+            }
+        }
+    }
 
     if (cg->repeatOperations()) {
         clear();
         build();
+
+        for (int i = 0; i < all->animationCount(); ++i)
+            qobject_cast<QPropertyAnimation*>(all->animationAt(i))->setDuration(1000);
+
+        m->start();
+
         return true;
     }
 

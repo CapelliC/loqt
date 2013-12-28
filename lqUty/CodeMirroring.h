@@ -20,22 +20,15 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef SOURCEEDIT_H
-#define SOURCEEDIT_H
+#ifndef CODEMIRRORING_H
+#define CODEMIRRORING_H
 
-#include "lqPreferences.h"
 #include <QWebView>
 
-class plqt;
-class ConsoleEdit;
-
 /** source editing with CodeMirror
- *  syntax coloring in naive JavaScript tokenizer
- *  I have ready a proper SWI-prolog syntax highlighter
- *  running in QTextEdit. Should be easy to add here as well.
  */
-class LQUTYSHARED_EXPORT SourceEdit : public QWebView {
-
+class CodeMirroring : public QWebView
+{
     Q_OBJECT
 
     //! load script text to CodeMirror
@@ -48,16 +41,16 @@ class LQUTYSHARED_EXPORT SourceEdit : public QWebView {
 
 public:
 
-    explicit SourceEdit();
-    SourceEdit(const SourceEdit &);
+    explicit CodeMirroring(QWidget *parent = 0);
+    CodeMirroring(const CodeMirroring &);
 
-    //! real entry point
-    SourceEdit(QString file);
+    //! construct and edit <file>
+    CodeMirroring(QString file);
 
     //! script file interface
-    bool loadFile(QString fileName);
+    Q_INVOKABLE bool loadFile(QString fileName);
     QString getFile() const { return file; }
-    QString toPlainText() const;
+    Q_INVOKABLE QString toPlainText() const;
 
     enum msg_kind { info, err, log };
 
@@ -110,11 +103,11 @@ private:
     enum { idle, isnew, modified, saved, compiled } status;
 
     QString file;
-    QString title() const;
+    virtual QString title() const;
 
     void initialize();
 };
 
-Q_DECLARE_METATYPE(SourceEdit)
+Q_DECLARE_METATYPE(CodeMirroring)
 
-#endif // SOURCEEDIT_H
+#endif // CODEMIRRORING_H

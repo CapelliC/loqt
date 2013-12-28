@@ -20,63 +20,60 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "SourceEdit.h"
-#include "file2string.h"
-#include "MruHelper.h"
-
+#include "CodeMirroring.h"
 #include <QWebFrame>
-#include <QWebInspector>
-#include <QTextStream>
-#include <QFile>
-#include <QMessageBox>
-#include <QApplication>
-#include <QFileDialog>
+#include <QFileInfo>
 #include <QCloseEvent>
-#include <QtDebug>
+#include <QMessageBox>
+#include "file2string.h"
 
-void SourceEdit::initialize() {
+void CodeMirroring::initialize() {
     status = idle;
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
 }
 
-SourceEdit::SourceEdit() { initialize(); }
+CodeMirroring::CodeMirroring(QWidget *parent) :
+    QWebView(parent)
+{
+    initialize();
+}
 
-SourceEdit::SourceEdit(QString file) {
+CodeMirroring::CodeMirroring(QString file) {
     initialize();
     loadFile(file);
 }
 
-SourceEdit::SourceEdit(const SourceEdit &e) : QWebView() {
+CodeMirroring::CodeMirroring(const CodeMirroring &e) : QWebView(e.parentWidget()) {
     initialize();
-    loadFile(file);
+    loadFile(e.file);
 }
 
-QString SourceEdit::symbol() const { return QFileInfo(file).baseName(); }
+QString CodeMirroring::symbol() const { return QFileInfo(file).baseName(); }
 
-void SourceEdit::newFile() {
+void CodeMirroring::newFile() {
 }
 
-bool SourceEdit::loadFile(QString fileName) {
+bool CodeMirroring::loadFile(QString fileName) {
     file = fileName;
     text = file2string(fileName);
-    setHtml(file2string(":/SourceEdit.html"), QUrl("qrc:/"));
+    setHtml(file2string(":/CodeMirroring.html"), QUrl("qrc:/"));
     return true;
 }
-QString SourceEdit::toPlainText() const {
+QString CodeMirroring::toPlainText() const {
     return page()->mainFrame()->evaluateJavaScript("editor.getValue()").toString();
 }
 
-void SourceEdit::loadFinished(bool ok) {
+void CodeMirroring::loadFinished(bool ok) {
     emit msg(log, QString("loadFinished %1, len %2, ok %3").arg(file).arg(text.length()).arg(ok));
     if (ok) {
         auto f = page()->mainFrame();
         f->addToJavaScriptWindowObject("proxy", this);
-        f->evaluateJavaScript("editor.setValue(proxy.data)");//.toString();
+        f->evaluateJavaScript("editor.setValue(proxy.data)");
         f->evaluateJavaScript("editor.on(\"change\", function() { proxy.onChange() })");
     }
 }
 
-bool SourceEdit::save() {
+bool CodeMirroring::save() {
     {   QFile f(file);
         if (!f.open(QFile::WriteOnly)) {
             emit msg(err, tr("Can't open %1 for writing!").arg(file));
@@ -92,7 +89,7 @@ bool SourceEdit::save() {
     return true;
 }
 
-bool SourceEdit::saveAs() {
+bool CodeMirroring::saveAs() {
     /*
     QString fileName =
         QFileDialog::getSaveFileName(this,
@@ -105,7 +102,7 @@ bool SourceEdit::saveAs() {
     return true;
 }
 
-void SourceEdit::closeEvent(QCloseEvent *event) {
+void CodeMirroring::closeEvent(QCloseEvent *event) {
     if (maybeSave()) {
         event->accept();
     } else {
@@ -113,16 +110,15 @@ void SourceEdit::closeEvent(QCloseEvent *event) {
     }
 }
 
-void SourceEdit::documentWasModified() {
+void CodeMirroring::documentWasModified() {
     //setWindowModified(document()->isModified());
 }
 
-QString SourceEdit::title() const {
-    QString t = MruHelper::path2title(file);
-    return status == modified ? t + " * " : t;
+QString CodeMirroring::title() const {
+    return symbol();
 }
 
-bool SourceEdit::maybeSave() {
+bool CodeMirroring::maybeSave() {
     if (status == modified) {
         typedef QMessageBox B;
         B::StandardButton ret = B::warning(this,
@@ -138,14 +134,14 @@ bool SourceEdit::maybeSave() {
 }
 
 // callback from JS
-void SourceEdit::onChange() {
+void CodeMirroring::onChange() {
     if (status != modified) {
         status = modified;
         emit setTitle(file, title());
     }
 }
 
-void SourceEdit::show_call(long from, long stop) {
+void CodeMirroring::show_call(long from, long stop) {
     page()->mainFrame()->evaluateJavaScript(
                 QString("show_call(%1,%2)").arg(from).arg(stop));
 }

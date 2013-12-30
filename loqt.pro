@@ -15,10 +15,12 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    lqUty \
     lqXDot \
     lqXDot_test \
+    lqUty \
     spqr
 
 OTHER_FILES += \
-    README.md
+    README.md \
+    img/cluster.png \
+    img/cluster-dot.png

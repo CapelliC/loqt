@@ -183,7 +183,7 @@ bool lqContextGraph::parse(QString script) {
 lqContextGraph::buffer* lqContextGraph::buff(Np n, bool decl_attrs) {
     buffer *buf = 0;
 
-    QString N = agnameof(n);
+    QString N = gvname(n);
     t_buffers::iterator p = buffers.find(N);
     if (p != buffers.end())
         buf = &p.value();
@@ -191,7 +191,7 @@ lqContextGraph::buffer* lqContextGraph::buff(Np n, bool decl_attrs) {
         bool strict = agisstrict(graph);
         Agdesc_t desc = agisdirected(graph) ? (strict ? Agstrictdirected : Agdirected) : (strict ? Agstrictundirected : Agundirected);
         buffer b;
-        b.spare_graph = agopen(ccstr(QString("#buffer#%1#%2").arg(buffers.count()).arg(agnameof(n)).toUtf8()), desc, 0);
+        b.spare_graph = agopen(qcstr(QString("#buffer#%1#%2").arg(buffers.count()).arg(N)), desc, 0);
         buf = &buffers.insert(N, b).value();
     }
 
@@ -245,14 +245,14 @@ void lqContextGraph::depth_first(Gf gv, Gp root) {
  */
 bool lqContextGraph::is_folded(Np n) const {
     Q_ASSERT(agraphof(n) == graph);
-    return buffers.contains(agnameof(n));
+    return buffers.contains(gvname(n));
 }
 
 /** make structural changes required to fold node <n>
  *  all nodes reachable from n are merged to n (removed and buffered in context),
  *  and edges are routed to arguably preserve the structure
  */
-void lqContextGraph::fold(Np n) {
+GV_ptr_types::Gp lqContextGraph::fold(Np n) {
     Q_ASSERT(!is_folded(n));
 
     QSet<Ep> edel;
@@ -280,10 +280,10 @@ void lqContextGraph::fold(Np n) {
         OK(agdeledge(graph, x));
     foreach(auto x, ndel) {
         for_edges_in(x, [&](Ep e) {
-            QString tn = agnameof(agtail(e));
+            QString tn = gvname(agtail(e));
             if (!agnode(B->spare_graph, qcstr(tn), 0)) {
-                QString cn = agnameof(e);
-                QString hn = agnameof(aghead(e));
+                QString cn = gvname(e);
+                QString hn = gvname(aghead(e));
                 Ep E = agedge(graph, agtail(e), n, 0, 1);
                 agsafeset(E, ccstr("style"), ccstr("dotted"), ccstr(""));
                 B->fake_edges << fake_edge {tn, hn, cn};
@@ -291,6 +291,7 @@ void lqContextGraph::fold(Np n) {
         });
         OK(agdelnode(graph, x));
     }
+    return B->spare_graph;
 }
 
 /** make structural changes required to unfold node <n>
@@ -325,7 +326,7 @@ void lqContextGraph::unfold(Np n) {
     }
 
     OK(agclose(B->spare_graph));
-    buffers.remove(agnameof(n));
+    buffers.remove(gvname(n));
 }
 
 /** make a copy of node <n> with attributes

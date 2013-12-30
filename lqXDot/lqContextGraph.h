@@ -186,7 +186,7 @@ public:
     bool is_folded(Np n) const;
 
     //! structure manipulation - fold node <n>
-    void fold(Np n);
+    Gp fold(Np n);
 
     //! structure manipulation - unfold node <n>
     void unfold(Np n);
@@ -205,7 +205,6 @@ private:
 
     Cp context;
     Gp graph;
-
     struct fake_edge { QString n_tail, n_head, n_save; };
 
     struct buffer {

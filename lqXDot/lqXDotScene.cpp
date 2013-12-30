@@ -21,6 +21,8 @@
 */
 
 #include "lqXDotScene.h"
+#include "lqLogger.h"
+#include "lqAniMachine.h"
 
 #include <QTime>
 #include <QDebug>
@@ -135,7 +137,7 @@ QColor lqXDotScene::parse_color(QString color, bool truecolor)
  */
 QGraphicsItem* lqXDotScene::add_node(Np n)
 {
-    qDebug() << "add_node" << CVP(n) << gvname(n);
+    qDebug() << "add_node" << CVP(n) << gvname(n) << AGID(n);
 
     l_items l = build_graphic(n);
     if (!l.isEmpty()) {
@@ -167,6 +169,8 @@ QGraphicsItem* lqXDotScene::add_node(Np n)
 
 QGraphicsItem* lqXDotScene::add_edge(Ep e)
 {
+    qDebug() << "add_edge" << CVP(e) << gvname(e) << AGID(e);
+
     l_items l = build_graphic(e);
     if (!l.isEmpty()) {
         QGraphicsItemGroup* g = createItemGroup(l);
@@ -535,7 +539,7 @@ bool lqXDotScene::f_old(lqNode* i)
 
     dump("before");
 
-    QSignalMapper *sm = new QSignalMapper(m);
+    auto sm = new QSignalMapper(m);
     connect(sm, SIGNAL(mapped(QString)), this, SLOT(msg(QString)));
 
     auto pmsg = [&](QObject* emitter, const char* sig, QString m) {
@@ -552,7 +556,7 @@ bool lqXDotScene::f_old(lqNode* i)
     nodes ndel;
 
     // compute animation
-    QState *source = new QState(m);
+    auto source = new QState(m);
     m->setInitialState(source);
 
     //foldedState *target = new foldedState(m);
@@ -560,7 +564,7 @@ bool lqXDotScene::f_old(lqNode* i)
 
     QAbstractTransition *s2t = source->addTransition(target);
 
-    QParallelAnimationGroup *all = new QParallelAnimationGroup;
+    auto all = new QParallelAnimationGroup;
     s2t->addAnimation(all);
 
     // delete machine after animation
@@ -619,6 +623,7 @@ bool lqXDotScene::f_old(lqNode* i)
             if (!X_p.isNull()) {
                 target->assignProperty(X, "pos", X_p);
                 all->addAnimation(new QPropertyAnimation(X, "pos"));
+
                 cg->for_edges_out(n, [&](Ep e){ find_edge(e)->hide(); });
             }
         });
@@ -645,30 +650,33 @@ bool lqXDotScene::f_old(lqNode* i)
 
 /** perform scene manipulation to get a node folded
  */
-bool lqXDotScene::fold(lqNode* i)
+bool lqXDotScene::f_old2(lqNode* i)
 {
     auto m = new QStateMachine;
 
     Np n = it_node(i);   // n is undergoing folding
     Q_ASSERT(n);
 
+    QRectF NR = i->boundingRect();
+    QString NN = agnameof(n);
+
     dump("before");
 
-    auto sm = new QSignalMapper(m);
+    QSignalMapper* sm = new QSignalMapper(m);
     connect(sm, SIGNAL(mapped(QString)), this, SLOT(msg(QString)));
 
-    auto pmsg = [&](QObject* emitter, const char* sig, QString m) {
+    std::function<void(QObject*, const char*, QString)> pmsg = [&](QObject* emitter, const char* sig, QString m) {
         connect(emitter, sig, sm, SLOT(map()));
         sm->setMapping(emitter, m);
     };
 
     // compute animation
-    QState *source = new QState(m);
+    auto source = new QState(m);
     m->setInitialState(source);
 
     auto target = new QState(m);
 
-    QAbstractTransition *s2t = source->addTransition(target);
+    auto s2t = source->addTransition(target);
 
     auto all = new QParallelAnimationGroup;
     s2t->addAnimation(all);
@@ -685,17 +693,26 @@ bool lqXDotScene::fold(lqNode* i)
     if (cg->is_folded(n))
         cg->unfold(n);
     else {
-        cg->fold(n);
+        //Gp sp = cg->fold(n);
 
-        QRectF N = bb_rect(n);
-        QPointF Nd = i->boundingRect().center() - N.center();
+        QPointF Nd = NR.center() - NR.center();
+
+        QSet<QString> hidden;
+        /*
+        auto NP = [&](Np x) {
+            QString NNP = agnameof(x);
+            if (NNP != NN)
+                hidden << NNP;
+        };
+        cg->depth_first(NP, sp);
+        */
 
         foreach(QGraphicsItem* g, items()) {
             if (g != i && g->type() == lqNode::Type) {
                 auto j = qgraphicsitem_cast<lqNode*>(g);
                 Np J = to_node(j);
                 QRectF Q = j->boundingRect();
-                QPointF X_p = N.center() - Q.center() + Nd;
+                QPointF X_p = NR.center() - Q.center() + Nd;
                 if (agnode(*cg, agnameof(J), 0)) {
                     // not folded: move to new pos
                 }
@@ -716,6 +733,74 @@ bool lqXDotScene::fold(lqNode* i)
             qobject_cast<QPropertyAnimation*>(all->animationAt(i))->setDuration(1000);
 
         m->start();
+
+        return true;
+    }
+
+    return false;
+}
+
+/** perform scene manipulation to get a node folded
+ */
+bool lqXDotScene::fold(lqNode* i)
+{
+    Np n = it_node(i);   // n is undergoing folding
+    Q_ASSERT(n);
+
+    if (agfstout(*cg, n) == 0)
+        return false;
+
+    // mandatory to recompute...
+    { bool rc = cg->freeLayout(); Q_ASSERT(rc); }
+
+    QString N = gvname(n);
+
+    n2n before = nodes2names();
+    before.remove(N);
+
+    if (cg->is_folded(n))
+        cg->unfold(n);
+    else
+        cg->fold(n);
+
+    n2n after = nodes2names();
+    after.remove(N);
+
+    if (cg->repeatOperations()) {
+
+        auto am = new lqAniMachine;
+        auto lo = new lqLogger(this, SLOT(msg(QString)), am);
+
+        auto xs = new lqXDotScene(cg);
+        xs->build();
+
+        lo->print(am, SIGNAL(finished()), "machine finished");
+
+        QRectF R = i->boundingRect();
+        QPointF P = R.center(); // - xs->newpos(n).center();
+        for (n2n::const_iterator ib = before.begin(); ib != before.end(); ++ib) {
+            lqNode *X = ib.value();
+            QRectF Q = X->boundingRect();
+
+            n2n::const_iterator ia = after.find(ib.key());
+            if (ia == after.end()) {
+                // removed
+                QPointF X_p = R.center() - Q.center() + P;
+                if (!X_p.isNull()) {
+                    am->animateTargetProperty(X, "pos", X_p);
+                    am->animateTargetProperty(X, "opacity", 0);
+                }
+            } else {
+                // move to new position
+                QRectF X1;// =  xs->newpos(n).center();
+                QPointF X_p = X1.center() - Q.center() + P;
+                if (!X_p.isNull())
+                    am->animateTargetProperty(X, "pos", X_p);
+            }
+        }
+
+        am->setDuration();
+        am->start();
 
         return true;
     }

@@ -86,6 +86,7 @@ public:
     typedef QList<QGraphicsItem*> l_items;
 
     //! change the content to get node folded
+    bool f_old2(lqNode *node);
     bool f_old(lqNode *node);
     bool fold(lqNode *node);
 
@@ -137,8 +138,9 @@ private:
     l_items build_graphic(Ep obj) { return build_graphic(obj, x_attrs_edge); }
     l_items build_graphic(Gp obj) { return build_graphic(obj, x_attrs_graph); }
 
+    //! presumed bounding box - not actually built graphics yet
     QRectF bb_rect(void *obj, int ops);
-    QRectF bb_rect(Agnode_t *node) { return bb_rect(node, x_attrs_node); }
+    QRectF bb_rect(Np node) { return bb_rect(node, x_attrs_node); }
 
     typedef QVector<QPointF> t_poly;
     t_poly poly_spec(const xdot_polyline& l) const {
@@ -167,23 +169,15 @@ private:
     QRectF bbscene;
     qreal cy(qreal y) const { return bbscene.height() - y; }
 
+    typedef QHash<QString, lqNode*> n2n;
+    n2n nodes2names() {
+        n2n v;
+        cg->for_nodes([&](Np n) { v[gvname(n)] = find_node(n); });
+        return v;
+    }
+
 public slots:
     void msg(QString);
 };
-
-/** recover actual object underneath a graphic primitive
-inline Agnode_t *lqXDotScene::it_node(QGraphicsItem* i) {
-    lqNode* n = ancestor<lqNode>(i);
-    return n ? n->data(agptr).value<Agnode_t*>() : 0;
-}
-inline Agedge_t *lqXDotScene::it_edge(QGraphicsItem* i) {
-    QGraphicsItemGroup *g = ancestor<QGraphicsItemGroup>(i);
-    return g ? g->data(agptr).value<Agedge_t*>() : 0;
-}
-inline Agraph_t *lqXDotScene::it_graph(QGraphicsItem* i) {
-    QGraphicsItemGroup *g = ancestor<QGraphicsItemGroup>(i);
-    return g ? g->data(agptr).value<Agraph_t*>() : 0;
-}
- */
 
 #endif // LQXDOTSCENE_H

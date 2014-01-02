@@ -29,6 +29,7 @@
 
 #include "lqContextGraph.h"
 #include "lqAobj.h"
+class lqXDotView;
 
 #include <graphviz/xdot.h>
 
@@ -54,41 +55,19 @@ public:
 
     static QColor parse_color(QString color, bool truecolor);
 
-    //! mapping visual objects
-    enum { agptr };
-    /*
-    static Np it_node(QGraphicsItem* i);
-    static Ep it_edge(QGraphicsItem* i);
-    static Gp it_graph(QGraphicsItem* i);
-    */
-
-    static Np to_node(lqNode* n) { return n->data(agptr).value<Agnode_t*>(); }
-    static Ep to_edge(lqEdge* e) { return e->data(agptr).value<Agedge_t*>(); }
-    static Gp to_graph(lqGraph *g) { return g->data(agptr).value<Agraph_t*>(); }
-
-    static Np it_node(QGraphicsItem* i) {
+    Np to_node(lqNode* n) const {
+        return agnode(*cg, qcstr(n->name()), 0);
+    }
+    Np it_node(QGraphicsItem* i) const {
         lqNode* n = ancestor<lqNode>(i);
         return n ? to_node(n) : 0;
     }
-    static Ep it_edge(QGraphicsItem* i) {
-        lqEdge* e = ancestor<lqEdge>(i);
-        return e ? to_edge(e) : 0;
-    }
-    static Gp it_graph(QGraphicsItem* i) {
-        lqGraph *g = ancestor<lqGraph>(i);
-        return g ? to_graph(g) : 0;
-    }
-
     lqNode *find_node(Np obj) const;
-    lqEdge *find_edge(Ep obj) const;
-    lqGraph *find_graph(Gp obj) const;
 
     typedef QList<QGraphicsItem*> l_items;
 
-    //! change the content to get node folded
-    bool f_old2(lqNode *node);
-    bool f_old(lqNode *node);
-    bool fold(lqNode *node);
+    //! change the content to get node folded/unfolded
+    lqXDotScene* fold(lqNode *node, lqXDotView* v);
 
     //! dump to debugger output
     void dump(QString m) const;
@@ -169,9 +148,10 @@ private:
     QRectF bbscene;
     qreal cy(qreal y) const { return bbscene.height() - y; }
 
-    typedef QHash<QString, lqNode*> n2n;
-    n2n nodes2names() {
-        n2n v;
+    typedef QHash<QString, lqNode*> name2node;
+    name2node names2nodes;
+    name2node nodeNames() {
+        name2node v;
         cg->for_nodes([&](Np n) { v[gvname(n)] = find_node(n); });
         return v;
     }

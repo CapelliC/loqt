@@ -33,6 +33,7 @@
 #include <QTextCursor>
 #include <QDir>
 #include <QMenu>
+#include <QTimer>
 
 /** actual constructor, make an empty view
  */
@@ -256,7 +257,9 @@ void lqXDotView::toggleFolding()
 {
     if (foldNodes()) {
         lqNode *i = qobject_cast<QAction*>(sender())->data().value<lqNode *>();
-        if (scene()->fold(i)) {
+        lqXDotScene *s = scene()->fold(i, this);
+        if (s) {
+            //QTimer::singleShot(1000, this, SLOT(setFoldedScene(lqXDotScene*));
         }
         /*
         Np n = scene()->it_node(i);   // n is undergoing folding
@@ -279,3 +282,10 @@ void lqXDotView::toggleFolding()
         */
     }
 }
+/*
+void lqXDotView::setScene(lqXDotScene *s)
+{
+    QGraphicsView::setScene(s);
+    //setScene(s);
+}
+*/

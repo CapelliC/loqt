@@ -33,9 +33,6 @@ lqAniMachine::lqAniMachine(QObject *parent) :
     source->addTransition(target)->addAnimation(animation);
 
     setInitialState(source);
-
-    // auto delete after animation
-    target->addTransition(animation, SIGNAL(finished()), new cleanUpState(this));
 }
 
 void lqAniMachine::animateTargetProperty(QObject *x, const char *prop, QVariant v)
@@ -44,12 +41,19 @@ void lqAniMachine::animateTargetProperty(QObject *x, const char *prop, QVariant 
     animation->addAnimation(new QPropertyAnimation(x, prop));
 }
 
-void lqAniMachine::setDuration(int msec_duration) {
+void lqAniMachine::run(cleanUpState *toCleanup, int msec_duration)
+{
     for (int i = 0; i < animation->animationCount(); ++i)
         qobject_cast<QPropertyAnimation*>(animation->animationAt(i))->setDuration(msec_duration);
+
+    // auto delete after animation
+    if (!toCleanup)
+        toCleanup = new cleanUpState(this);
+    target->addTransition(animation, SIGNAL(finished()), toCleanup);
 }
 
-void lqAniMachine::cleanUpState::onEntry(QEvent *event) {
+void lqAniMachine::cleanUpState::onEntry(QEvent *event)
+{
     QFinalState::onEntry(event);
     machine()->deleteLater();
 }

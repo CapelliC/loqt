@@ -23,6 +23,7 @@
 #include "lqXDotScene.h"
 #include "lqLogger.h"
 #include "lqAniMachine.h"
+#include "lqXDotView.h"
 
 #include <QTime>
 #include <QDebug>
@@ -89,6 +90,7 @@ lqNode *lqXDotScene::find_node(Agnode_t *obj) const
         return it_node(i) == obj;
     }, items());
 }
+/*
 QGraphicsItemGroup *lqXDotScene::find_edge(Agedge_t *obj) const
 {
     return _find<QGraphicsItemGroup>([this, obj](QGraphicsItem *i) {
@@ -101,6 +103,7 @@ QGraphicsItemGroup *lqXDotScene::find_graph(Agraph_t *obj) const
         return it_graph(i) == obj;
     }, items());
 }
+*/
 
 /** translate a color specification string to Qt class QColor
  *  this decode function doesn't depend on XDOT
@@ -137,14 +140,15 @@ QColor lqXDotScene::parse_color(QString color, bool truecolor)
  */
 QGraphicsItem* lqXDotScene::add_node(Np n)
 {
-    qDebug() << "add_node" << CVP(n) << gvname(n) << AGID(n);
+    QString N = gvname(n);
+    qDebug() << "add_node" << CVP(n) << N << AGID(n);
 
     l_items l = build_graphic(n);
     if (!l.isEmpty()) {
 
         lqNode* g = new lqNode(this, l);
 
-        g->setData(agptr, QVariant::fromValue(n));
+        //g->setData(agptr, QVariant::fromValue(n));
         g->setFlag(g->ItemIsSelectable);
 
         QString tooltip = QString::fromUtf8(attr_str(n, "tooltip"));
@@ -162,6 +166,9 @@ QGraphicsItem* lqXDotScene::add_node(Np n)
             ck->setPos(g->boundingRect().topLeft());
         }
 
+        names2nodes[N] = g;
+        g->setName(N);
+
         return g;
     }
     return 0;
@@ -174,7 +181,7 @@ QGraphicsItem* lqXDotScene::add_edge(Ep e)
     l_items l = build_graphic(e);
     if (!l.isEmpty()) {
         QGraphicsItemGroup* g = createItemGroup(l);
-        g->setData(agptr, QVariant::fromValue(e));
+        //g->setData(agptr, QVariant::fromValue(e));
         return g;
     }
     return 0;
@@ -201,7 +208,7 @@ void lqXDotScene::subgraphs(Gp graph, qreal off_z)
 
     if (!l.isEmpty()) {
         QGraphicsItem *ig = createItemGroup(l);
-        ig->setData(agptr, QVariant::fromValue(graph));
+        //ig->setData(agptr, QVariant::fromValue(graph));
         ig->setZValue(dz(off_z));
     }
 
@@ -494,7 +501,7 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
             enum {BOLD, ITALIC, UNDERLINE, SUPERSCRIPT, SUBSCRIPT, STRIKE_THROUGH};
             if (fontchar & (1 << BOLD))
                 font.setBold(true);
-            if (fontchar & (1 << ITALIC))
+           if (fontchar & (1 << ITALIC))
                 font.setItalic(true);
             if (fontchar & (1 << UNDERLINE))
                 font.setUnderline(true);
@@ -517,295 +524,83 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
  */
 void lqXDotScene::dump(QString m) const { cg->dump(m); }
 
-class cleanUpState : public QFinalState {
+class changeScene : public lqAniMachine::cleanUpState {
 public:
-    cleanUpState(QStateMachine *m) : QFinalState(m) {}
+    changeScene(lqXDotScene *s, lqXDotView *v, QPointF p, QStateMachine *m) :
+        cleanUpState(m), s(s), v(v), p(p) { }
 protected:
+    lqXDotScene *s;
+    lqXDotView *v;
+    QPointF p;
     void onEntry(QEvent *event) {
-        //qDebug() << CVP(machine()) << "machine()->deleteLater()";
-        QFinalState::onEntry(event);
-        machine()->deleteLater();
+        v->setScene(s);
+        v->translate(p.x(), p.y());
+        cleanUpState::onEntry(event);
     }
 };
 
-/** perform scene manipulation to get a node folded
+/** compute scene animation to get a visible node <i> folded/unfolded
  */
-bool lqXDotScene::f_old(lqNode* i)
-{
-    QStateMachine *m = new QStateMachine;
-
-    Np n = it_node(i);   // n is undergoing folding
-    Q_ASSERT(n);
-
-    dump("before");
-
-    auto sm = new QSignalMapper(m);
-    connect(sm, SIGNAL(mapped(QString)), this, SLOT(msg(QString)));
-
-    auto pmsg = [&](QObject* emitter, const char* sig, QString m) {
-        connect(emitter, sig, sm, SLOT(map()));
-        sm->setMapping(emitter, m);
-    };
-
-    /*
-    int xc = agsafeset(n, ccstr("shape"), ccstr("folder"), ccstr("ellipse"));
-    Q_ASSERT(xc == 0);
-    */
-
-    edges edel;
-    nodes ndel;
-
-    // compute animation
-    auto source = new QState(m);
-    m->setInitialState(source);
-
-    //foldedState *target = new foldedState(m);
-    auto target = new QState(m);
-
-    QAbstractTransition *s2t = source->addTransition(target);
-
-    auto all = new QParallelAnimationGroup;
-    s2t->addAnimation(all);
-
-    // delete machine after animation
-    target->addTransition(all, SIGNAL(finished()), new cleanUpState(m));
-    pmsg(m, SIGNAL(finished()), "machine finished");
-
-    // to recompute...
-    if (!cg->freeLayout())
-        return false;
-
-    // structural changes
-    cg->for_edges_out(n, [&](Ep e) {
-        Np h = e->node;
-
-        // move edges from hidden to source
-        edel << e;
-        cg->for_edges_out(h, [&](Ep d) {
-            //target->edges_moved << find_edge(d);
-            find_edge(d)->hide();
-            //target->e_cloned << cg->clone(d, );
-        });
-
-        if (!ndel.contains(h)) {    // multiple edges ?
-            // remove node
-            ndel << h;
-
-            //target->nodes_hidden << find_node(h);
-            //target->n_cloned << cg->clone(h);
-        }
-    });
-
-    foreach(auto x, edel)
-        agdeledge(*cg, x);
-    foreach(auto x, ndel)
-        agdelnode(*cg, x);
-
-    if (cg->repeatOperations()) {
-
-        // used to offset y coords in scene
-        bbscene = graph_bb(*cg);
-
-        QRectF N = bb_rect(n);
-        QPointF Nd = find_node(n)->boundingRect().center() - N.center();
-
-        cg->for_nodes([&](Np x) {
-            Q_ASSERT(!ndel.contains(x));
-            lqNode *X = find_node(x);
-            QRectF Q = X->boundingRect();
-            QPointF X_p;
-            if (x == n) {
-                //X_p = N.center() - Q.center();
-            } else {
-                QRectF X1 = bb_rect(x);
-                X_p = X1.center() - Q.center() + Nd;
-            }
-            if (!X_p.isNull()) {
-                target->assignProperty(X, "pos", X_p);
-                all->addAnimation(new QPropertyAnimation(X, "pos"));
-
-                cg->for_edges_out(n, [&](Ep e){ find_edge(e)->hide(); });
-            }
-        });
-
-        foreach(auto x, ndel) {
-            lqNode *X = find_node(x);
-            QRectF Q = X->boundingRect();
-            QPointF X_p = N.center() - Q.center() + Nd;
-
-            target->assignProperty(X, "pos", X_p);
-            all->addAnimation(new QPropertyAnimation(X, "pos"));
-
-            target->assignProperty(X, "opacity", 0);
-            all->addAnimation(new QPropertyAnimation(X, "opacity"));
-        }
-    }
-
-    for (int i = 0; i < all->animationCount(); ++i)
-        qobject_cast<QPropertyAnimation*>(all->animationAt(i))->setDuration(1000);
-
-    m->start();
-    return true;
-}
-
-/** perform scene manipulation to get a node folded
- */
-bool lqXDotScene::f_old2(lqNode* i)
-{
-    auto m = new QStateMachine;
-
-    Np n = it_node(i);   // n is undergoing folding
-    Q_ASSERT(n);
-
-    QRectF NR = i->boundingRect();
-    QString NN = agnameof(n);
-
-    dump("before");
-
-    QSignalMapper* sm = new QSignalMapper(m);
-    connect(sm, SIGNAL(mapped(QString)), this, SLOT(msg(QString)));
-
-    std::function<void(QObject*, const char*, QString)> pmsg = [&](QObject* emitter, const char* sig, QString m) {
-        connect(emitter, sig, sm, SLOT(map()));
-        sm->setMapping(emitter, m);
-    };
-
-    // compute animation
-    auto source = new QState(m);
-    m->setInitialState(source);
-
-    auto target = new QState(m);
-
-    auto s2t = source->addTransition(target);
-
-    auto all = new QParallelAnimationGroup;
-    s2t->addAnimation(all);
-
-    // delete machine after animation
-    target->addTransition(all, SIGNAL(finished()), new cleanUpState(m));
-    pmsg(m, SIGNAL(finished()), "machine finished");
-
-    // mandatory to recompute...
-    if (!cg->freeLayout())
-        Q_ASSERT(false);
-
-    //dump("before");
-    if (cg->is_folded(n))
-        cg->unfold(n);
-    else {
-        //Gp sp = cg->fold(n);
-
-        QPointF Nd = NR.center() - NR.center();
-
-        QSet<QString> hidden;
-        /*
-        auto NP = [&](Np x) {
-            QString NNP = agnameof(x);
-            if (NNP != NN)
-                hidden << NNP;
-        };
-        cg->depth_first(NP, sp);
-        */
-
-        foreach(QGraphicsItem* g, items()) {
-            if (g != i && g->type() == lqNode::Type) {
-                auto j = qgraphicsitem_cast<lqNode*>(g);
-                Np J = to_node(j);
-                QRectF Q = j->boundingRect();
-                QPointF X_p = NR.center() - Q.center() + Nd;
-                if (agnode(*cg, agnameof(J), 0)) {
-                    // not folded: move to new pos
-                }
-                else {
-                    // folded: move to <n> pos
-                }
-                target->assignProperty(j, "pos", X_p);
-                all->addAnimation(new QPropertyAnimation(j, "pos"));
-            }
-        }
-    }
-
-    if (cg->repeatOperations()) {
-        clear();
-        build();
-
-        for (int i = 0; i < all->animationCount(); ++i)
-            qobject_cast<QPropertyAnimation*>(all->animationAt(i))->setDuration(1000);
-
-        m->start();
-
-        return true;
-    }
-
-    return false;
-}
-
-/** perform scene manipulation to get a node folded
- */
-bool lqXDotScene::fold(lqNode* i)
+lqXDotScene* lqXDotScene::fold(lqNode* i, lqXDotView *qv)
 {
     Np n = it_node(i);   // n is undergoing folding
-    Q_ASSERT(n);
+    if (!n)
+        return 0;
 
-    if (agfstout(*cg, n) == 0)
-        return false;
+    QString N = gvname(n);
 
     // mandatory to recompute...
     { bool rc = cg->freeLayout(); Q_ASSERT(rc); }
 
-    QString N = gvname(n);
-
-    n2n before = nodes2names();
-    before.remove(N);
-
     if (cg->is_folded(n))
         cg->unfold(n);
-    else
+    else {
+        if (agfstout(*cg, n) == 0)
+            return 0;
         cg->fold(n);
+    }
 
-    n2n after = nodes2names();
-    after.remove(N);
+    if (!cg->repeatOperations())
+        return 0;
 
-    if (cg->repeatOperations()) {
+    auto xs = new lqXDotScene(cg);
+    auto am = new lqAniMachine;
+    auto lo = new lqLogger(this, SLOT(msg(QString)), am);
+    lo->print(am, SIGNAL(finished()), "machine finished");
 
-        auto am = new lqAniMachine;
-        auto lo = new lqLogger(this, SLOT(msg(QString)), am);
+    xs->build();
 
-        auto xs = new lqXDotScene(cg);
-        xs->build();
+    QRectF R = i->boundingRect();
+    QRectF R1 = xs->names2nodes[N]->boundingRect();
 
-        lo->print(am, SIGNAL(finished()), "machine finished");
+    QPointF P = R.center() - R1.center();
 
-        QRectF R = i->boundingRect();
-        QPointF P = R.center(); // - xs->newpos(n).center();
-        for (n2n::const_iterator ib = before.begin(); ib != before.end(); ++ib) {
-            lqNode *X = ib.value();
-            QRectF Q = X->boundingRect();
-
-            n2n::const_iterator ia = after.find(ib.key());
-            if (ia == after.end()) {
+    for (name2node::const_iterator ib = names2nodes.begin(); ib != names2nodes.end(); ++ib) {
+        lqNode *i1 = ib.value();
+        if (i1 != i) {
+            QRectF Q = i1->boundingRect();
+            name2node::const_iterator ia = xs->names2nodes.find(ib.key());
+            if (ia == xs->names2nodes.end()) {
                 // removed
                 QPointF X_p = R.center() - Q.center() + P;
                 if (!X_p.isNull()) {
-                    am->animateTargetProperty(X, "pos", X_p);
-                    am->animateTargetProperty(X, "opacity", 0);
+                    am->animateTargetProperty(i1, "pos", X_p);
+                    am->animateTargetProperty(i1, "opacity", 0);
                 }
             } else {
                 // move to new position
-                QRectF X1;// =  xs->newpos(n).center();
-                QPointF X_p = X1.center() - Q.center() + P;
+                QRectF Q1 = ia.value()->boundingRect();
+                QPointF X_p = R1.center() - Q1.center() + P;
                 if (!X_p.isNull())
-                    am->animateTargetProperty(X, "pos", X_p);
+                    am->animateTargetProperty(i1, "pos", X_p);
             }
         }
-
-        am->setDuration();
-        am->start();
-
-        return true;
     }
 
-    return false;
+    am->run(new changeScene(xs, qv, P, am));
+    am->start();
+
+    return xs;
 }
 
 /** really a logging utility

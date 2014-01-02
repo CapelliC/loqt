@@ -96,7 +96,9 @@ protected:
     bool render_layout(QString &err);
 
 protected slots:
+
     void toggleFolding();
+    //void setScene(lqXDotScene *s);
 
 private:
 

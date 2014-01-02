@@ -39,12 +39,22 @@ class LQXDOTSHARED_EXPORT lqItem : public QObject, public QGraphicsItemGroup
     //! animate visibility
     Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity FINAL)
 
+    //! each object has unique name
+    Q_PROPERTY(QString name READ name WRITE setName)
+
 public:
 
     typedef QList<QGraphicsItem *> items;
 
     //! construct with graphics primitives
     lqItem(QGraphicsScene *s, items objs);
+
+    //! name storage
+    QString name() const { return name_; }
+    void setName(QString name) { name_ = name; }
+
+private:
+    QString name_;
 
 signals:
 
@@ -57,7 +67,6 @@ public slots:
 class LQXDOTSHARED_EXPORT lqNode : public lqItem
 {
     Q_OBJECT
-
 public:
 
     //! construct with graphics primitives
@@ -72,7 +81,6 @@ signals:
 public slots:
 
 };
-
 Q_DECLARE_METATYPE(lqNode*)
 
 typedef QGraphicsItemGroup lqEdge;

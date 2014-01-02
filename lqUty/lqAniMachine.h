@@ -38,6 +38,14 @@ class LQUTYSHARED_EXPORT lqAniMachine : public QStateMachine
 
 public:
 
+    //! warning: delete machine utility - use with care
+    class cleanUpState : public QFinalState {
+    public:
+        cleanUpState(QStateMachine *machine) : QFinalState(machine) {}
+    protected:
+        void onEntry(QEvent *event);
+    };
+
     //! parallel animate between 2 states
     explicit lqAniMachine(QObject *parent = 0);
 
@@ -47,23 +55,16 @@ public:
     QPointer<QParallelAnimationGroup> animation;
 
     //! after setup...
-    void setDuration(int msec_duration = 1000);
+    void run(cleanUpState *toCleanup = 0,  int msec_duration = 1000);
 
-    //! warning: delete machine utility - use with care
-    class cleanUpState : public QFinalState {
-    public:
-        cleanUpState(QStateMachine *machine) : QFinalState(machine) {}
-    protected:
-        void onEntry(QEvent *event);
-    };
+    //! could add some state transition
+    QPointer<QState> source, target;
 
 signals:
     
 public slots:
 
 private:
-
-    QPointer<QState> source, target;
 };
 
 #endif // LQANIMACHINE_H

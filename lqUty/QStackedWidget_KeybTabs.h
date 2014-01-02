@@ -26,6 +26,8 @@
 #include "lqUty_global.h"
 #include <QStackedWidget>
 
+/** handle keyboard to switch among stacked widgets
+ */
 class LQUTYSHARED_EXPORT QStackedWidget_KeybTabs : public QStackedWidget
 {
     Q_OBJECT
@@ -38,6 +40,8 @@ signals:
 public slots:
 
 protected:
+
+    //! handle TAB and BACKTAB
     virtual void keyPressEvent(QKeyEvent *);
 };
 

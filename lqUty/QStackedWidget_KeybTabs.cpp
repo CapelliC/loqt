@@ -24,11 +24,15 @@
 #include <QKeyEvent>
 #include <QDebug>
 
+/** handle keyboard to switch among stacked widgets
+ */
 QStackedWidget_KeybTabs::QStackedWidget_KeybTabs(QWidget *parent) :
     QStackedWidget(parent)
 {
 }
 
+/** handle TAB and BACKTAB
+ */
 void QStackedWidget_KeybTabs::keyPressEvent(QKeyEvent *e)
 {
     //qDebug() << e->modifiers();

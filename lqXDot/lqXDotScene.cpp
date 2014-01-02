@@ -533,8 +533,7 @@ protected:
     lqXDotView *v;
     QPointF p;
     void onEntry(QEvent *event) {
-        v->setScene(s);
-        v->translate(p.x(), p.y());
+        v->setFoldedScene(s, p);
         cleanUpState::onEntry(event);
     }
 };
@@ -552,7 +551,8 @@ lqXDotScene* lqXDotScene::fold(lqNode* i, lqXDotView *qv)
     // mandatory to recompute...
     { bool rc = cg->freeLayout(); Q_ASSERT(rc); }
 
-    if (cg->is_folded(n))
+    bool is_folded = cg->is_folded(n);
+    if (is_folded)
         cg->unfold(n);
     else {
         if (agfstout(*cg, n) == 0)
@@ -564,15 +564,16 @@ lqXDotScene* lqXDotScene::fold(lqNode* i, lqXDotView *qv)
         return 0;
 
     auto xs = new lqXDotScene(cg);
+    xs->build();
+
     auto am = new lqAniMachine;
+
     auto lo = new lqLogger(this, SLOT(msg(QString)), am);
     lo->print(am, SIGNAL(finished()), "machine finished");
 
-    xs->build();
-
+    /*
     QRectF R = i->boundingRect();
     QRectF R1 = xs->names2nodes[N]->boundingRect();
-
     QPointF P = R.center() - R1.center();
 
     for (name2node::const_iterator ib = names2nodes.begin(); ib != names2nodes.end(); ++ib) {
@@ -598,6 +599,55 @@ lqXDotScene* lqXDotScene::fold(lqNode* i, lqXDotView *qv)
     }
 
     am->run(new changeScene(xs, qv, P, am));
+    */
+
+    //QRectF R = i->boundingRect();
+    QRectF R1 = xs->names2nodes[N]->boundingRect();
+    //QPointF P = R1.center() - R.center();
+
+    foreach(auto i, items()) {
+        if (i->type() == QGraphicsItemGroup::Type)
+            i->hide();
+    }
+
+    if (!is_folded) {
+        Q_ASSERT(names2nodes.count() > xs->names2nodes.count());
+        for (name2node::const_iterator it = names2nodes.begin(); it != names2nodes.end(); ++it) {
+            QPointF X_p;
+            name2node::const_iterator ix = xs->names2nodes.find(it.key());
+            if (ix == xs->names2nodes.end()) {
+                // get folded - removed
+                X_p = R1.center() - it.value()->boundingRect().center();
+                am->animateTargetProperty(it.value(), "opacity", 0);
+            } else {
+                // move to new position
+                QRectF Q = it.value()->boundingRect();
+                QRectF Q1 = ix.value()->boundingRect();
+                X_p = Q1.center() - Q.center();
+            }
+            if (!X_p.isNull())
+                am->animateTargetProperty(it.value(), "pos", X_p);
+        }
+    }
+    else {
+        Q_ASSERT(names2nodes.count() < xs->names2nodes.count());
+        for (name2node::const_iterator ix = xs->names2nodes.begin(); ix != xs->names2nodes.end(); ++ix) {
+            QPointF X_p;
+            name2node::const_iterator it = names2nodes.find(ix.key());
+            if (it == names2nodes.end()) {
+                // get folded - removed
+                //X_p = P;
+                //am->animateTargetProperty(it.value(), "opacity", 0);
+            } else {
+                // move to new position
+                QRectF Q = it.value()->boundingRect();
+                QRectF Q1 = ix.value()->boundingRect();
+                X_p = Q1.center() - Q.center();
+                am->animateTargetProperty(it.value(), "pos", X_p);
+            }
+        }
+    }
+    am->run(new changeScene(xs, qv, QPointF(), am));
     am->start();
 
     return xs;

@@ -227,17 +227,6 @@ void lqXDotView::show_context_graph_layout(GVC_t* context, Agraph_t *graph, QStr
     }
     else
         critical(err);
-    /*
-    if (cg->layout(layout)) {
-        if (cg->render("xdot"))
-            render_graph();
-        else
-           critical(tr("gvRender() xdot failed"));
-        cg->freeLayout();
-    }
-    else
-        critical(tr("gvLayout() failed"));
-    */
 
     setlocale(LC_ALL, LC);
 }
@@ -259,33 +248,13 @@ void lqXDotView::toggleFolding()
         lqNode *i = qobject_cast<QAction*>(sender())->data().value<lqNode *>();
         lqXDotScene *s = scene()->fold(i, this);
         if (s) {
-            //QTimer::singleShot(1000, this, SLOT(setFoldedScene(lqXDotScene*));
         }
-        /*
-        Np n = scene()->it_node(i);   // n is undergoing folding
-        Q_ASSERT(n);
-
-        // mandatory to recompute...
-        if (!cg->freeLayout())
-            Q_ASSERT(false);
-
-        //dump("before");
-        if (cg->is_folded(n))
-            cg->unfold(n);
-        else
-            cg->fold(n);
-
-        if (cg->repeatOperations()) {
-            scene()->clear();
-            scene()->build();
-        }
-        */
     }
 }
-/*
-void lqXDotView::setScene(lqXDotScene *s)
-{
-    QGraphicsView::setScene(s);
-    //setScene(s);
+void lqXDotView::setFoldedScene(lqXDotScene* s, QPointF p) {
+        setRenderHint(QPainter::Antialiasing);
+        setRenderHint(QPainter::TextAntialiasing);
+        //clear();
+        setScene(s);
+        //translate(p.x(), p.y());
 }
-*/

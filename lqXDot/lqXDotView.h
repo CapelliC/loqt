@@ -81,6 +81,8 @@ public:
     Cp getContext() const;
     Gp getGraph() const;
 
+    void setFoldedScene(lqXDotScene *s, QPointF nodeOffset);
+
 signals:
 
     void report_error(QString) const;
@@ -98,14 +100,13 @@ protected:
 protected slots:
 
     void toggleFolding();
-    //void setScene(lqXDotScene *s);
 
 private:
 
+    //! graphviz rendering context and data
     QPointer<lqContextGraph> cg;
 
     void setup();
-    void clear();
 
     //! report error to user
     void error(QString msg) const;

@@ -233,7 +233,8 @@ void MainWindow::make_tabs() {
 
     setCentralWidget(tabs = new QStackedWidget_KeybTabs);
 
-    tabs->addWidget(new SourceEdit);
+    //tabs->addWidget(new SourceEdit);
+    tabs->addWidget(new CodeMirroring);
     tabs->addWidget(con);
     tabs->addWidget(new HelpDocView);
 

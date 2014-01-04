@@ -70,7 +70,8 @@ OTHER_FILES += \
     codemirror/addon/dialog/dialog.css \
     codemirror/addon/edit/matchbrackets.js \
     codemirror/mode/prolog/prolog.js \
-    codemirror/mode/prolog/index.html
+    codemirror/mode/prolog/index.html \
+    CodeMirroring.html
 
 RESOURCES += \
     lqUty.qrc

@@ -32,5 +32,6 @@
         <file>codemirror/addon/search/searchcursor.js</file>
         <file>codemirror/addon/edit/matchbrackets.js</file>
         <file>codemirror/addon/fold/foldcode.js</file>
+        <file>CodeMirroring.html</file>
     </qresource>
 </RCC>

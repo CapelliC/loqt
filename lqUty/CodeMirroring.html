@@ -1,0 +1,65 @@
+<!--
+    lqUty        : loqt utilities
+
+    Author       : Carlo Capelli
+    E-mail       : cc.carlo.cap@gmail.com
+    Copyright (C): 2013,2014 Carlo Capelli
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<!doctype html>
+<html>
+ <head>
+  <meta charset="utf-8">
+  <title>editing Prolog with CodeMirror</title>
+  <script src="codemirror/lib/codemirror.js"></script>
+  <link rel="stylesheet" href="codemirror/lib/codemirror.css">
+  <!-- search/replace -->
+  <script src="codemirror/addon/search/search.js"></script>
+  <script src="codemirror/addon/search/searchcursor.js"></script>
+  <script src="codemirror/addon/dialog/dialog.js"></script>
+  <link rel="stylesheet" href="codemirror/addon/dialog/dialog.css">
+  <!-- editing -->
+  <script src="codemirror/addon/edit/matchbrackets.js"></script>
+  <!-- themes -->
+  <!-- link rel="stylesheet" href="codemirror/theme/ambiance.css" -->
+  <!-- link rel="stylesheet" href="codemirror/theme/elegant.css" -->
+  <!-- link rel="stylesheet" href="codemirror/theme/twilight.css" -->
+  <!-- modes -->
+  <script src="codemirror/mode/prolog/prolog.js"></script>
+  <!-- script src="codemirror/mode/javascript/javascript.js"></script -->
+  <style type="text/css">
+   body { margin: 0 }
+   .CodeMirror { height: 100% }
+  </style>
+ </head>
+ <body>
+  <script>
+  var editor = CodeMirror(document.body,{
+   mode:"prolog",
+   //theme:"twilight",
+   //theme:"ambiance",
+   //theme:"elegant",
+   lineNumbers:true,
+   matchBrackets:true
+  });
+  function show_call(from, stop) {
+    var x = editor.posFromIndex(from);
+    var y = editor.posFromIndex(stop);
+    editor.setSelection(x, y);
+  }
+  </script>
+ </body>
+</html>

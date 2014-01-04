@@ -3,7 +3,7 @@
 #--------------------------------------------------
 # my first loqt component
 #--------------------------------------------------
-# Ing. Capelli Carlo - Brescia 2013
+# Ing. Capelli Carlo - Brescia 2013,2014
 
 # please, not obsolete compiler
 QMAKE_CXXFLAGS += -std=c++0x

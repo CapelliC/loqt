@@ -4,7 +4,7 @@
 # Collection of Qt components to efficiently
 # interface logic languages
 #--------------------------------------------------
-# Ing. Capelli Carlo - Brescia 2013
+# Ing. Capelli Carlo - Brescia 2013,2014
 
 QT += svg
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

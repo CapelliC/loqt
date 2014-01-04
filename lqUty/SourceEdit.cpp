@@ -47,6 +47,7 @@ SourceEdit::SourceEdit(QString file) {
 }
 
 SourceEdit::SourceEdit(const SourceEdit &e) : QWebView() {
+    Q_UNUSED(e)
     initialize();
     loadFile(file);
 }

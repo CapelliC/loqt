@@ -22,14 +22,17 @@
 
 #include "CodeMirroring.h"
 #include <QWebFrame>
+#include <QWebInspector>
 #include <QFileInfo>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QDebug>
 #include "file2string.h"
 
 void CodeMirroring::initialize() {
     status = idle;
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
+    page()->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
 }
 
 CodeMirroring::CodeMirroring(QWidget *parent) :
@@ -61,6 +64,11 @@ bool CodeMirroring::loadFile(QString fileName) {
 }
 QString CodeMirroring::toPlainText() const {
     return page()->mainFrame()->evaluateJavaScript("editor.getValue()").toString();
+}
+
+void CodeMirroring::helpRequest(QString topic) {
+    qDebug() << "helpRequest" << topic << "on" << file;
+    emit helpRequestTopic(topic);
 }
 
 void CodeMirroring::loadFinished(bool ok) {
@@ -135,6 +143,7 @@ bool CodeMirroring::maybeSave() {
 
 // callback from JS
 void CodeMirroring::onChange() {
+    qDebug() << "onChange" << status;
     if (status != modified) {
         status = modified;
         emit setTitle(file, title());

@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>SourceEdit.html</file>
         <file>jquery.min.js</file>
         <file>codemirror/lib/codemirror.css</file>
         <file>codemirror/lib/codemirror.js</file>

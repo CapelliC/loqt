@@ -54,11 +54,15 @@ public:
 
     enum msg_kind { info, err, log };
 
+    //! serve F1 in editor
+    Q_INVOKABLE void helpRequest(QString topic);
+
 signals:
 
     //! hosting GUI must react and expose the title string
     void setTitle(QString file, QString title);
     void msg(msg_kind kind, QString text);
+    void helpRequestTopic(QString topic);
 
 public slots:
 

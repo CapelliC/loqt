@@ -53,7 +53,10 @@
    //theme:"ambiance",
    //theme:"elegant",
    lineNumbers:true,
-   matchBrackets:true
+   matchBrackets:true,
+   extraKeys: { "F1": function(cm) {
+     proxy.helpRequest(cm.getTokenAt(cm.getCursor()).string)
+   } }
   });
   function show_call(from, stop) {
     var x = editor.posFromIndex(from);

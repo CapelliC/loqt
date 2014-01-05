@@ -33,7 +33,6 @@
 
 #include "MruHelper.h"
 #include "ConsoleEdit.h"
-//#include "SourceEdit.h"
 #include "CodeMirroring.h"
 #include "HelpDocView.h"
 #include "QStackedWidget_KeybTabs.h"
@@ -56,7 +55,6 @@ public:
     template <class V> V* tab(t_kind t) const { return qobject_cast<V*>(tabs->widget(t)); }
     void activate(t_kind k) { tabs->setCurrentIndex(k); }
 
-    //SourceEdit*     source() const { return tab<SourceEdit>(t_source); }
     CodeMirroring*  source()  const { return tab<CodeMirroring>(t_source); }
     ConsoleEdit*    console() const { return tab<ConsoleEdit>(t_console); }
     HelpDocView*    helpDoc() const { return tab<HelpDocView>(t_helpdoc); }
@@ -75,7 +73,6 @@ private:
     void viewDot();
     QString fileSource;
     QString lastDir;
-    //QString lastMode;
 
     //! keep just 1 console
     QPointer<ConsoleEdit> con;
@@ -135,6 +132,8 @@ protected slots:
 
     void queryComplete(QString query, int tot_occurrences);
     void queryException(QString functor, QString exmsg);
+
+    void helpRequest(QString topic);
 };
 
 #endif // MAINWINDOW_H

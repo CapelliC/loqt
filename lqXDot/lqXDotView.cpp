@@ -252,9 +252,10 @@ void lqXDotView::toggleFolding()
     }
 }
 void lqXDotView::setFoldedScene(lqXDotScene* s, QPointF p) {
-        setRenderHint(QPainter::Antialiasing);
-        setRenderHint(QPainter::TextAntialiasing);
-        //clear();
-        setScene(s);
-        //translate(p.x(), p.y());
+    Q_UNUSED(p)
+    setRenderHint(QPainter::Antialiasing);
+    setRenderHint(QPainter::TextAntialiasing);
+    //clear();
+    setScene(s);
+    //translate(p.x(), p.y());
 }

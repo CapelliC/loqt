@@ -22,8 +22,6 @@
 
 #include "mainwindow.h"
 #include "lqPreferences.h"
-#include "lqGvSynCol.h"
-#include "ParenMatching.h"
 #include "blockSig.h"
 #include "file2string.h"
 
@@ -31,11 +29,8 @@
 #include <QMenuBar>
 #include <QSettings>
 #include <QFileDialog>
-#include <QTemporaryFile>
 #include <QDateTime>
 #include <QApplication>
-#include <QTextCodec>
-#include <QTextStream>
 #include <QDebug>
 #include <QLineEdit>
 #include <QStatusBar>
@@ -64,21 +59,6 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     m->addSeparator();
     m->addAction(tr("Save"), this, SLOT(saveFile()), QKeySequence::Save);
     m->addAction(tr("Save As..."), this, SLOT(saveFileAs()), QKeySequence::SaveAs);
-    m->addAction(tr("Render..."), this, SLOT(renderFile()), tr("Ctrl+R"));
-
-    // layouts algorithm by name
-    m->addSeparator();
-
-    /*QString mode = lastMode;
-    if (argc == 3)
-        mode = argv[2];
-
-    foreach (QString layout, QString("dot neato fdp sfdp twopi circo").split(' ')) {
-        auto a = m->addAction(layout, this, SLOT(changeLayout()));
-        a->setCheckable(true);
-        a->setChecked(layout == mode);
-    }
-    */
 
     m->addSeparator();
     m->addAction(tr("E&xit"), qApp, SLOT(quit()), QKeySequence::Quit);
@@ -183,15 +163,6 @@ void MainWindow::saveFileAs() {
         saveViewDot(fd.selectedFiles()[0], source()->toPlainText(), tr("cannot save Prolog source"));
 }
 
-/** refresh graph display from (possibly) dirty script
-void MainWindow::renderFile() {
-    if (view()->render_script(source()->toPlainText(), lastMode)) {
-        //makeSvg(QString());
-        tabs->setCurrentIndex(t_graph);
-    }
-}
- */
-
 /** create a new Prolog script
  */
 void MainWindow::newFile() {
@@ -233,10 +204,11 @@ void MainWindow::make_tabs() {
 
     setCentralWidget(tabs = new QStackedWidget_KeybTabs);
 
-    //tabs->addWidget(new SourceEdit);
     tabs->addWidget(new CodeMirroring);
     tabs->addWidget(con);
     tabs->addWidget(new HelpDocView);
+
+    connect(source(), SIGNAL(helpRequestTopic(QString)), SLOT(helpRequest(QString)));
 
     connect(helpDoc(), SIGNAL(loadFinished(bool)), SLOT(adjustLocation()));
     connect(helpDoc(), SIGNAL(titleChanged(QString)), SLOT(adjustTitle()));
@@ -266,7 +238,13 @@ void MainWindow::queryComplete(QString query, int tot_occurrences) {
     }
 }
 void MainWindow::queryException(QString functor, QString exmsg) {
-    qDebug() << "queryException" << functor << exmsg;
+    errbox(tr("Query Exception"), QString("%1 - %2").arg(functor, exmsg));
+}
+
+void MainWindow::helpRequest(QString topic)
+{
+    helpDoc()->setUrl(QString("http://localhost:%1/search?for=%2&in=all&match=summary").arg(DOC_PORT).arg(topic));
+    viewHelp();
 }
 
 /** reinitialize GUI with required script
@@ -336,17 +314,16 @@ void MainWindow::setProgress(int p) {
     progress = p;
     adjustTitle();
 }
-//! [5]
 
-//! [6]
 void MainWindow::finishLoading(bool) {
     progress = 100;
     adjustTitle();
 }
 
 void MainWindow::viewGraph() {
-    con->engine()->query_run(QString("consult('%1')").arg(fileSource));
-    con->engine()->query_run(QFileInfo(fileSource).baseName());
+    auto e = con->engine();
+    e->query_run(QString("consult('%1')").arg(fileSource));
+    e->query_run(QFileInfo(fileSource).baseName());
 }
 
 void MainWindow::viewSource() {

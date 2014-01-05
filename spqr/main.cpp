@@ -26,9 +26,9 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    auto a = new QApplication(argc, argv);
     lqXDot::registerMetaTypes();
     MainWindow w(argc, argv);
     w.show();
-    return a.exec();
+    return a->exec();
 }

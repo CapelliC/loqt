@@ -19,7 +19,6 @@ SOURCES += lqUty.cpp \
     RowColIndicators.cpp \
     lqPreferences.cpp \
     QStackedWidget_KeybTabs.cpp \
-    SourceEdit.cpp \
     FindReplace.cpp \
     CodeMirroring.cpp \
     lqLogger.cpp \
@@ -34,7 +33,6 @@ HEADERS += lqUty.h \
     lqPreferences.h \
     blockSig.h \
     QStackedWidget_KeybTabs.h \
-    SourceEdit.h \
     file2string.h \
     FindReplace.h \
     CodeMirroring.h \
@@ -61,7 +59,6 @@ unix:!symbian {
 }
 
 OTHER_FILES += \
-    SourceEdit.html \
     codemirror/lib/codemirror.js \
     codemirror/lib/codemirror.css \
     codemirror/addon/search/searchcursor.js \

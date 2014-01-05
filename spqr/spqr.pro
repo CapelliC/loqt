@@ -16,15 +16,15 @@ TEMPLATE = app
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp \
     SimPrologEdit.cpp \
     HelpDocView.cpp \
-    cgraph_PL_cpp.cpp
+    cgraph_PL_cpp.cpp \
+    spqrMainWindow.cpp
 
 HEADERS  += \
-    mainwindow.h \
     SimPrologEdit.h \
-    HelpDocView.h
+    HelpDocView.h \
+    spqrMainWindow.h
 
 unix:!symbian:!macx {
     # because SWI-Prolog is built from source

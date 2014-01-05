@@ -20,7 +20,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "mainwindow.h"
+#include "spqrMainWindow.h"
 #include "lqPreferences.h"
 #include "blockSig.h"
 #include "file2string.h"
@@ -37,7 +37,7 @@
 
 /** GUI setup
  */
-MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
+spqrMainWindow::spqrMainWindow(int argc, char *argv[], QWidget *parent)
     : QMainWindow(parent), MruHelper("spqr")
 {
     lqPreferences p;
@@ -80,7 +80,7 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
 
 /** save settings
  */
-MainWindow::~MainWindow() {
+spqrMainWindow::~spqrMainWindow() {
     lqPreferences p;
     p.saveGeometry(this);
     p.setValue("fileSource", fileSource);
@@ -93,7 +93,7 @@ MainWindow::~MainWindow() {
 
 /** handle details on application quit
  */
-void MainWindow::closeEvent(QCloseEvent *e) {
+void spqrMainWindow::closeEvent(QCloseEvent *e) {
     if (isWindowModified()) {
         QMessageBox box(this);
         box.setIcon(box.Warning);
@@ -117,7 +117,7 @@ inline QString Prolog_Exts() { return QObject::tr("Prolog (*.lp *.pl *.pro)"); }
 
 /** run selection dialog and run selected file
  */
-void MainWindow::openFile() {
+void spqrMainWindow::openFile() {
     QFileDialog d(this, tr("Open Prolog file"), lastDir, Prolog_Exts());
     if (d.exec()) {
         lastDir = d.directory().path();
@@ -128,7 +128,7 @@ void MainWindow::openFile() {
 
 /** save file, report errors
  */
-void MainWindow::saveViewDot(QString file, QString script, QString errmsg) {
+void spqrMainWindow::saveViewDot(QString file, QString script, QString errmsg) {
     QFile f(file);
     monitorScript.removePath(file);
     if (f.open(f.WriteOnly|f.Text)) {
@@ -144,7 +144,7 @@ void MainWindow::saveViewDot(QString file, QString script, QString errmsg) {
 
 /** make backup and save script file
  */
-void MainWindow::saveFile() {
+void spqrMainWindow::saveFile() {
     QString fileBak = fileSource + ".bak";
     QFile::remove(fileBak);
     if (!QFile::copy(fileSource, fileBak))
@@ -155,7 +155,7 @@ void MainWindow::saveFile() {
 
 /** get name and make a new file of it
  */
-void MainWindow::saveFileAs() {
+void spqrMainWindow::saveFileAs() {
     QFileDialog fd(this, tr("Save Prolog file as"), lastDir, Prolog_Exts());
     fd.setAcceptMode(fd.AcceptSave);
     fd.setDefaultSuffix("loqt");
@@ -165,7 +165,7 @@ void MainWindow::saveFileAs() {
 
 /** create a new Prolog script
  */
-void MainWindow::newFile() {
+void spqrMainWindow::newFile() {
     QFileDialog fd(this, tr("New Prolog file"), lastDir, Prolog_Exts());
     fd.setAcceptMode(fd.AcceptSave);
     fd.setDefaultSuffix("lp");
@@ -194,12 +194,12 @@ void MainWindow::newFile() {
 
 /** this is default as required by MruHelper
  */
-void MainWindow::openFileIndex(int i) {
+void spqrMainWindow::openFileIndex(int i) {
     fileSource = files[i];
     viewDot();
 }
 
-void MainWindow::make_tabs() {
+void spqrMainWindow::make_tabs() {
     delete tabs;
 
     setCentralWidget(tabs = new QStackedWidget_KeybTabs);
@@ -216,7 +216,7 @@ void MainWindow::make_tabs() {
     connect(helpDoc(), SIGNAL(loadFinished(bool)), SLOT(finishLoading(bool)));
 }
 
-void MainWindow::engineReady() {
+void spqrMainWindow::engineReady() {
     connect(con->engine(), SIGNAL(query_complete(QString,int)), this, SLOT(queryComplete(QString,int)));
     connect(con->engine(), SIGNAL(query_exception(QString,QString)), this, SLOT(queryException(QString,QString)));
 
@@ -230,18 +230,18 @@ void MainWindow::engineReady() {
     con->engine()->query_run(QString("doc_server(%1)").arg(DOC_PORT));
 }
 
-void MainWindow::queryComplete(QString query, int tot_occurrences) {
+void spqrMainWindow::queryComplete(QString query, int tot_occurrences) {
     qDebug() << "queryComplete" << query << tot_occurrences;
     if (query.indexOf("doc_server") == 0) {
         helpDoc()->setUrl(QString("http://localhost:%1").arg(DOC_PORT));
         con->engine()->query_run(QString("(%1)").arg(DOC_PORT));
     }
 }
-void MainWindow::queryException(QString functor, QString exmsg) {
+void spqrMainWindow::queryException(QString functor, QString exmsg) {
     errbox(tr("Query Exception"), QString("%1 - %2").arg(functor, exmsg));
 }
 
-void MainWindow::helpRequest(QString topic)
+void spqrMainWindow::helpRequest(QString topic)
 {
     helpDoc()->setUrl(QString("http://localhost:%1/search?for=%2&in=all&match=summary").arg(DOC_PORT).arg(topic));
     viewHelp();
@@ -249,7 +249,7 @@ void MainWindow::helpRequest(QString topic)
 
 /** reinitialize GUI with required script
  */
-void MainWindow::viewDot() {
+void spqrMainWindow::viewDot() {
     if (!source()->loadFile(fileSource)) {
         errbox(tr("Cannot read %1").arg(fileSource), tr("open file failed"));
         removePath(this, fileSource);
@@ -258,7 +258,7 @@ void MainWindow::viewDot() {
 
 /** change the rendered
  */
-void MainWindow::changeLayout() {
+void spqrMainWindow::changeLayout() {
     foreach (QAction *a, menuBar()->actions()[0]->menu()->actions())
         if (a->isCheckable())
             a->setChecked(false);
@@ -268,14 +268,14 @@ void MainWindow::changeLayout() {
 
 /** keep modified status updated
  */
-void MainWindow::textChanged() {
+void spqrMainWindow::textChanged() {
     if (mode == highlighting)
         mode = editing;
     else
         setWindowModified(true);
 }
 
-void MainWindow::scriptChanged(QString path) {
+void spqrMainWindow::scriptChanged(QString path) {
     MB req(MB::Warning, tr("Warning"), tr("Script has been modified"), MB::Yes|MB::Ignore, this);
     req.setInformativeText(tr("Do you want to reload '%1'").arg(path));
     if (req.exec() == MB::Yes)
@@ -284,7 +284,7 @@ void MainWindow::scriptChanged(QString path) {
 
 /** factorize common usage
  */
-QMessageBox::StandardButton MainWindow::errbox(QString msg, QString info, MB::StandardButtons buttons, MB::Icon ic, QString title) {
+QMessageBox::StandardButton spqrMainWindow::errbox(QString msg, QString info, MB::StandardButtons buttons, MB::Icon ic, QString title) {
     if (title.isEmpty())
         title = tr("Error");
     MB box(ic, title, msg, buttons, this);
@@ -292,60 +292,60 @@ QMessageBox::StandardButton MainWindow::errbox(QString msg, QString info, MB::St
     return MB::StandardButton(box.exec());
 }
 
-void MainWindow::adjustLocation() {
+void spqrMainWindow::adjustLocation() {
     if (locationEdit)
         locationEdit->setText(helpDoc()->url().toString());
 }
 
-void MainWindow::changeLocation() {
+void spqrMainWindow::changeLocation() {
     QUrl url = QUrl(locationEdit->text());
     helpDoc()->load(url);
     helpDoc()->setFocus();
 }
 
-void MainWindow::adjustTitle() {
+void spqrMainWindow::adjustTitle() {
     if (progress <= 0 || progress >= 100)
         setWindowTitle(helpDoc()->title());
     else
         setWindowTitle(QString("%1 (%2%)").arg(helpDoc()->title()).arg(progress));
 }
 
-void MainWindow::setProgress(int p) {
+void spqrMainWindow::setProgress(int p) {
     progress = p;
     adjustTitle();
 }
 
-void MainWindow::finishLoading(bool) {
+void spqrMainWindow::finishLoading(bool) {
     progress = 100;
     adjustTitle();
 }
 
-void MainWindow::viewGraph() {
+void spqrMainWindow::viewGraph() {
     auto e = con->engine();
     e->query_run(QString("consult('%1')").arg(fileSource));
     e->query_run(QFileInfo(fileSource).baseName());
 }
 
-void MainWindow::viewSource() {
+void spqrMainWindow::viewSource() {
     tabs->setCurrentIndex(t_source);
 }
 
-void MainWindow::viewConsole() {
+void spqrMainWindow::viewConsole() {
     tabs->setCurrentIndex(t_console);
 }
 
-void MainWindow::viewHelp() {
+void spqrMainWindow::viewHelp() {
     tabs->setCurrentIndex(t_helpdoc);
 }
 
-void MainWindow::log(QString msg) {
+void spqrMainWindow::log(QString msg) {
     qDebug() << msg;
 }
 
-void MainWindow::msg(QString msg) {
+void spqrMainWindow::msg(QString msg) {
     statusBar()->showMessage(msg);
 }
 
-void MainWindow::err(QString msg) {
+void spqrMainWindow::err(QString msg) {
     errbox(tr("Error"), msg);
 }

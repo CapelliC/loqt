@@ -20,8 +20,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef SPQRMAINWINDOW_H
+#define SPQRMAINWINDOW_H
 
 #include <QMainWindow>
 #include <QTextEdit>
@@ -42,14 +42,14 @@
   * - Console: Prolog debug/error report
   * - Help   : live SWI-Prolog plDoc documentation server
   */
-class MainWindow : public QMainWindow, MruHelper
+class spqrMainWindow : public QMainWindow, MruHelper
 {
     Q_OBJECT
 
 public:
 
-    MainWindow(int argc, char *argv[], QWidget *parent = 0);
-    ~MainWindow();
+    spqrMainWindow(int argc, char *argv[], QWidget *parent = 0);
+    ~spqrMainWindow();
 
     enum t_kind { t_source, t_console, t_helpdoc };
     template <class V> V* tab(t_kind t) const { return qobject_cast<V*>(tabs->widget(t)); }
@@ -136,4 +136,4 @@ protected slots:
     void helpRequest(QString topic);
 };
 
-#endif // MAINWINDOW_H
+#endif // SPQRMAINWINDOW_H

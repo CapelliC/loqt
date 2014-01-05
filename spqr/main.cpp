@@ -21,14 +21,14 @@
 */
 
 #include <QtGui/QApplication>
-#include "mainwindow.h"
+#include "spqrMainWindow.h"
 #include "lqXDot.h"
 
 int main(int argc, char *argv[])
 {
     auto a = new QApplication(argc, argv);
     lqXDot::registerMetaTypes();
-    MainWindow w(argc, argv);
+    spqrMainWindow w(argc, argv);
     w.show();
     return a->exec();
 }

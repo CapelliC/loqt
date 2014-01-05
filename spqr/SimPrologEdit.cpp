@@ -22,7 +22,7 @@
 
 #include <QTextCursor>
 #include "SimPrologEdit.h"
-#include "mainwindow.h"
+#include "spqrMainWindow.h"
 
 SimPrologEdit::SimPrologEdit(QWidget *parent) :
     SimPrologEditBase(parent)
@@ -39,7 +39,7 @@ void SimPrologEdit::keyPressEvent(QKeyEvent *e)
         QString s = c.selectedText();
         if (s.length())
             for (QWidget *w = this; w; w = w->parentWidget())
-                if (MainWindow* m = qobject_cast<MainWindow*>(w)) {
+                if (auto m = qobject_cast<spqrMainWindow*>(w)) {
                     m->activate(m->t_helpdoc);
                     m->helpDoc()->setUrl(
                         QString("http://localhost:%1/search?for=%2&in=all&match=summary")

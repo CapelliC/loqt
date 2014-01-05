@@ -40,6 +40,8 @@
 spqrMainWindow::spqrMainWindow(int argc, char *argv[], QWidget *parent)
     : QMainWindow(parent), MruHelper("spqr")
 {
+    statusBar()->showMessage(tr("spqr Setup"));
+
     lqPreferences p;
     p.loadGeometry(this);
 
@@ -52,16 +54,16 @@ spqrMainWindow::spqrMainWindow(int argc, char *argv[], QWidget *parent)
     lastDir = p.value("lastDir").toString();
 
     QMenu *m = menuBar()->addMenu(tr("&File"));
-    m->addAction(tr("New..."), this, SLOT(newFile()), QKeySequence::New);
-    m->addAction(tr("Open..."), this, SLOT(openFile()), QKeySequence::Open);
+    m->addAction(tr("New..."), this, SLOT(newFile()), QKeySequence::New)->setStatusTip(tr("Create a new file"));
+    m->addAction(tr("Open..."), this, SLOT(openFile()), QKeySequence::Open)->setStatusTip(tr("Open an existing file"));
     m->addMenu(mruMenu = new QMenu(tr("Recent &Files...")));
     loadMru(p, this);
     m->addSeparator();
-    m->addAction(tr("Save"), this, SLOT(saveFile()), QKeySequence::Save);
-    m->addAction(tr("Save As..."), this, SLOT(saveFileAs()), QKeySequence::SaveAs);
+    m->addAction(tr("Save"), this, SLOT(saveFile()), QKeySequence::Save)->setStatusTip(tr("Save the document to disk"));
+    m->addAction(tr("Save As..."), this, SLOT(saveFileAs()), QKeySequence::SaveAs)->setStatusTip(tr("Save the document under a new name"));
 
     m->addSeparator();
-    m->addAction(tr("E&xit"), qApp, SLOT(quit()), QKeySequence::Quit);
+    m->addAction(tr("E&xit"), qApp, SLOT(quit()), QKeySequence::Quit)->setStatusTip(tr("Exit the application"));
 
     menuBar()->addSeparator();
     menuBar()->addAction("&Graph", this, SLOT(viewGraph()));

@@ -34,9 +34,11 @@
   <!-- editing -->
   <script src="codemirror/addon/edit/matchbrackets.js"></script>
   <!-- themes -->
-  <!-- link rel="stylesheet" href="codemirror/theme/ambiance.css" -->
-  <!-- link rel="stylesheet" href="codemirror/theme/elegant.css" -->
-  <!-- link rel="stylesheet" href="codemirror/theme/twilight.css" -->
+  <link rel="stylesheet" href="codemirror/theme/3024-day.css">
+  <link rel="stylesheet" href="codemirror/theme/3024-night.css">
+  <link rel="stylesheet" href="codemirror/theme/ambiance.css">
+  <link rel="stylesheet" href="codemirror/theme/elegant.css">
+  <link rel="stylesheet" href="codemirror/theme/twilight.css">
   <!-- modes -->
   <script src="codemirror/mode/prolog/prolog.js"></script>
   <!-- script src="codemirror/mode/javascript/javascript.js"></script -->
@@ -49,9 +51,11 @@
   <script>
   var editor = CodeMirror(document.body,{
    mode:"prolog",
-   //theme:"twilight",
+   //theme:"3024-day",
+   //theme:"3024-night",
    //theme:"ambiance",
    //theme:"elegant",
+   //theme:"twilight",
    lineNumbers:true,
    matchBrackets:true,
    extraKeys: { "F1": function(cm) {

@@ -26,16 +26,14 @@
 #include <QWebView>
 
 /** source editing with CodeMirror
+ *  I added a Prolog mode (see
  */
 class CodeMirroring : public QWebView
 {
     Q_OBJECT
 
     //! load script text to CodeMirror
-    Q_PROPERTY(QString data READ data)
-
-    //! syntax color (TBD)
-    Q_PROPERTY(QString syncol READ syncol)
+    Q_PROPERTY(QString plainText READ plainText WRITE setPlainText)
 
     Q_ENUMS(msg_kind)
 
@@ -86,14 +84,8 @@ protected:
     void closeEvent(QCloseEvent *event);
 
     QString text;
-    QString data() const {
-        return text;
-    }
-
-    QString syncol_;
-    QString syncol() const {
-        return syncol_;
-    }
+    QString plainText() const { return text; }
+    void setPlainText(QString s) { text = s; }
 
 private slots:
 

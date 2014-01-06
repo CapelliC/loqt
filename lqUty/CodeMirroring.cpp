@@ -76,7 +76,7 @@ void CodeMirroring::loadFinished(bool ok) {
     if (ok) {
         auto f = page()->mainFrame();
         f->addToJavaScriptWindowObject("proxy", this);
-        f->evaluateJavaScript("editor.setValue(proxy.data)");
+        f->evaluateJavaScript("editor.setValue(proxy.plainText)");
         f->evaluateJavaScript("editor.on(\"change\", function() { proxy.onChange() })");
     }
 }

@@ -3,22 +3,6 @@
         <file>jquery.min.js</file>
         <file>codemirror/lib/codemirror.css</file>
         <file>codemirror/lib/codemirror.js</file>
-        <file>codemirror/theme/ambiance.css</file>
-        <file>codemirror/theme/ambiance-mobile.css</file>
-        <file>codemirror/theme/blackboard.css</file>
-        <file>codemirror/theme/cobalt.css</file>
-        <file>codemirror/theme/eclipse.css</file>
-        <file>codemirror/theme/elegant.css</file>
-        <file>codemirror/theme/erlang-dark.css</file>
-        <file>codemirror/theme/lesser-dark.css</file>
-        <file>codemirror/theme/monokai.css</file>
-        <file>codemirror/theme/neat.css</file>
-        <file>codemirror/theme/night.css</file>
-        <file>codemirror/theme/rubyblue.css</file>
-        <file>codemirror/theme/twilight.css</file>
-        <file>codemirror/theme/vibrant-ink.css</file>
-        <file>codemirror/theme/xq-dark.css</file>
-        <file>codemirror/theme/solarized.css</file>
         <file>codemirror/mode/clike/clike.js</file>
         <file>codemirror/mode/css/css.js</file>
         <file>codemirror/mode/htmlembedded/htmlembedded.js</file>
@@ -32,5 +16,32 @@
         <file>codemirror/addon/edit/matchbrackets.js</file>
         <file>codemirror/addon/fold/foldcode.js</file>
         <file>CodeMirroring.html</file>
+        <file>codemirror/theme/3024-day.css</file>
+        <file>codemirror/theme/3024-night.css</file>
+        <file>codemirror/theme/ambiance.css</file>
+        <file>codemirror/theme/ambiance-mobile.css</file>
+        <file>codemirror/theme/base16-dark.css</file>
+        <file>codemirror/theme/base16-light.css</file>
+        <file>codemirror/theme/blackboard.css</file>
+        <file>codemirror/theme/cobalt.css</file>
+        <file>codemirror/theme/eclipse.css</file>
+        <file>codemirror/theme/elegant.css</file>
+        <file>codemirror/theme/erlang-dark.css</file>
+        <file>codemirror/theme/lesser-dark.css</file>
+        <file>codemirror/theme/mbo.css</file>
+        <file>codemirror/theme/midnight.css</file>
+        <file>codemirror/theme/monokai.css</file>
+        <file>codemirror/theme/neat.css</file>
+        <file>codemirror/theme/night.css</file>
+        <file>codemirror/theme/paraiso-dark.css</file>
+        <file>codemirror/theme/paraiso-light.css</file>
+        <file>codemirror/theme/rubyblue.css</file>
+        <file>codemirror/theme/solarized.css</file>
+        <file>codemirror/theme/the-matrix.css</file>
+        <file>codemirror/theme/tomorrow-night-eighties.css</file>
+        <file>codemirror/theme/twilight.css</file>
+        <file>codemirror/theme/vibrant-ink.css</file>
+        <file>codemirror/theme/xq-dark.css</file>
+        <file>codemirror/theme/xq-light.css</file>
     </qresource>
 </RCC>

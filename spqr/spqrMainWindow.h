@@ -68,9 +68,9 @@ protected:
 
 private:
 
-    void saveViewDot(QString file, QString script, QString errmsg);
+    void saveSourceFile(QString file, QString script, QString errmsg);
+    void openSourceFile();
 
-    void viewDot();
     QString fileSource;
     QString lastDir;
 
@@ -83,9 +83,18 @@ private:
     typedef ParenMatching::range range;
     range paren;
 
-private:
+public:
 
-    enum { highlighting, editing } mode;
+    /** support SWI... prolog_edit:edit_source(File) */
+    struct reqEditSource : public QEvent {
+        QString file;
+        int line, linepos;
+        reqEditSource(QString file, int line = 0, int linepos = 0)
+            : QEvent(Type(User+1)), file(file), line(line), linepos(linepos) {}
+    };
+    void customEvent(QEvent *event);
+
+private:
 
     void saveFile(QString file);
 
@@ -104,9 +113,7 @@ public slots:
     void openFile();
     void saveFile();
     void saveFileAs();
-
     void openFileIndex(int);
-    void changeLayout();
 
     void textChanged();
 
@@ -122,10 +129,10 @@ protected slots:
     void adjustLocation();
     void changeLocation();
     void adjustTitle();
-    void setProgress(int p);
+    void setProgress(int percent);
     void finishLoading(bool);
-
-    void viewGraph();
+    void currentChanged(int tabIndex);
+    void execSource();
     void viewSource();
     void viewConsole();
     void viewHelp();

@@ -33,7 +33,7 @@
 
 #include "MruHelper.h"
 #include "ConsoleEdit.h"
-#include "CodeMirroring.h"
+#include "CodeMirrorFile.h"
 #include "HelpDocView.h"
 #include "QStackedWidget_KeybTabs.h"
 
@@ -55,7 +55,7 @@ public:
     template <class V> V* tab(t_kind t) const { return qobject_cast<V*>(tabs->widget(t)); }
     void activate(t_kind k) { tabs->setCurrentIndex(k); }
 
-    CodeMirroring*  source()  const { return tab<CodeMirroring>(t_source); }
+    CodeMirrorFile* source()  const { return tab<CodeMirrorFile>(t_source); }
     ConsoleEdit*    console() const { return tab<ConsoleEdit>(t_console); }
     HelpDocView*    helpDoc() const { return tab<HelpDocView>(t_helpdoc); }
 

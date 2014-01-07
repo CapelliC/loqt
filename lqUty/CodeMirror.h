@@ -20,69 +20,68 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef CODEMIRRORING_H
-#define CODEMIRRORING_H
+#ifndef CODEMIRROR_H
+#define CODEMIRROR_H
 
 #include <QWebView>
+#include "lqUty_global.h"
 
-/** source editing with CodeMirror
- *  I added a Prolog mode (see
+/** source editing with CodeMirror.
+ *  The (mini) API will be similar to QPlainTextEdit where possible.
+ *  A Prolog mode (see lqUty/Other Files/codemirror/mode/prolog/prolog.js) is available.
  */
-class CodeMirroring : public QWebView
+class LQUTYSHARED_EXPORT CodeMirror : public QWebView
 {
     Q_OBJECT
 
-    //! load script text to CodeMirror
+    //! load text to CodeMirror
     Q_PROPERTY(QString plainText READ plainText WRITE setPlainText)
 
-    Q_ENUMS(msg_kind)
+    //! qualify feedback messages
+    Q_ENUMS(messageKind)
 
 public:
 
-    explicit CodeMirroring(QWidget *parent = 0);
-    CodeMirroring(const CodeMirroring &);
+    explicit CodeMirror(QWidget *parent = 0);
+    CodeMirror(const CodeMirror &);
 
-    //! construct and edit <file>
-    CodeMirroring(QString file);
-
-    //! script file interface
-    Q_INVOKABLE bool loadFile(QString fileName);
-    QString getFile() const { return file; }
+    //! QPlainTextEdit API
     Q_INVOKABLE QString toPlainText() const;
 
-    enum msg_kind { info, err, log };
+    //! qualify feedback messages
+    enum messageKind { info, err, log };
 
     //! serve F1 in editor
     Q_INVOKABLE void helpRequest(QString topic);
 
+    //! inquiry CodeMirror API about current status
+    bool isModified() const;
+
 signals:
 
-    //! hosting GUI must react and expose the title string
-    void setTitle(QString file, QString title);
-    void msg(msg_kind kind, QString text);
+    //! hosting GUI must react and expose the message text
+    void userMessage(messageKind kind, QString text);
+
+    //! not available in QPlainTextEdit
     void helpRequestTopic(QString topic);
 
-public slots:
+    //! QPlainTextEdit API
+    void textModified();
+
+protected slots:
 
     //! CodeMirror events
     void onChange();
 
-    void newFile();
-    bool save();
-    bool saveAs();
-
-    //! callback to HTML! do select specific area
+    //! do select specified region area in text area
     void show_call(long from, long stop);
-
-public:
-
-    bool isModified() const { return status == modified; }
-    bool maybeSave();
 
 protected:
 
-    void closeEvent(QCloseEvent *event);
+    //! just returns the class name - override for a meaningful feedback
+    virtual QString title() const;
 
+    //! hold the text last passed to CodeMirror
     QString text;
     QString plainText() const { return text; }
     void setPlainText(QString s) { text = s; }
@@ -94,16 +93,9 @@ private slots:
 
 private:
 
-    QString symbol() const;
-
-    enum { idle, isnew, modified, saved, compiled } status;
-
-    QString file;
-    virtual QString title() const;
-
     void initialize();
 };
 
-Q_DECLARE_METATYPE(CodeMirroring)
+Q_DECLARE_METATYPE(CodeMirror)
 
-#endif // CODEMIRRORING_H
+#endif // CODEMIRROR_H

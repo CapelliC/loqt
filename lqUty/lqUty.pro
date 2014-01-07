@@ -20,9 +20,10 @@ SOURCES += lqUty.cpp \
     lqPreferences.cpp \
     QStackedWidget_KeybTabs.cpp \
     FindReplace.cpp \
-    CodeMirroring.cpp \
     lqLogger.cpp \
-    lqAniMachine.cpp
+    lqAniMachine.cpp \
+    CodeMirrorFile.cpp \
+    CodeMirror.cpp
 
 HEADERS += lqUty.h \
     lqUty_global.h \
@@ -35,9 +36,10 @@ HEADERS += lqUty.h \
     QStackedWidget_KeybTabs.h \
     file2string.h \
     FindReplace.h \
-    CodeMirroring.h \
     lqLogger.h \
-    lqAniMachine.h
+    lqAniMachine.h \
+    CodeMirrorFile.h \
+    CodeMirror.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -68,7 +70,7 @@ OTHER_FILES += \
     codemirror/addon/edit/matchbrackets.js \
     codemirror/mode/prolog/prolog.js \
     codemirror/mode/prolog/index.html \
-    CodeMirroring.html
+    CodeMirror.html
 
 RESOURCES += \
     lqUty.qrc

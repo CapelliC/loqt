@@ -210,7 +210,7 @@ void spqrMainWindow::make_tabs() {
     setCentralWidget(tabs = new QStackedWidget_KeybTabs);
     connect(tabs, SIGNAL(currentChanged(int)), SLOT(currentChanged(int)));
 
-    tabs->addWidget(new CodeMirroring);
+    tabs->addWidget(new CodeMirrorFile);
     tabs->addWidget(con);
     tabs->addWidget(new HelpDocView);
 

@@ -45,6 +45,8 @@ void MruHelper::storeMru(QSettings &s) {
     s.setValue(key, files);
 }
 
+/** keep <path> in MRU list
+ */
 bool MruHelper::insertPath(QObject* parent, QString path) {
     int ix = files.indexOf(path);
     if (ix != -1) {
@@ -59,6 +61,8 @@ bool MruHelper::insertPath(QObject* parent, QString path) {
     return true;
 }
 
+/** remove <path> - if found - from MRU list
+ */
 bool MruHelper::removePath(QObject *parent, QString path) {
     if (files.removeOne(path)) {
         fillMru(parent);
@@ -67,6 +71,8 @@ bool MruHelper::removePath(QObject *parent, QString path) {
     return false;
 }
 
+/** setup MRU menu list
+ */
 void MruHelper::fillMru(QObject* parent) {
     while (files.size() > max_files)
         files.removeLast();
@@ -75,7 +81,6 @@ void MruHelper::fillMru(QObject* parent) {
         QString path = files[i],
                 title = path2title(path),
                 entry = i < 9 ? QString("&%1 %2").arg(i + 1).arg(title) : title;
-        //if (i < 9) entry = QString("&%1 %2").arg(i + 1).arg(path2title(path)); else entry = path2title(path);
         QAction *a = new QAction(entry, parent);
         a->setStatusTip(path);
         cmdMapper->setMapping(a, i);

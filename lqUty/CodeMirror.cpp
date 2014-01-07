@@ -20,59 +20,42 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "CodeMirroring.h"
+#include "CodeMirror.h"
 #include <QWebFrame>
 #include <QWebInspector>
-#include <QFileInfo>
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QDebug>
-#include "file2string.h"
 
-void CodeMirroring::initialize() {
-    status = idle;
+void CodeMirror::initialize() {
+    //status = idle;
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
     page()->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
 }
 
-CodeMirroring::CodeMirroring(QWidget *parent) :
+CodeMirror::CodeMirror(QWidget *parent) :
     QWebView(parent)
 {
     initialize();
 }
 
-CodeMirroring::CodeMirroring(QString file) {
+CodeMirror::CodeMirror(const CodeMirror &e) : QWebView(e.parentWidget()) {
     initialize();
-    loadFile(file);
+//    loadFile(e.file);
 }
 
-CodeMirroring::CodeMirroring(const CodeMirroring &e) : QWebView(e.parentWidget()) {
-    initialize();
-    loadFile(e.file);
-}
-
-QString CodeMirroring::symbol() const { return QFileInfo(file).baseName(); }
-
-void CodeMirroring::newFile() {
-}
-
-bool CodeMirroring::loadFile(QString fileName) {
-    file = fileName;
-    text = file2string(fileName);
-    setHtml(file2string(":/CodeMirroring.html"), QUrl("qrc:/"));
-    return true;
-}
-QString CodeMirroring::toPlainText() const {
+QString CodeMirror::toPlainText() const {
     return page()->mainFrame()->evaluateJavaScript("editor.getValue()").toString();
 }
 
-void CodeMirroring::helpRequest(QString topic) {
-    qDebug() << "helpRequest" << topic << "on" << file;
+void CodeMirror::helpRequest(QString topic) {
+    //qDebug() << "helpRequest" << topic << "on" << file;
     emit helpRequestTopic(topic);
 }
 
-void CodeMirroring::loadFinished(bool ok) {
-    emit msg(log, QString("loadFinished %1, len %2, ok %3").arg(file).arg(text.length()).arg(ok));
+void CodeMirror::loadFinished(bool ok) {
+    //emit msg(log, QString("loadFinished %1, len %2, ok %3").arg(file).arg(text.length()).arg(ok));
+    emit userMessage(log, QString("loadFinished %1... (len %2, ok %3)").arg(text.left(20)).arg(text.length()).arg(ok));
     if (ok) {
         auto f = page()->mainFrame();
         f->addToJavaScriptWindowObject("proxy", this);
@@ -81,6 +64,20 @@ void CodeMirroring::loadFinished(bool ok) {
     }
 }
 
+/*
+CodeMirroring::CodeMirroring(QString file) {
+    initialize();
+    loadFile(file);
+}
+
+QString CodeMirroring::symbol() const { return QFileInfo(file).baseName(); }
+
+bool CodeMirroring::loadFile(QString fileName) {
+    file = fileName;
+    text = file2string(fileName);
+    setHtml(file2string(":/CodeMirroring.html"), QUrl("qrc:/"));
+    return true;
+}
 bool CodeMirroring::save() {
     {   QFile f(file);
         if (!f.open(QFile::WriteOnly)) {
@@ -96,9 +93,7 @@ bool CodeMirroring::save() {
 
     return true;
 }
-
 bool CodeMirroring::saveAs() {
-    /*
     QString fileName =
         QFileDialog::getSaveFileName(this,
             tr("Save As"), curFile);
@@ -106,10 +101,7 @@ bool CodeMirroring::saveAs() {
         return false;
 
     return saveFile(fileName);
-    */
-    return true;
 }
-
 void CodeMirroring::closeEvent(QCloseEvent *event) {
     if (maybeSave()) {
         event->accept();
@@ -117,15 +109,6 @@ void CodeMirroring::closeEvent(QCloseEvent *event) {
         event->ignore();
     }
 }
-
-void CodeMirroring::documentWasModified() {
-    //setWindowModified(document()->isModified());
-}
-
-QString CodeMirroring::title() const {
-    return symbol();
-}
-
 bool CodeMirroring::maybeSave() {
     if (status == modified) {
         typedef QMessageBox B;
@@ -140,8 +123,6 @@ bool CodeMirroring::maybeSave() {
     }
     return true;
 }
-
-// callback from JS
 void CodeMirroring::onChange() {
     qDebug() << "onChange" << status;
     if (status != modified) {
@@ -149,8 +130,33 @@ void CodeMirroring::onChange() {
         emit setTitle(file, title());
     }
 }
+*/
 
-void CodeMirroring::show_call(long from, long stop) {
+void CodeMirror::documentWasModified() {
+    //setWindowModified(document()->isModified());
+}
+
+/** just returns the class name
+ */
+QString CodeMirror::title() const {
+    return metaObject()->className();
+}
+
+
+/** callback reflection from JS
+ */
+void CodeMirror::onChange() {
+    emit textModified();
+    //qDebug() << "onChange" << status;
+    /*
+    if (status != modified) {
+        status = modified;
+        emit setTitle(file, title());
+    }
+    */
+}
+
+void CodeMirror::show_call(long from, long stop) {
     page()->mainFrame()->evaluateJavaScript(
                 QString("show_call(%1,%2)").arg(from).arg(stop));
 }

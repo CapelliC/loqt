@@ -15,7 +15,6 @@
         <file>codemirror/addon/search/searchcursor.js</file>
         <file>codemirror/addon/edit/matchbrackets.js</file>
         <file>codemirror/addon/fold/foldcode.js</file>
-        <file>CodeMirroring.html</file>
         <file>codemirror/theme/3024-day.css</file>
         <file>codemirror/theme/3024-night.css</file>
         <file>codemirror/theme/ambiance.css</file>
@@ -43,5 +42,6 @@
         <file>codemirror/theme/vibrant-ink.css</file>
         <file>codemirror/theme/xq-dark.css</file>
         <file>codemirror/theme/xq-light.css</file>
+        <file>CodeMirror.html</file>
     </qresource>
 </RCC>

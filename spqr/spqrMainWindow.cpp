@@ -246,9 +246,9 @@ void spqrMainWindow::engineReady() {
             spqr_prolog_path = l.join("/");
         }
         if (QFile::exists(spqr_prolog_path + "/gv_uty.pl"))
-            con->engine()->query_run(QString("assert(user:file_search_path(spqr, '%1'))").arg(spqr_prolog_path));
+            con->engine()->query_run(QString("asserta(user:file_search_path(spqr, '%1'))").arg(spqr_prolog_path));
         else
-            MB::critical(this, tr("Error"), tr("cannot set file_search_path"));
+            errbox(tr("Configuration Error"), tr("Cannot set file_search_path"));
     }
 
     con->engine()->query_run("use_module(library(pldoc))");

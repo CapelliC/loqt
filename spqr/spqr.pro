@@ -59,7 +59,9 @@ DEPENDPATH += $$PWD/../lqUty
 OTHER_FILES += \
     prolog/gv_uty.pl \
     test/family.pl \
-    test/familiari.pl
+    test/familiari.pl \
+    test/paths_prefix.pl \
+    test/file_xref.pl
 
 RESOURCES += \
     spqr.qrc

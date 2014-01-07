@@ -57,7 +57,9 @@ INCLUDEPATH += $$PWD/../lqUty
 DEPENDPATH += $$PWD/../lqUty
 
 OTHER_FILES += \
-    prolog/gv_uty.pl
+    prolog/gv_uty.pl \
+    test/family.pl \
+    test/familiari.pl
 
 RESOURCES += \
     spqr.qrc

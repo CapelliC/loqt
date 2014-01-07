@@ -21,8 +21,11 @@
 */
 
 #include "CodeMirrorFile.h"
-#include <QFileInfo>
 #include "file2string.h"
+
+#include <QFileInfo>
+#include <QMessageBox>
+#include <stdexcept>
 
 CodeMirrorFile::CodeMirrorFile(QWidget *parent) : CodeMirror(parent)
 {
@@ -33,8 +36,14 @@ CodeMirrorFile::CodeMirrorFile(const CodeMirrorFile &copy) : CodeMirror()
 }
 
 bool CodeMirrorFile::loadFile(QString fileName) {
+    try {
+        text = file2string(fileName);
+    }
+    catch(std::exception& e) {
+        emit userMessage(err, e.what());
+        return false;
+    }
     path = fileName;
-    text = file2string(fileName);
     setHtml(file2string(":/CodeMirror.html"), QUrl("qrc:/"));
     return true;
 }

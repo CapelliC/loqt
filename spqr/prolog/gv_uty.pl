@@ -34,7 +34,7 @@
         new_subgraph/3,
         make_cluster/4,
         find_cluster/3,
-        set_attr/2,
+        set_attrs/2,
         use_node_attrs/2,
         use_edge_attrs/2
     ]).
@@ -66,7 +66,7 @@ graph_window(Pred, G, Opts) :- % debug(graph_window),
 	option(graph_kind(Kind), Opts, 'Agdirected'),
 	option(graph_layout(Layout), Opts, dot),
         spqr:agopen(Name, Kind, 0, G),
-	set_attr(G, rankdir:'TD'),
+        set_attrs(G, rankdir:'TD'),
 	once(Pred),
 	option(pq_instance_class(IC), Opts, create),
         option(pq_class_view(VC), Opts, lqXDotView), %'GraphvizView'),
@@ -79,68 +79,84 @@ graph_window(Pred, G, Opts) :- % debug(graph_window),
 	option(window_title(Title), Opts, Name),
         pqConsole:property(V, windowTitle, Title).
 
-%% new_node(+Graph, +Name, -NodePtr)
+%%  make_node(+Graph, +Name, -NodePtr)
 %
-make_node(G, P, N) :-
-        spqr:agnode(G, P, 1, N).
+%   build a named node
+%
+make_node(Graph, Name, NodePtr) :-
+        spqr:agnode(Graph, Name, 1, NodePtr).
 
-%% new_node(+Graph, +Name, +Attrs, -NodePtr)
+%%  make_node(+Graph, +Name, +Attrs, -NodePtr)
+%
+%   build a named node with given attributes
 %
 make_node(G, P, As, N) :-
-        make_node(G, P, N), set_attr(N, As).
+        make_node(G, P, N), set_attrs(N, As).
 
-%% find_node(+G, +P, -N)
+%%  find_node(+G, +P, -N)
 %
+%   search
 find_node(G, P, N) :-
         spqr:agnode(G, P, 0, N).
 
-%% new_edge(+Graph, +NodeSource, +NodeTarget)
+%%  new_edge(+Graph, +NodeSource, +NodeTarget)
+%
+%   build an unnamed edge between NodeSource, NodeTarget
 %
 new_edge(Graph, NodeSource, NodeTarget) :-
         spqr:agedge(Graph, NodeSource, NodeTarget, _, 1, _).
 
-%% new_edge(+Graph, +NodeSource, +NodeTarget, -EdgePtr)
+%%  new_edge(+Graph, +NodeSource, +NodeTarget, -EdgePtr)
+%
+%   build an unnamed EdgePtr between NodeSource, NodeTarget
 %
 new_edge(Graph, NodeSource, NodeTarget, EdgePtr) :-
         spqr:agedge(Graph, NodeSource, NodeTarget, _, 1, EdgePtr).
 
-%% new_edge(+Graph, +NodeSource, +NodeTarget, +Name, -EdgePtr)
+%%  new_edge(+Graph, +NodeSource, +NodeTarget, +Name, -EdgePtr)
+%
+%   build a named EdgePtr between NodeSource, NodeTarget
 %
 new_edge(G, NodeSource, NodeTarget, Name, EdgePtr) :-
         spqr:agedge(G, NodeSource, NodeTarget, Name, 1, EdgePtr).
 
-%% make_edges(+Graph, +Arrows)
+%%  make_edges(+Graph, +Arrows) is det.
+%%  make_edges(+Graph, +Arrow) is det.
+%%  make_edges(+Graph, +List:list) is det.
+%
+%   given a directed chain of nodes, build correspoing edges
 %
 make_edges(G, X->(Y->Z)) :-
         new_edge(G, X, Y),
         make_edges(G, Y->Z).
-
-%% make_edges(+Graph, +Arrow)
-%
 make_edges(G, X->Y) :-
         new_edge(G,X,Y).
 
-%% make_edges(+Graph, +List:list)
-%
 make_edges(G, X) :-
         is_list(X) -> maplist(make_edges(G), X).
 
-%% nodes_chain(+Nodes:list, ?Chain) is det
+%%  nodes_chain(+Nodes:list, ?Chain) is det
+%
+%   transform a nodes' list to an expression of directed edges
 %
 nodes_chain([A,B|L], A->R) :- nodes_chain([B|L], R).
 nodes_chain([A,B], A->B).
 
-%% new_subgraph(+Graph, +Name, -Subg)
+%%  new_subgraph(+Graph, +Name, -Subg) is det
+%
+%   create a new subgraph
 %
 new_subgraph(G, Name, Subg) :-
         spqr:agsubg(G, Name, 1, Subg).
 
-%% make_cluster(+Graph, +Name, +Attrs, -C)
+%%  make_cluster(+Graph, +Name, +Attrs, -C) is det
+%
+%   apply naming convention to create a visible subgraph
 %
 make_cluster(G, Name, Attrs, C) :-
         atom_concat(cluster, Name, Id),
         spqr:agsubg(G, Id, 1, C),
-        set_attr(C, Attrs).
+        set_attrs(C, Attrs).
 
 %% find_cluster(+Graph, +Name, -C)
 %
@@ -148,27 +164,33 @@ find_cluster(G, Name, C) :-
         atom_concat(cluster, Name, Id),
         spqr:agsubg(G, Id, 0, C).
 
-%% set_attr(+Objects:list, +Attrs:list)
-%% set_attr(+Object:pointer, +Attrs:list)
+%%  set_attrs(+Objects:list, +Attrs:list) is det
+%%  set_attrs(+Object:pointer, +Attrs:list) is det
 %
-set_attr(Os, As) :-
-        is_list(Os) -> forall(member(O, Os), set_attr(O, As)).
-
-set_attr(O, As) :-
+%   assign a set of attributes to a set of objects
+%
+set_attrs(Os, As) :-
+        is_list(Os) -> forall(member(O, Os), set_attrs(O, As)).
+set_attrs(O, As) :-
         is_list(As) ->
-        maplist(set_attr(O), As)
+        maplist(set_attrs(O), As)
         ;       (As=(K=V) ->
                 spqr:agset(O, K, V)
                 ;       As=K:V ->
                         spqr:agsafeset(O, K, V, V)).
 
-% defaulting attributes
-% required to call agset
+%%  use_node_attrs(+G, +Defaults)
+%
+%   defaulting nodes attributes required to call agset
 %
 use_node_attrs(G, Defaults) :- 
         default_attrs(G, 'AGNODE', Defaults).
 
-use_edge_attrs(G, Defaults) :- 
+%%  use_edge_attrs(+G, +Defaults)
+%
+%   defaulting edges attributes required to call agset
+%
+use_edge_attrs(G, Defaults) :-
         default_attrs(G, 'AGEDGE', Defaults).
 
 default_attrs(G, Kind, Defaults) :-

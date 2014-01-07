@@ -90,10 +90,8 @@ spqrMainWindow::~spqrMainWindow() {
     p.saveGeometry(this);
     p.setValue("fileSource", fileSource);
     p.setValue("lastDir", lastDir);
-    //p.setValue("lastMode", lastMode);
     storeMru(p);
     p.save();
-    //delete gvsyn;
 }
 
 /** handle details on application quit
@@ -112,7 +110,7 @@ void spqrMainWindow::closeEvent(QCloseEvent *e) {
             break;
         case box.Discard:
             break;
-        default: //box.Cancel:
+        default:
             e->ignore();
         }
     }
@@ -168,7 +166,7 @@ void spqrMainWindow::saveFileAs() {
         saveSourceFile(fd.selectedFiles()[0], source()->toPlainText(), tr("cannot save Prolog source"));
 }
 
-/** create a new Prolog script
+/** create a new Prolog script, showing a dummy graph
  */
 void spqrMainWindow::newFile() {
     QFileDialog fd(this, tr("New Prolog file"), lastDir, Prolog_Exts());
@@ -181,7 +179,8 @@ void spqrMainWindow::newFile() {
                " * created at %2\n"
                " */\n"
                ":- module(%3, [%3/0]).\n"
-               /** ":- use_module(gv_uty).\n" */
+               "\n"
+               ":- use_module(spqr(gv_uty).\n"
                "\n"
                "% entry point\n"
                "%3 :- graph_window(%3(G), G, [window_title(hello)]).\n"
@@ -204,6 +203,8 @@ void spqrMainWindow::openFileIndex(int i) {
     openSourceFile();
 }
 
+/** setup principal GUI elements
+ */
 void spqrMainWindow::make_tabs() {
     delete tabs;
 
@@ -222,14 +223,32 @@ void spqrMainWindow::make_tabs() {
     connect(helpDoc(), SIGNAL(loadFinished(bool)), SLOT(finishLoading(bool)));
 }
 
+/** setup SWI-Prolog embedding
+ */
 void spqrMainWindow::engineReady() {
     connect(con->engine(), SIGNAL(query_complete(QString,int)), this, SLOT(queryComplete(QString,int)));
     connect(con->engine(), SIGNAL(query_exception(QString,QString)), this, SLOT(queryException(QString,QString)));
 
-    SwiPrologEngine::in_thread it;
-    foreach (auto m, QString("gv_uty").split(',')) {
-        bool rc = it.resource_module(m);
-        qDebug() << m << rc;
+    if (false) {
+        SwiPrologEngine::in_thread it;
+        foreach (auto m, QString("gv_uty").split(',')) {
+            bool rc = it.resource_module(m);
+            qDebug() << m << rc;
+        }
+    }
+    else {
+        QString spqr_prolog_path;
+        QStringList l = QCoreApplication::applicationDirPath().split("/");
+        if (l.count() > 2) {
+            l.removeLast();
+            l.removeLast();
+            l << "loqt" << "spqr" << "prolog";
+            spqr_prolog_path = l.join("/");
+        }
+        if (QFile::exists(spqr_prolog_path + "/gv_uty.pl"))
+            con->engine()->query_run(QString("assert(user:file_search_path(spqr, '%1'))").arg(spqr_prolog_path));
+        else
+            MB::critical(this, tr("Error"), tr("cannot set file_search_path"));
     }
 
     con->engine()->query_run("use_module(library(pldoc))");
@@ -243,12 +262,12 @@ void spqrMainWindow::queryComplete(QString query, int tot_occurrences) {
         //con->engine()->query_run(QString("(%1)").arg(DOC_PORT));
     }
 }
+
 void spqrMainWindow::queryException(QString functor, QString exmsg) {
     errbox(tr("Query Exception"), QString("%1 - %2").arg(functor, exmsg));
 }
 
-void spqrMainWindow::helpRequest(QString topic)
-{
+void spqrMainWindow::helpRequest(QString topic) {
     helpDoc()->setUrl(QString("http://localhost:%1/search?for=%2&in=all&match=summary").arg(DOC_PORT).arg(topic));
     viewHelp();
 }

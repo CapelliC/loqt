@@ -1,17 +1,16 @@
-%%	<module> family
+%%  <module> family
 %
-%	build a genealogical 'tree' on binary relation
-%	parent_child(P, C), using gv_uty direct graphviz pointers model
-%	attribute nodes by female,male,died
+%   build a genealogical 'tree' on binary relation
+%   parent_child(P, C), using gv_uty direct graphviz pointers model
+%   attribute nodes' color,shape by female,male,died
 %
 
 :- module(family, [family/0]).
+
 :- use_module(library(clpfd)).
+:- use_module(spqr(gv_uty)).
 
-:- if(\+current_module(gv_uty)).
-:- use_module(gv_uty).
-:- endif.
-
+% required relations
 :- multifile parent_child/2.
 :- multifile female/1.
 :- multifile male/1.
@@ -39,15 +38,15 @@ ranked(G) :-
 	forall(member(Rank-Pr, Ranks), (
 		new_subgraph(G, Rank, Subg),
 		set_attrs(Subg, rankdir:'LR'),
-		maplist(write_pers(Subg), Pr)
+                maplist(make_person(Subg), Pr)
 	       )),
 	make_links(Ps, G).
 
-%%	write_pers(+G, +P)
+%%	make_person(+G, +P)
 %
 %	create a node for each person, mapping to visual attributes
 %
-write_pers(G, P) :-
+make_person(G, P) :-
 	make_node(G, P, N),
 	( female(P) -> C = red ; male(P) -> C = cyan ; C = green ),
 	( died(P) -> set_attrs(N, shape=octagon) ; true ),
@@ -96,4 +95,3 @@ generated(Rp, RPs, G) :-
 	    Rq #= Rp
 	;   true
 	).
-

@@ -24,12 +24,22 @@
 #define BLOCKSIG_H
 
 #include <QObject>
+#include <QPointer>
 
+/** temporary stop signals communication
+ *  use with care: notably QTextEdit formatting can be lost
+ *  on multiple changes notification
+ */
 struct blockSig {
+
     blockSig(QObject* target) : target(target) { current = target->blockSignals(true); }
-    void off() { if (target) { target->blockSignals(current); target = 0; } }
     ~blockSig() { off(); }
-    QObject* target;
+
+    void off() { if (target) { target->blockSignals(current); target = 0; } }
+
+private:
+
+    QPointer<QObject> target;
     bool current;
 };
 

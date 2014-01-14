@@ -237,7 +237,7 @@ void lqXDotView::show_context_graph_layout(GVC_t* context, Agraph_t *graph, QStr
     QString err;
     if (render_layout(err)) {
         render_graph();
-        cg->freeLayout();
+        //cg->freeLayout();
     }
     else
         critical(err);

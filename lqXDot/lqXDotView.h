@@ -29,6 +29,7 @@
 
 #include <QGraphicsView>
 #include <QMouseEvent>
+#include <QSignalMapper>
 
 /** Graphviz library rendering using Qt Graphics View Framework
  */
@@ -97,9 +98,13 @@ protected:
     //! preset layout on selected algorithm
     bool render_layout(QString &err);
 
+    QPointer<QSignalMapper> exportFmt;
+    QString lastExportDir;
+
 protected slots:
 
     void toggleFolding();
+    void exportAs(QString fmt);
 
 private:
 

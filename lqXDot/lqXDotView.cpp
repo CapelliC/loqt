@@ -34,6 +34,7 @@
 #include <QDir>
 #include <QMenu>
 #include <QTimer>
+#include <QFileDialog>
 
 /** actual constructor, make an empty view
  */
@@ -71,6 +72,7 @@ void lqXDotView::setup()
 lqXDotView::~lqXDotView()
 {
     delete cg;
+    delete exportFmt;
 }
 
 /** parse the .gv source, render in default view
@@ -164,11 +166,11 @@ void lqXDotView::wheelEvent(QWheelEvent* event)
  */
 void lqXDotView::contextMenuEvent(QContextMenuEvent *event)
 {
+    QMenu menu(this);
     if (QGraphicsItem *item = itemAt(event->pos())) {
         qDebug() << CVP(item) << item->type();
         if (Np n = scene()->it_node(item)) {
             qDebug() << "menu on " << gvname(n);
-            QMenu menu(this);
             QString s;
             if (cg->is_folded(n))
                 s = tr("&Unfold");
@@ -177,9 +179,21 @@ void lqXDotView::contextMenuEvent(QContextMenuEvent *event)
             QAction *a = menu.addAction(s, this, SLOT(toggleFolding()));
             lqNode *N = ancestor<lqNode>(item);
             a->setData(QVariant::fromValue(N));
-            menu.exec(event->globalPos());
         }
     }
+
+    delete exportFmt;
+    exportFmt = new QSignalMapper;
+    connect(exportFmt, SIGNAL(mapped(QString)), SLOT(exportAs(QString)));
+
+    QMenu *e = menu.addMenu(tr("&Export As..."));
+    foreach (auto fmt, QString("dot svg pdf jpg").split(' ')) {
+        QAction *a = e->addAction(fmt);
+        connect(a, SIGNAL(triggered()), exportFmt, SLOT(map()));
+        exportFmt->setMapping(a, fmt);
+    }
+
+    menu.exec(event->globalPos());
 }
 
 /** apply Qt scaling as specified
@@ -220,6 +234,7 @@ void lqXDotView::show_context_graph_layout(GVC_t* context, Agraph_t *graph, QStr
 
     char *LC = setlocale(LC_ALL, "C");
     setLayoutKind(layout);
+
     QString err;
     if (render_layout(err)) {
         render_graph();
@@ -251,6 +266,45 @@ void lqXDotView::toggleFolding()
         }
     }
 }
+
+void lqXDotView::exportAs(QString fmt)
+{
+    qDebug() << "exportAs" << fmt;
+
+    QFileDialog fd(this);
+    fd.setAcceptMode(fd.AcceptSave);
+    fd.setDefaultSuffix(fmt);
+    if (!lastExportDir.isEmpty())
+        fd.setDirectory(lastExportDir);
+
+    if (fd.exec()) {
+        QString n = fd.selectedFiles()[0];
+        lastExportDir = fd.directory().path();
+        cg->run_with_error_report([&]() {
+            QString err;
+            if (gvRenderFilename(getContext(), getGraph(), qcstr(fmt), qcstr(n)))
+                err = tr("cannot export as %1 in %2").arg(fmt, n);
+            return err;
+        });
+/*
+        if (fmt == "dot") {
+            FILE *f = fopen(n, "w");
+            agwrite(getGraph(), f);
+            fclose(f);
+        } else {
+            if (gvRenderFilename(getContext(), getGraph(), qcstr(fmt), qcstr(n)) == 0) { }
+            if (fmt == "svg") {
+            }
+            if (fmt == "pdf") {
+            }
+            if (fmt == "jpg") {
+            }
+        }
+*/
+    }
+
+}
+
 void lqXDotView::setFoldedScene(lqXDotScene* s, QPointF p) {
     Q_UNUSED(p)
     setRenderHint(QPainter::Antialiasing);

@@ -170,7 +170,6 @@ void lqXDotView::contextMenuEvent(QContextMenuEvent *event)
     if (QGraphicsItem *item = itemAt(event->pos())) {
         qDebug() << CVP(item) << item->type();
         if (Np n = scene()->it_node(item)) {
-            qDebug() << "menu on " << gvname(n);
             QString s;
             if (cg->is_folded(n))
                 s = tr("&Unfold");
@@ -187,7 +186,7 @@ void lqXDotView::contextMenuEvent(QContextMenuEvent *event)
     connect(exportFmt, SIGNAL(mapped(QString)), SLOT(exportAs(QString)));
 
     QMenu *e = menu.addMenu(tr("&Export As..."));
-    foreach (auto fmt, QString("dot svg pdf jpg").split(' ')) {
+    foreach (auto fmt, QString("dot svg pdf png").split(' ')) {
         QAction *a = e->addAction(fmt);
         connect(a, SIGNAL(triggered()), exportFmt, SLOT(map()));
         exportFmt->setMapping(a, fmt);
@@ -269,16 +268,14 @@ void lqXDotView::toggleFolding()
 
 void lqXDotView::exportAs(QString fmt)
 {
-    qDebug() << "exportAs" << fmt;
-
     QFileDialog fd(this);
     fd.setAcceptMode(fd.AcceptSave);
     fd.setDefaultSuffix(fmt);
     if (!lastExportDir.isEmpty())
         fd.setDirectory(lastExportDir);
-
     if (fd.exec()) {
         QString n = fd.selectedFiles()[0];
+        qDebug() << "exporting to" << n;
         lastExportDir = fd.directory().path();
         cg->run_with_error_report([&]() {
             QString err;
@@ -286,23 +283,7 @@ void lqXDotView::exportAs(QString fmt)
                 err = tr("cannot export as %1 in %2").arg(fmt, n);
             return err;
         });
-/*
-        if (fmt == "dot") {
-            FILE *f = fopen(n, "w");
-            agwrite(getGraph(), f);
-            fclose(f);
-        } else {
-            if (gvRenderFilename(getContext(), getGraph(), qcstr(fmt), qcstr(n)) == 0) { }
-            if (fmt == "svg") {
-            }
-            if (fmt == "pdf") {
-            }
-            if (fmt == "jpg") {
-            }
-        }
-*/
     }
-
 }
 
 void lqXDotView::setFoldedScene(lqXDotScene* s, QPointF p) {

@@ -26,6 +26,7 @@
 #include "file2string.h"
 #include "pqConsole.h"
 #include "PREDICATE.h"
+#include "pqGraphviz.h"
 
 #include <QMenu>
 #include <QMenuBar>
@@ -206,6 +207,7 @@ void spqrMainWindow::engineReady() {
     connect(con->engine(), SIGNAL(query_complete(QString,int)), this, SLOT(queryComplete(QString,int)));
     connect(con->engine(), SIGNAL(query_exception(QString,QString)), this, SLOT(queryException(QString,QString)));
 
+    /*
     if (false) {
         SwiPrologEngine::in_thread it;
         foreach (auto m, QString("gv_uty").split(',')) {
@@ -227,6 +229,8 @@ void spqrMainWindow::engineReady() {
         else
             errbox(tr("Configuration Error"), tr("Cannot set file_search_path"));
     }
+    */
+    pqGraphviz::setup();
 
     con->engine()->query_run("use_module(library(pldoc))");
     con->engine()->query_run(QString("doc_server(%1)").arg(DOC_PORT));

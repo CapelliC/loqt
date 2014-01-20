@@ -1,4 +1,4 @@
-%%  <module> family
+%%  <module> genealogy
 %
 %   build a genealogical 'tree' on relation parent_child/2
 %   parent_child(P, C), using gv_uty direct graphviz pointers model

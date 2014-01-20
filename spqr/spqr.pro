@@ -18,7 +18,6 @@ SOURCES += \
     main.cpp \
     SimPrologEdit.cpp \
     HelpDocView.cpp \
-    cgraph_PL_cpp.cpp \
     spqrMainWindow.cpp
 
 HEADERS  += \
@@ -27,11 +26,6 @@ HEADERS  += \
     spqrMainWindow.h
 
 OTHER_FILES += \
-    prolog/gv_uty.pl \
-    test/family.pl \
-    test/familiari.pl \
-    test/paths_prefix.pl \
-    test/file_xref.pl \
     prolog/newFileDefaultScript.pl
 
 RESOURCES += \
@@ -63,3 +57,10 @@ else:unix:!symbian: LIBS += -L$$OUT_PWD/../pqConsole/ -lpqConsole
 
 INCLUDEPATH += $$PWD/../pqConsole
 DEPENDPATH += $$PWD/../pqConsole
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqGraphviz/release/ -lpqGraphviz
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqGraphviz/debug/ -lpqGraphviz
+else:unix:!symbian: LIBS += -L$$OUT_PWD/../pqGraphviz/ -lpqGraphviz
+
+INCLUDEPATH += $$PWD/../pqGraphviz
+DEPENDPATH += $$PWD/../pqGraphviz

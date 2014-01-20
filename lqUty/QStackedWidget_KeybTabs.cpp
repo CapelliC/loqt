@@ -31,11 +31,10 @@ QStackedWidget_KeybTabs::QStackedWidget_KeybTabs(QWidget *parent) :
 {
 }
 
-/** handle TAB and BACKTAB
+/** handle TAB and BACKTAB with modifiers
  */
 void QStackedWidget_KeybTabs::keyPressEvent(QKeyEvent *e)
 {
-    //qDebug() << e->modifiers();
     if (e->modifiers() & Qt::CTRL) {
         if (e->modifiers() & Qt::SHIFT) {
             if (e->key() == Qt::Key_Backtab)

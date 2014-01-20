@@ -40,12 +40,15 @@ int lqXDot::mt_Agrec_t;
 //! make available thru reflection
 void lqXDot::registerMetaTypes()
 {
-    mt_lqXDotView = qRegisterMetaType<lqXDotView>("lqXDotView");
+    if (!mt_lqXDotView) {
+        mt_lqXDotView = qRegisterMetaType<lqXDotView>("lqXDotView");
 
-    mt_GVC_t      = qRegisterMetaType< GVC_t    *>("GVC_t*");
-    mt_Agraph_t   = qRegisterMetaType< Agraph_t *>("Agraph_t*");
-    mt_Agnode_t   = qRegisterMetaType< Agnode_t *>("Agnode_t*");
-    mt_Agedge_t   = qRegisterMetaType< Agedge_t *>("Agedge_t*");
-    mt_Agsym_t    = qRegisterMetaType< Agsym_t  *>("Agsym_t*");
-    mt_Agrec_t    = qRegisterMetaType< Agrec_t  *>("Agrec_t*");
+        Q_ASSERT(!mt_GVC_t);
+        mt_GVC_t      = qRegisterMetaType< GVC_t    *>("GVC_t*");
+        mt_Agraph_t   = qRegisterMetaType< Agraph_t *>("Agraph_t*");
+        mt_Agnode_t   = qRegisterMetaType< Agnode_t *>("Agnode_t*");
+        mt_Agedge_t   = qRegisterMetaType< Agedge_t *>("Agedge_t*");
+        mt_Agsym_t    = qRegisterMetaType< Agsym_t  *>("Agsym_t*");
+        mt_Agrec_t    = qRegisterMetaType< Agrec_t  *>("Agrec_t*");
+    }
 }

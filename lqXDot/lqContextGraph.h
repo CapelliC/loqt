@@ -20,8 +20,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef LQCONTEXTGRAPH
-#define LQCONTEXTGRAPH
+#ifndef LQCONTEXTGRAPH_H
+#define LQCONTEXTGRAPH_H
 
 #include "lqXDot.h"
 #include <QObject>
@@ -197,6 +197,9 @@ public:
     //! make a slow linear search by now
     Gp find_inner_subgraph(Np n, Gp g = 0);
 
+    //! attempt to remove all attrs created by XDOT rendering
+    void clearXDotAttrs();
+
 signals:
     
 public slots:
@@ -229,4 +232,4 @@ private:
     static void declattrs(Gp src, Gp dst, int kind);
 };
 
-#endif // LQCONTEXTGRAPH
+#endif // LQCONTEXTGRAPH_H

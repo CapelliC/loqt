@@ -8,7 +8,7 @@
 
 % interface
 
-familiari :- family.
+familiari :- family('Maria Family').
 
 :- op(100, xfx, gen).
 :- op(100, fx, femm).

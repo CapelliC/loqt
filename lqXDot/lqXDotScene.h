@@ -99,6 +99,7 @@ private:
     QGraphicsItem* add_edge(Ep e);
     void subgraphs(Gp graph, qreal off_z);
 
+public:
     enum x_attrs {
         _draw_ = 1 << 0,
         _ldraw_ = 1 << 1,
@@ -111,6 +112,10 @@ private:
         x_attrs_edge = x_attrs_node|_hdraw_|_tdraw_|_hldraw_|_htdraw_,
         x_attrs_graph = _draw_|_ldraw_
     };
+    static void clear_XDotAttrs(void *obj, int ops);
+
+private:
+
     l_items build_graphic(void *obj, int ops);
 
     l_items build_graphic(Np obj) { return build_graphic(obj, x_attrs_node); }

@@ -65,13 +65,13 @@ public:
 protected:
 
     virtual void closeEvent(QCloseEvent *e);
+    bool checkSave();
 
 private:
 
-    void saveSourceFile(QString file, QString script, QString errmsg);
-    void openSourceFile();
+    void openSourceFile(QString path);
+    void initSourceTitle(bool saved);
 
-    QString fileSource;
     QString lastDir;
 
     //! keep just 1 console
@@ -96,12 +96,9 @@ public:
 
 private:
 
-    void saveFile(QString file);
-
     typedef QMessageBox MB;
     MB::StandardButton errbox(QString msg, QString info, MB::StandardButtons bnts = MB::Ok, MB::Icon icon = MB::Critical, QString title = QString());
 
-    QFileSystemWatcher monitorScript;
     void make_tabs();
 
     QPointer<QLineEdit> locationEdit;
@@ -115,7 +112,7 @@ public slots:
     void saveFileAs();
     void openFileIndex(int);
 
-    void textChanged();
+    void textModified();
 
     void scriptChanged(QString path);
     void engineReady();
@@ -123,6 +120,8 @@ public slots:
     void log(QString msg);
     void msg(QString msg);
     void err(QString msg);
+
+    void userMessage(CodeMirror::messageKind, QString);
 
 protected slots:
 

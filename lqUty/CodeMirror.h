@@ -49,7 +49,7 @@ public:
     Q_INVOKABLE QString toPlainText() const;
 
     //! qualify feedback messages
-    enum messageKind { info, err, log };
+    enum messageKind { msg, err, log };
 
     //! serve F1 in editor
     Q_INVOKABLE void helpRequest(QString topic);
@@ -57,10 +57,14 @@ public:
     //! inquiry CodeMirror API about current status
     bool isModified() const;
 
+    //! hold the text last passed to CodeMirror
+    QString plainText() const { return text; }
+    void setPlainText(QString s);
+
 signals:
 
     //! hosting GUI must react and expose the message text
-    void userMessage(messageKind kind, QString text);
+    void userMessage(CodeMirror::messageKind kind, QString text);
 
     //! not available in QPlainTextEdit
     void helpRequestTopic(QString topic);
@@ -70,7 +74,7 @@ signals:
 
 protected slots:
 
-    //! CodeMirror events
+    //! serve CodeMirror events
     void onChange();
 
     //! do select specified region area in text area
@@ -83,15 +87,16 @@ protected:
 
     //! hold the text last passed to CodeMirror
     QString text;
-    QString plainText() const { return text; }
-    void setPlainText(QString s) { text = s; }
 
 private slots:
 
-    void documentWasModified();
     void loadFinished(bool);
 
 private:
+
+    QWebFrame *frame() const { return page()->mainFrame(); }
+    void run(QString script) const;
+    QVariant eval(QString script) const;
 
     void initialize();
 };

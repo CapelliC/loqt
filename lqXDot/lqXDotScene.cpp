@@ -215,11 +215,12 @@ void lqXDotScene::subgraphs(Gp graph, qreal off_z)
     cg->for_subgraphs([&](Gp g) { subgraphs(g, off_z); }, graph);
 }
 
+static const char *ops[] = {"_draw_", "_ldraw_", "_hdraw_", "_tdraw_", "_hldraw_", "_htdraw_"};
+
 /** apply XDOT attributes <b_ops> rendering to required object <obj>
  */
 void lqXDotScene::perform_attrs(void* obj, int b_ops, std::function<void(const xdot_op& op)> worker)
 {
-    static const char *ops[] = {"_draw_", "_ldraw_", "_hdraw_", "_tdraw_", "_hldraw_", "_htdraw_"};
     for (size_t i = 0; i < sizeof(ops)/sizeof(ops[0]); ++i)
         if (b_ops & (1 << i)) {
             cstr a = attr_str(obj, ops[i]);
@@ -231,6 +232,20 @@ void lqXDotScene::perform_attrs(void* obj, int b_ops, std::function<void(const x
                 }
             }
         }
+}
+
+/** remove XDOT computed rendering attributes from object
+ */
+void lqXDotScene::clear_XDotAttrs(void *obj, int b_ops) {
+    for (size_t i = 0; i < sizeof(ops)/sizeof(ops[0]); ++i)
+        if (b_ops & (1 << i))
+            agset(obj, ccstr(ops[i]), ccstr(""));
+    agset(obj, ccstr("pos"), ccstr(""));
+    /* these don't work...
+    agset(obj, ccstr("pos"), ccstr(""));
+    agset(obj, ccstr("width"), ccstr(""));
+    agset(obj, ccstr("height"), ccstr(""));
+    */
 }
 
 /** compute *only* the bounding rect

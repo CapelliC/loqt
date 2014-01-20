@@ -15,9 +15,13 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TEMPLATE = subdirs
 
 SUBDIRS += \
+    lqUty \
     lqXDot \
     lqXDot_test \
-    lqUty \
+    pqConsole \
+    pqGraphviz \
+    pqSource \
+    pqSourceTest \
     spqr
 
 OTHER_FILES += \

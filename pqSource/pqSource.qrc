@@ -1,0 +1,38 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/copy.png</file>
+        <file>images/cut.png</file>
+        <file>images/new.png</file>
+        <file>images/open.png</file>
+        <file>images/paste.png</file>
+        <file>images/save.png</file>
+        <file>images/print.png</file>
+        <file>images/undo.png</file>
+        <file>images/debug-step-instruction.png</file>
+        <file>images/debug-step-into.png</file>
+        <file>images/debug-step-into-instruction.png</file>
+        <file>images/debug-step-out.png</file>
+        <file>images/debug-step-over.png</file>
+        <file>images/edit-redo-8.png</file>
+        <file>images/edit-undo-8.png</file>
+        <file>images/media-record-2.png</file>
+        <file>images/process-stop-6.png</file>
+        <file>images/run.png</file>
+        <file>images/zoom-3.png</file>
+        <file>prolog/syncol.pl</file>
+        <file>images/edit-find-and-replace.png</file>
+        <file>images/edit-find-3.png</file>
+        <file>images/document-import-2.png</file>
+        <file>images/wmaker_apps.png</file>
+        <file>prolog/pldoc/h1-bg.png</file>
+        <file>prolog/pldoc/h2-bg.png</file>
+        <file>prolog/pldoc/res/pldoc.css</file>
+        <file>prolog/pldoc/res/pllisting.css</file>
+        <file>prolog/pldoc/multi-bg.png</file>
+        <file>prolog/pldoc/private.png</file>
+        <file>prolog/pldoc/priv-bg.png</file>
+        <file>prolog/pldoc/pub-bg.png</file>
+        <file>prolog/pldoc/public.png</file>
+        <file>prolog/pldoc/source.png</file>
+    </qresource>
+</RCC>

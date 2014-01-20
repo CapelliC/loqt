@@ -1,0 +1,39 @@
+/*  File:    debug_helper.pl
+    Author:  Carlo,,,
+    Created: Mar  6 2013
+    Purpose: add some canned predicate to help locating sources and the
+    like
+*/
+
+:- module(debug_helper, [goal_source_position/5]).
+
+%%	goal_source_position(+Port, +Frame, -Clause, -File, -Position) is det
+%
+%	access internal frame/clause information to get the
+%	source characters position
+%
+
+goal_source_position(_Port, Frame, Clause, File, A-Z) :-
+        prolog_frame_attribute(Frame, hidden, false),
+        prolog_frame_attribute(Frame, parent, Parent),
+        prolog_frame_attribute(Frame, pc, Pc),
+        prolog_frame_attribute(Parent, clause, Clause),
+        clause_info(Clause, File, TermPos, _VarOffsets),
+        locate_vm(Clause, 0, Pc, Pc1, VM),
+        '$clause_term_position'(Clause, Pc1, TermPos1),
+        ( VM = i_depart(_) -> append(TermPos2, [_], TermPos1) ; TermPos2 = TermPos1 ),
+        range(TermPos2, TermPos, A, Z).
+
+locate_vm(Clause, X, Pc, Pc1, VM) :-
+	'$fetch_vm'(Clause, X, Y, T),
+	(   X < Pc
+	->  locate_vm(Clause, Y, Pc, Pc1, VM)
+        ;   Pc1 = X, VM = T
+	).
+
+range([], Pos, A, Z) :-
+	arg(1, Pos, A),
+	arg(2, Pos, Z).
+range([H|T], term_position(_, _, _, _, PosL), A, Z) :-
+	nth1(H, PosL, Pos),
+	range(T, Pos, A, Z).

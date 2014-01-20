@@ -26,7 +26,18 @@ HEADERS  += \
     HelpDocView.h \
     spqrMainWindow.h
 
-unix:!symbian:!macx {
+OTHER_FILES += \
+    prolog/gv_uty.pl \
+    test/family.pl \
+    test/familiari.pl \
+    test/paths_prefix.pl \
+    test/file_xref.pl \
+    prolog/newFileDefaultScript.pl
+
+RESOURCES += \
+    spqr.qrc
+
+unix:!macx {
     # because SWI-Prolog is built from source
     CONFIG += link_pkgconfig
     PKGCONFIG += swipl
@@ -34,34 +45,21 @@ unix:!symbian:!macx {
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/release/ -llqXDot
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/debug/ -llqXDot
-else:symbian: LIBS += -llqXDot
 else:unix: LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
 
 INCLUDEPATH += $$PWD/../lqXDot
 DEPENDPATH += $$PWD/../lqXDot
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../SwiPlay-build-desktop-Desktop_Qt_4_8_1_for_GCC__Qt_SDK__Debug/pqConsole/release/ -lpqConsole
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../SwiPlay-build-desktop-Desktop_Qt_4_8_1_for_GCC__Qt_SDK__Debug/pqConsole/debug/ -lpqConsole
-else:symbian: LIBS += -lpqConsole
-else:unix: LIBS += -L$$PWD/../../SwiPlay-build-desktop-Desktop_Qt_4_8_1_for_GCC__Qt_SDK__Debug/pqConsole/ -lpqConsole
-
-INCLUDEPATH += $$PWD/../../SwiPlay/pqConsole
-DEPENDPATH += $$PWD/../../SwiPlay/pqConsole
-
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty
-else:symbian: LIBS += -llqUty
 else:unix: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
 
 INCLUDEPATH += $$PWD/../lqUty
 DEPENDPATH += $$PWD/../lqUty
 
-OTHER_FILES += \
-    prolog/gv_uty.pl \
-    test/family.pl \
-    test/familiari.pl \
-    test/paths_prefix.pl \
-    test/file_xref.pl
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqConsole/release/ -lpqConsole
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqConsole/debug/ -lpqConsole
+else:unix:!symbian: LIBS += -L$$OUT_PWD/../pqConsole/ -lpqConsole
 
-RESOURCES += \
-    spqr.qrc
+INCLUDEPATH += $$PWD/../pqConsole
+DEPENDPATH += $$PWD/../pqConsole

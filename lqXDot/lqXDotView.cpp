@@ -274,6 +274,7 @@ void lqXDotView::exportAs(QString fmt)
     if (!lastExportDir.isEmpty())
         fd.setDirectory(lastExportDir);
     if (fd.exec()) {
+        cg->clearXDotAttrs();
         QString n = fd.selectedFiles()[0];
         qDebug() << "exporting to" << n;
         lastExportDir = fd.directory().path();

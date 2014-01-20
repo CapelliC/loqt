@@ -21,6 +21,8 @@
 */
 
 #include "lqContextGraph.h"
+#include "lqXDotScene.h"
+
 #include <QStack>
 #include <QDebug>
 
@@ -374,4 +376,16 @@ l:  for (Gp subg = agfstsubg(g); subg; subg = agnxtsubg(subg))
                 goto l;
             }
     return found;
+}
+
+/** attempt to remove all attrs created by XDOT rendering
+ */
+void lqContextGraph::clearXDotAttrs() {
+    typedef lqXDotScene S;
+    for_nodes([this](Np n) {
+        S::clear_XDotAttrs(n, S::x_attrs_node);
+        for_edges_out(n, [](Ep e) {
+            S::clear_XDotAttrs(e, S::x_attrs_edge);
+        });
+    });
 }

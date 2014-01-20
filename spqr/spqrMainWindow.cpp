@@ -52,9 +52,6 @@ spqrMainWindow::spqrMainWindow(int argc, char *argv[], QWidget *parent)
 
     make_tabs();
 
-    fileSource = p.value("fileSource").toString();
-    lastDir = p.value("lastDir").toString();
-
     QMenu *m = menuBar()->addMenu(tr("&File"));
     m->setStatusTip(tr("Show File operations"));
     m->addAction(tr("&New..."), this, SLOT(newFile()), QKeySequence::New)->setStatusTip(tr("Create a new file"));
@@ -74,13 +71,12 @@ spqrMainWindow::spqrMainWindow(int argc, char *argv[], QWidget *parent)
     menuBar()->addAction("&Console", this, SLOT(viewConsole()))->setStatusTip(tr("Show the SWI-Prolog console"));
     menuBar()->addAction("&Help", this, SLOT(viewHelp()))->setStatusTip(tr("Show SWI-Prolog helpDoc"));
 
+    lastDir = p.value("lastDir").toString();
+    QString currFile = p.value("fileSource").toString();
     if (argc >= 2)
-        fileSource = argv[1];
-
-    if (fileSource.length())
-        openSourceFile();
-
-    connect(&monitorScript, SIGNAL(fileChanged(QString)), this, SLOT(scriptChanged(QString)));
+        currFile = argv[1];
+    if (currFile.length())
+        openSourceFile(currFile);
 }
 
 /** save settings
@@ -88,7 +84,7 @@ spqrMainWindow::spqrMainWindow(int argc, char *argv[], QWidget *parent)
 spqrMainWindow::~spqrMainWindow() {
     lqPreferences p;
     p.saveGeometry(this);
-    p.setValue("fileSource", fileSource);
+    p.setValue("fileSource", source()->path());
     p.setValue("lastDir", lastDir);
     storeMru(p);
     p.save();
@@ -97,23 +93,8 @@ spqrMainWindow::~spqrMainWindow() {
 /** handle details on application quit
  */
 void spqrMainWindow::closeEvent(QCloseEvent *e) {
-    if (isWindowModified()) {
-        QMessageBox box(this);
-        box.setIcon(box.Warning);
-        box.setInformativeText(tr("Current file has been modified!"));
-        box.setText(tr("Do you want to save your changes?"));
-        box.setStandardButtons(box.Save|box.Discard|box.Cancel);
-        box.setDefaultButton(box.Save);
-        switch (box.exec()) {
-        case box.Save:
-            saveFile();
-            break;
-        case box.Discard:
-            break;
-        default:
-            e->ignore();
-        }
-    }
+    if (!checkSave())
+        e->ignore();
 }
 
 inline QString Prolog_Exts() { return QObject::tr("Prolog (*.lp *.pl *.pro)"); }
@@ -124,36 +105,38 @@ void spqrMainWindow::openFile() {
     QFileDialog d(this, tr("Open Prolog file"), lastDir, Prolog_Exts());
     if (d.exec()) {
         lastDir = d.directory().path();
-        fileSource = d.selectedFiles()[0];
-        openSourceFile();
+        openSourceFile(d.selectedFiles()[0]);
     }
 }
 
-/** save file, report errors
+/** query user to save file if modified
  */
-void spqrMainWindow::saveSourceFile(QString file, QString script, QString errmsg) {
-    QFile f(file);
-    monitorScript.removePath(file);
-    if (f.open(f.WriteOnly|f.Text)) {
-        f.write(script.toUtf8());
-        f.close();
-        fileSource = file;
-        openSourceFile();
-        setWindowModified(false);
+bool spqrMainWindow::checkSave() {
+    if (isWindowModified()) {
+        QMessageBox box(this);
+        box.setIcon(box.Warning);
+        box.setInformativeText(tr("'file '%1' has been modified!").arg(source()->path()));
+        box.setText(tr("Do you want to save your changes?"));
+        box.setStandardButtons(box.Save|box.Discard|box.Cancel);
+        box.setDefaultButton(box.Save);
+        switch (box.exec()) {
+        case box.Save:
+            saveFile();
+            break;
+        case box.Cancel:
+            return false;
+        }
     }
-    else
-        errbox(tr("error writing %1").arg(file), errmsg);
+    return true;
 }
 
-/** make backup and save script file
+/** make backup and save script file, report errors
  */
 void spqrMainWindow::saveFile() {
-    QString fileBak = fileSource + ".bak";
-    QFile::remove(fileBak);
-    if (!QFile::copy(fileSource, fileBak))
-        errbox(tr("error writing %1").arg(fileBak), tr("cannot make backup copy"));
-
-    saveSourceFile(fileSource, source()->toPlainText(), tr("cannot save Dot Script"));
+    if (source()->saveFile()) {
+        setWindowModified(false);
+        qDebug() << "saveFile";
+    }
 }
 
 /** get name and make a new file of it
@@ -161,46 +144,38 @@ void spqrMainWindow::saveFile() {
 void spqrMainWindow::saveFileAs() {
     QFileDialog fd(this, tr("Save Prolog file as"), lastDir, Prolog_Exts());
     fd.setAcceptMode(fd.AcceptSave);
-    fd.setDefaultSuffix("loqt");
-    if (fd.exec())
-        saveSourceFile(fd.selectedFiles()[0], source()->toPlainText(), tr("cannot save Prolog source"));
+    fd.setDefaultSuffix("pl");
+    if (fd.exec()) {
+        source()->setPath(fd.selectedFiles()[0]);
+        initSourceTitle(true);
+        saveFile();
+    }
 }
 
-/** create a new Prolog script, showing a dummy graph
+/** create a new Prolog script
  */
 void spqrMainWindow::newFile() {
-    QFileDialog fd(this, tr("New Prolog file"), lastDir, Prolog_Exts());
+    if (!checkSave())
+        return;
+
+    QFileDialog fd(this, tr("New Prolog File"), lastDir, Prolog_Exts());
     fd.setAcceptMode(fd.AcceptSave);
     fd.setDefaultSuffix("lp");
     if (fd.exec()) {
         QString newPath = fd.selectedFiles()[0];
-        saveSourceFile(newPath,
-            tr("/* Prolog source %1\n"
-               " * created at %2\n"
-               " */\n"
-               ":- module(%3, [%3/0]).\n"
-               "\n"
-               ":- use_module(spqr(gv_uty).\n"
-               "\n"
-               "% entry point\n"
-               "%3 :- graph_window(%3(G), G, [window_title(hello)]).\n"
-               "\n"
-               "%% %3(+G) is det.\n"
-               "%  build some graph\n"
-               "%3(G) :-\n"
-               "\tmake_node(G, hello, H),\n"
-               "\tmake_node(G, world, W),\n"
-               "\tnew_edge(G, H, W).\n"
-            ).arg(newPath, QDateTime::currentDateTime().toString(), QFileInfo(newPath).baseName().replace(' ', '_')),
-            tr("cannot create new Prolog file"));
+        QString script = file2string(":/prolog/newFileDefaultScript.pl")
+                .arg(newPath, QDateTime::currentDateTime().toString(), QFileInfo(newPath).baseName().replace(' ', '_'));
+        source()->setPlainText(script);
+        source()->setPath(newPath);
+        initSourceTitle(true);
+        saveFile();
     }
 }
 
 /** this is default as required by MruHelper
  */
 void spqrMainWindow::openFileIndex(int i) {
-    fileSource = files[i];
-    openSourceFile();
+    openSourceFile(files[i]);
 }
 
 /** setup principal GUI elements
@@ -216,6 +191,8 @@ void spqrMainWindow::make_tabs() {
     tabs->addWidget(new HelpDocView);
 
     connect(source(), SIGNAL(helpRequestTopic(QString)), SLOT(helpRequest(QString)));
+    connect(source(), SIGNAL(textModified()), SLOT(textModified()));
+    connect(source(), SIGNAL(userMessage(CodeMirror::messageKind,QString)), SLOT(userMessage(CodeMirror::messageKind,QString)));
 
     connect(helpDoc(), SIGNAL(loadFinished(bool)), SLOT(adjustLocation()));
     connect(helpDoc(), SIGNAL(titleChanged(QString)), SLOT(adjustTitle()));
@@ -256,15 +233,13 @@ void spqrMainWindow::engineReady() {
 }
 
 void spqrMainWindow::queryComplete(QString query, int tot_occurrences) {
-    qDebug() << "queryComplete" << query << tot_occurrences;
-    if (query.indexOf("doc_server") == 0) {
+    log(QString("queryComplete %1,%2").arg(query).arg(tot_occurrences));
+    if (query.indexOf("doc_server") == 0)
         helpDoc()->setUrl(QString("http://localhost:%1").arg(DOC_PORT));
-        //con->engine()->query_run(QString("(%1)").arg(DOC_PORT));
-    }
 }
 
 void spqrMainWindow::queryException(QString functor, QString exmsg) {
-    errbox(tr("Query Exception"), QString("%1 - %2").arg(functor, exmsg));
+    err(QString("Query Exception %1 - %2").arg(functor, exmsg));
 }
 
 void spqrMainWindow::helpRequest(QString topic) {
@@ -274,21 +249,27 @@ void spqrMainWindow::helpRequest(QString topic) {
 
 /** reinitialize GUI with required script
  */
-void spqrMainWindow::openSourceFile() {
-    if (!source()->loadFile(fileSource)) {
-        errbox(tr("Cannot read %1").arg(fileSource), tr("open file failed"));
-        removePath(this, fileSource);
+void spqrMainWindow::openSourceFile(QString file) {
+    if (checkSave()) {
+        if (!source()->loadFile(file))
+            removePath(this, file);
+        else {
+            initSourceTitle(false);
+            viewSource();
+            qApp->postEvent(source(), new QKeyEvent(QEvent::KeyPress, Qt::Key_Tab, Qt::NoModifier));
+        }
     }
-    else {
-        insertPath(this, fileSource);
-        viewSource();
-    }
+}
+
+void spqrMainWindow::initSourceTitle(bool saved) {
+    insertPath(this, source()->path());
+    setWindowTitle(QString("%1[*]").arg(QFileInfo(source()->path()).fileName()));
+    setWindowModified(saved);
 }
 
 /** keep modified status updated
  */
-void spqrMainWindow::textChanged() {
-    qDebug() << "textChanged";
+void spqrMainWindow::textModified() {
     setWindowModified(true);
 }
 
@@ -298,7 +279,7 @@ void spqrMainWindow::scriptChanged(QString path) {
     MB req(MB::Warning, tr("Warning"), tr("Script has been modified externally"), MB::Yes|MB::Ignore, this);
     req.setInformativeText(tr("Do you want to reload '%1'").arg(path));
     if (req.exec() == MB::Yes)
-        openSourceFile();
+        openSourceFile(path);
 }
 
 /** factorize common usage
@@ -324,9 +305,9 @@ void spqrMainWindow::changeLocation() {
 
 void spqrMainWindow::adjustTitle() {
     if (progress <= 0 || progress >= 100)
-        setWindowTitle(helpDoc()->title());
+        statusBar()->showMessage(helpDoc()->title());
     else
-        setWindowTitle(QString("%1 (%2%)").arg(helpDoc()->title()).arg(progress));
+        statusBar()->showMessage(QString("%1 (%2%)").arg(helpDoc()->title()).arg(progress));
 }
 
 void spqrMainWindow::setProgress(int p) {
@@ -342,35 +323,31 @@ void spqrMainWindow::finishLoading(bool) {
 /** show feedback on current active panel
  */
 void spqrMainWindow::currentChanged(int tabIndex) {
-    qDebug() << "currentChanged" << tabIndex;
-
     switch (tabIndex) {
     case t_source:
-        setWindowTitle(QString("%1[*]").arg(QFileInfo(fileSource).baseName()));
+        statusBar()->showMessage(QString("source: %1").arg(source()->path()));
         break;
     case t_console:
-        setWindowTitle("SWI-Prolog console");
+        statusBar()->showMessage("SWI-Prolog console");
         break;
     case t_helpdoc:
-        setWindowTitle(helpDoc()->title());
+        statusBar()->showMessage(helpDoc()->title());
         break;
     }
 }
 
 void spqrMainWindow::execSource() {
     auto e = con->engine();
-    e->query_run(QString("consult('%1')").arg(fileSource));
-    e->query_run(QFileInfo(fileSource).baseName());
+    e->query_run(QString("consult('%1')").arg(source()->path()));
+    e->query_run(QFileInfo(source()->path()).baseName());
 }
 
 void spqrMainWindow::viewSource() {
     tabs->setCurrentIndex(t_source);
 }
-
 void spqrMainWindow::viewConsole() {
     tabs->setCurrentIndex(t_console);
 }
-
 void spqrMainWindow::viewHelp() {
     tabs->setCurrentIndex(t_helpdoc);
 }
@@ -378,13 +355,22 @@ void spqrMainWindow::viewHelp() {
 void spqrMainWindow::log(QString msg) {
     qDebug() << msg;
 }
-
 void spqrMainWindow::msg(QString msg) {
+    log(msg);
     statusBar()->showMessage(msg);
 }
-
 void spqrMainWindow::err(QString msg) {
+    log(msg);
     errbox(tr("Error"), msg);
+}
+
+void spqrMainWindow::userMessage(CodeMirror::messageKind kind, QString s)
+{
+    switch(kind) {
+    case CodeMirror::msg: msg(s); break;
+    case CodeMirror::err: err(s); break;
+    case CodeMirror::log: log(s); break;
+    }
 }
 
 /** editing on request from prolog
@@ -394,7 +380,6 @@ void spqrMainWindow::err(QString msg) {
 #define PROLOG_MODULE "prolog_edit"
 
 PREDICATE(edit_source, 1) {
-    qDebug() << "edit_source" << t2w(PL_A1);
     bool rc = false;
 
     QString file;
@@ -414,13 +399,12 @@ PREDICATE(edit_source, 1) {
             for (auto p = e->parentWidget(); p; p = p->parentWidget())
                 if (auto w = qobject_cast<spqrMainWindow*>(p)) {
                     pqConsole::gui_run([&]() {
-                        auto r = new spqrMainWindow::reqEditSource(file, line, linepos);
-                        QApplication::instance()->postEvent(w, r);
+                        QApplication::instance()->postEvent(w, new spqrMainWindow::reqEditSource(file, line, linepos));
                         rc = true;
                     });
+                    break;
                 }
         }
-    qDebug() << "return" << rc;
     return rc;
 }
 
@@ -429,6 +413,7 @@ PREDICATE(edit_source, 1) {
 void spqrMainWindow::customEvent(QEvent *event) {
     Q_ASSERT(event->type() == QEvent::User+1);
     auto res = static_cast<reqEditSource*>(event);
-    fileSource = res->file;
-    openSourceFile();
+    if (source()->path() != res->file && !checkSave())
+        return;
+    openSourceFile(res->file);
 }

@@ -34,13 +34,30 @@ class LQUTYSHARED_EXPORT CodeMirrorFile : public CodeMirror
 public:
 
     CodeMirrorFile(QWidget *parent = 0);
-    CodeMirrorFile(const CodeMirrorFile &file);
+    CodeMirrorFile(const CodeMirrorFile &copy);
 
+    //! make a backup copy on write ?
+    Q_PROPERTY(bool makeBackup READ makeBackup WRITE setMakeBackup)
+    bool makeBackup() const { return makeBackup_; }
+    void setMakeBackup(bool yn) { makeBackup_ = yn; }
+
+    //! property path
+    Q_PROPERTY(QString path READ path WRITE setPath)
+    QString path() const { return path_; }
+    void setPath(QString path) { path_ = path; }
+
+    //! load <path> to textarea
     Q_INVOKABLE bool loadFile(QString path);
+
+    //! dump textarea to <path>
+    Q_INVOKABLE bool saveFile();
 
 protected:
 
-    QString path;
+    bool error(QString msg);
+
+    QString path_;
+    bool makeBackup_;
 };
 
 Q_DECLARE_METATYPE(CodeMirrorFile)

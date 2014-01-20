@@ -27,23 +27,51 @@
 #include <QMessageBox>
 #include <stdexcept>
 
-CodeMirrorFile::CodeMirrorFile(QWidget *parent) : CodeMirror(parent)
+CodeMirrorFile::CodeMirrorFile(QWidget *parent) : CodeMirror(parent), makeBackup_(true)
 {
 }
 CodeMirrorFile::CodeMirrorFile(const CodeMirrorFile &copy) : CodeMirror()
 {
-    path = copy.path;
+    path_ = copy.path_;
+    makeBackup_ = copy.makeBackup_;
 }
 
+/** load <fileName> to textarea with error check
+ */
 bool CodeMirrorFile::loadFile(QString fileName) {
     try {
+        path_ = fileName;
         text = file2string(fileName);
+        setHtml(file2string(":/CodeMirror.html"), QUrl("qrc:/"));
     }
     catch(std::exception& e) {
-        emit userMessage(err, e.what());
-        return false;
+        return error(e.what());
     }
-    path = fileName;
-    setHtml(file2string(":/CodeMirror.html"), QUrl("qrc:/"));
     return true;
+}
+
+/** make backup and save script file
+*/
+bool CodeMirrorFile::saveFile()
+{
+    if (makeBackup_) {
+        QString bak = path_ + ".bak";
+        QFile::remove(bak);
+        if (QFile::exists(path_) && !QFile::copy(path_, bak))
+            return error(tr("cannot make backup '%1'").arg(bak));
+    }
+
+    QFile f(path_);
+    if (!f.open(f.WriteOnly|f.Text) || f.write(toPlainText().toUtf8()) == -1)
+        return error(tr("cannot write to '%1'").arg(path_));
+
+    return true;
+}
+
+/** report message and return false
+ */
+bool CodeMirrorFile::error(QString msg)
+{
+    emit userMessage(err, msg);
+    return false;
 }

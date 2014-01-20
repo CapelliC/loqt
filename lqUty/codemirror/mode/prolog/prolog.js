@@ -37,7 +37,7 @@ CodeMirror.defineMode("prolog", function() {
       } else if (stream.match("/*")) {
         token_name = 'comment';
         state.in_comment++;
-      } else if (stream.match(/[a-z][A-Za-z0-9_]*/))
+      } else if (stream.match(/[a-zàèéìòù][A-Za-z0-9_àèéìòù]*/))    // italian oriented
         token_name = 'atom';
       else if (stream.match(/\'(\\\'|[^\'])*\'/))
         token_name = 'atom';

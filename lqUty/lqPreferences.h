@@ -20,8 +20,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef PREFERENCES_H
-#define PREFERENCES_H
+#ifndef LQPREFERENCES_H
+#define LQPREFERENCES_H
 
 #include <QFont>
 #include <QColor>
@@ -56,4 +56,4 @@ public slots:
     
 };
 
-#endif // PREFERENCES_H
+#endif // LQPREFERENCES_H

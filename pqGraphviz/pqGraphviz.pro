@@ -20,7 +20,12 @@ HEADERS += \
     pqGraphviz_global.h
 
 OTHER_FILES += \
-    prolog/gv_uty.pl
+    prolog/gv_uty.pl \
+    test/genealogy/genealogy.pl \
+    test/genealogy/familiari.pl \
+    test/odbc/odbc_schema.pl \
+    test/xref/paths_prefix.pl \
+    test/xref/file_xref.pl
 
 # use some modern features
 QMAKE_CXXFLAGS += -std=c++0x

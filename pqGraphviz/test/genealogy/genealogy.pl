@@ -15,7 +15,7 @@
 :- multifile died/1.
 
 genealogy(T) :-
-	graph_window(generations(G), G,
+        graph_window(generations,
 		[graph_name(family)
 		,window_title(T)
 		,node_defaults([style=radial, fillcolor=white, shape=ellipse, label=''])

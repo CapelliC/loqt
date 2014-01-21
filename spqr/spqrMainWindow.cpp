@@ -37,6 +37,7 @@
 #include <QDebug>
 #include <QLineEdit>
 #include <QStatusBar>
+#include <QTimer>
 
 /** GUI setup
  */
@@ -260,9 +261,13 @@ void spqrMainWindow::openSourceFile(QString file) {
         else {
             initSourceTitle(false);
             viewSource();
-            qApp->postEvent(source(), new QKeyEvent(QEvent::KeyPress, Qt::Key_Tab, Qt::NoModifier));
+            QTimer::singleShot(100, this, SLOT(focusTab()));
         }
     }
+}
+
+void spqrMainWindow::focusTab() {
+    qApp->postEvent(source(), new QKeyEvent(QEvent::KeyPress, Qt::Key_Tab, Qt::NoModifier));
 }
 
 void spqrMainWindow::initSourceTitle(bool saved) {
@@ -403,7 +408,7 @@ PREDICATE(edit_source, 1) {
             for (auto p = e->parentWidget(); p; p = p->parentWidget())
                 if (auto w = qobject_cast<spqrMainWindow*>(p)) {
                     pqConsole::gui_run([&]() {
-                        QApplication::instance()->postEvent(w, new spqrMainWindow::reqEditSource(file, line, linepos));
+                        qApp->postEvent(w, new spqrMainWindow::reqEditSource(file, line, linepos));
                         rc = true;
                     });
                     break;

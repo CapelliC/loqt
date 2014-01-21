@@ -135,6 +135,7 @@ protected slots:
     void viewSource();
     void viewConsole();
     void viewHelp();
+    void focusTab();
 
     void queryComplete(QString query, int tot_occurrences);
     void queryException(QString functor, QString exmsg);

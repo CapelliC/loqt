@@ -22,7 +22,8 @@
 */
 
 :-  module(gv_uty,
-        [graph_window/3
+        [graph_window/2
+        ,graph_window/3
         ,make_node/3
         ,make_node/4
         ,find_node/3
@@ -54,7 +55,17 @@
         ,pq_instance_module(+atom)
         ]).
 
+:-  meta_predicate graph_window(1, +).
 :-  meta_predicate graph_window(0, -, +).
+
+%%      graph_window(+Pred:callable, +Opts)
+%
+%       make a Graphviz from library pqGraphviz
+%       provides the graph context as argument to callback
+%
+graph_window(M:Pred1, Opts) :-
+    Pred =.. [Pred1, G],
+    graph_window(M:Pred, G, Opts).
 
 %%	graph_window(+Pred:callable, -G, +Opts)
 %

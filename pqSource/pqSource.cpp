@@ -189,7 +189,8 @@ void pqSource::loadSource(int line, int linepos)
     parentWidget()->setWindowTitle(name + "[*]");
     placeCursor(line, linepos);
 
-    QTimer::singleShot(100, this, SLOT(startHighliter()));
+    //QTimer::singleShot(100, this, SLOT(startHighliter()));
+    hl = new pqHighlighter(this);
 }
 
 // positioning in source point and bringing to user attention
@@ -212,9 +213,6 @@ void pqSource::placeCursor(int line, int linepos)
 //
 void pqSource::startHighliter()
 {
-    //startHighliter_old();
-    //return;
-
     // collect structure asyncronously
     auto f = [](QString file, pqSyntaxData* psd) {
         QElapsedTimer tm;
@@ -284,60 +282,6 @@ void pqSource::highlightComplete()
     delete sd->pgb;
 }
 
-// start highlighting, using SWI-Prolog syntax analyzer to collect structured data
-//
-void pqSource::startHighliter_old()
-{
-    auto f = [](QString file, pqSyntaxData* psd) {
-        SwiPrologEngine::in_thread _it;
-        try {
-            /*int rc = */syncol(A(file), PlTerm(psd));
-            //qDebug() << "syncol" << rc;
-        }
-        catch(PlException e) {
-            qDebug() << t2w(e);
-        }
-    };
-
-    // collect structure asyncronously
-    auto w = new QFutureWatcher<void>;
-    connect(w, SIGNAL(finished()), this, SLOT(runHighliter()));
-
-    delete sd;
-    delete hl;
-    (sd = new pqSyntaxData)->timing.start();
-    hl = new pqHighlighter(this);
-
-    // since could be a slow task, place a visual hint to what's going on...
-    CenterWidgets(sd->pgb = new QProgressBar(this));
-
-    QTextCursor c = textCursor();
-    c.movePosition(c.End);
-    sd->pgb->setMaximum(c.position());
-    connect(sd, SIGNAL(onProgress(int)), this, SLOT(onProgress(int)));
-    sd->pgb->show();
-
-    // run the Prolog snippet in background (hl pointer)
-    w->setFuture(QtConcurrent::run(f, file, sd));
-}
-
-void pqSource::runHighliter_old()
-{
-    qDebug() << "pqSyntaxData" << file << "done in" << sd->timing.restart();
-    sd->pgb->reset();
-    sd->pgb->setMaximum(document()->lineCount());
-
-    hl = new pqHighlighter(this, sd);
-    connect(hl, SIGNAL(highlightComplete()), this, SLOT(highlightComplete()));
-}
-
-void pqSource::highlightComplete_old()
-{
-    qDebug() << "highlight_complete" << file << "done in" << sd->timing.elapsed();
-    set_modified(false);
-    delete sd->pgb;
-}
-
 void pqSource::onProgress(int p)
 {
     if (sd->pgb) {
@@ -348,7 +292,7 @@ void pqSource::onProgress(int p)
 
 void pqSource::cursorPositionChanged()
 {
-    if (hl) { // wait for pqSyntaxData filled
+    if (sd && hl) { // wait for pqSyntaxData filled
         auto c = textCursor();
         emit reportInfo(sd->elementPath(c).join(" / "));
         toggle t(skip_changes);
@@ -531,7 +475,7 @@ bool pqSource::saveSource()
         if (state_curr == closing)
             return true;
         state_curr = state_next = idle;
-        startHighliter();
+        //startHighliter();
         return true;
     }
     return false;

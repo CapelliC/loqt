@@ -26,6 +26,7 @@
 
 #include <QStack>
 #include <QtAlgorithms>
+#include <QTextStream>
 
 pqSyntaxData::pqSyntaxData() {
     //qDebug() << "pqSyntaxData::pqSyntaxData" << CVP(this);
@@ -36,6 +37,8 @@ pqSyntaxData::~pqSyntaxData() {
     delete pgb;
 }
 
+/** from library callback (so called closure)
+ */
 void pqSyntaxData::add_element(const char* functor, int from, int len)
 {
     cat c(from, from + len);
@@ -49,6 +52,8 @@ void pqSyntaxData::add_element(const char* functor, int from, int len)
         Q_ASSERT(c.check());
 }
 
+/** enriched with attributes from library(prolog_colour):syntax_colour/2
+ */
 void pqSyntaxData::add_element_attr(QString desc, int from, int len, QTextCharFormat fmt)
 {
     cat c(from, from + len);
@@ -64,9 +69,9 @@ void pqSyntaxData::add_element_attr(QString desc, int from, int len, QTextCharFo
         Q_ASSERT(c.check());
 }
 
-// recursive insertion, search from back
-// relies on non overlapping fragments - i.e. correctly categorized
-//
+/** recursive insertion, search from back
+ *  relies on non overlapping fragments - i.e. correctly categorized
+ */
 void pqSyntaxData::insert_nested(cat &c, t_nesting& nest)
 {
     int inserted = -1;
@@ -105,38 +110,8 @@ void pqSyntaxData::insert_nested(cat &c, t_nesting& nest)
         nest.insert(0, 1, c);
 }
 
-// this move from the very beginning to the end, seeking containing nesting
-//
-void pqSyntaxData::insert_nested_slow(cat &c, t_nesting& nest)
-{
-    for (int p = 0; p < nest.size(); ++p) {
-
-        // fits inside one already stored
-        if (nest[p].contains(c.beg)) {
-            insert_nested_slow(c, nest[p].nesting);
-            return;
-        }
-
-        // out of order ? insert at same level
-        if (nest[p].beg > c.end) {
-            nest.insert(p, c);
-            return;
-        }
-
-        // out of order ? place c at level and make deeper
-        if (c.contains(nest[p].beg)) {
-            c.nesting.append(nest[p]);
-            nest[p] = c;
-            return;
-        }
-    }
-
-    // append as outmost, eventually will be nested later
-    nest.append(c);
-}
-
-// recursive locating in categorized
-//
+/** recursive locating in categorized
+ */
 void pqSyntaxData::scan_nested(int p, int c, const t_nesting& nest)
 {
     // should use a binary search instead...
@@ -155,28 +130,10 @@ void pqSyntaxData::scan_nested(int p, int c, const t_nesting& nest)
             scan_nested(p, c, x.nesting);
         }
     }
-    /* this search doesn't works...
-    itc P = find_position(p, nest);
-    if (P != nest.end()) {
-        // f,q cat coords
-        int f = P->beg;
-        int q = P->end;
-        Q_ASSERT(c > f && p < q);
-
-        // offset in block
-        int b = std::max(f, p);
-        int e = std::min(q, c);
-
-        if (P->fmt.isValid())
-            worker->setFormat(b - p, e - b, P->fmt);
-
-        scan_nested(p, c, P->nesting);
-    }
-    */
 }
 
-// factorize out debugging variables highlighting
-//
+/** factorize out debugging variables highlighting
+ */
 void pqSyntaxData::clear_hvars()
 {
     foreach(const cat* x, hvars)
@@ -197,10 +154,10 @@ void pqSyntaxData::test_highlighting(QTextCursor c) {
         (paren = m.positions).format_both(c, paren.bold());
 }
 
-// handle dynamic highlighting
-//  same clause variables
-//  parenthesis matching (TBD check for quoted strings / comments etc)
-//
+/** handle dynamic highlighting
+ *  same clause variables
+ *  parenthesis matching (TBD check for quoted strings / comments etc)
+ */
 void pqSyntaxData::cursorPositionChanged(QTextCursor c)
 {
     // scan top level
@@ -248,15 +205,15 @@ void pqSyntaxData::cursorPositionChanged(QTextCursor c)
     test_highlighting(c);
 }
 
-// get categorized area (cursor with selection)
-//
+/** get categorized area (cursor with selection)
+ */
 QTextCursor pqSyntaxData::area(const cat* c) const
 {
     return area(*c);
 }
 
-// get range area (cursor with selection)
-//
+/** get range area (cursor with selection)
+ */
 QTextCursor pqSyntaxData::area(range r) const
 {
     QTextCursor C(worker->document());
@@ -265,8 +222,8 @@ QTextCursor pqSyntaxData::area(range r) const
     return C;
 }
 
-// get text of categorized area
-//
+/** get text of categorized area
+ */
 QString pqSyntaxData::text(const cat* c) const { return area(c).selectedText(); }
 
 bool pqSyntaxData::check() const
@@ -277,9 +234,9 @@ bool pqSyntaxData::check() const
     return true;
 }
 
-// change underline of categorized area
-// this requires signals NOT disabled in document
-//
+/** change underline of categorized area
+ *  this requires signals NOT disabled in document
+ */
 void pqSyntaxData::underline(const cat* c, bool u)
 {
     QTextCharFormat f;
@@ -287,8 +244,8 @@ void pqSyntaxData::underline(const cat* c, bool u)
     area(c).setCharFormat(f);
 }
 
-// top down 'breadcrumbs' location of current cursor element
-//
+/** top down 'breadcrumbs' location of current cursor element
+ */
 QStringList pqSyntaxData::elementPath(QTextCursor c) const
 {
     QStringList l;
@@ -303,8 +260,8 @@ QStringList pqSyntaxData::elementPath(QTextCursor c) const
     return l;
 }
 
-// peek inner nested element
-//
+/** peek inner nested element
+ */
 QString pqSyntaxData::elementEdit(QTextCursor c) const
 {
     const t_nesting *n = &cats;
@@ -320,8 +277,8 @@ QString pqSyntaxData::elementEdit(QTextCursor c) const
     return QString();
 }
 
-// debugging helper, after changing insertion strategy to more efficient one
-//
+/** debugging helper, after changing insertion strategy to more efficient one
+ */
 QString pqSyntaxData::cat::structure(QString indent) const
 {
     QString r;
@@ -353,9 +310,9 @@ int pqSyntaxData::cat::check() const
     return nesting.back().check();
 }
 
-// debugging helper
-// required after changing insertion strategy to more efficient one
-//
+/** debug helper - build nested structure
+ *  required after changing insertion strategy to more efficient one
+ */
 QString pqSyntaxData::structure() const
 {
     QString r;
@@ -365,8 +322,8 @@ QString pqSyntaxData::structure() const
     return r;
 }
 
-// recursive offsetting stored data
-//
+/** recursive offseting stored data
+ */
 void pqSyntaxData::apply_delta(t_nesting &c, int position, int delta)
 {
     t_nesting::iterator p = qLowerBound(c.begin(), c.end(), cat(position, position));
@@ -392,16 +349,18 @@ void pqSyntaxData::apply_delta(t_nesting &c, int position, int delta)
     }
 }
 
-// shift stored positions as required by changes
-//
+/** shift stored positions as required by changes
+ *  keep the structure aligned while editing
+ */
 void pqSyntaxData::contentsChange(int position, int charsRemoved, int charsAdded)
 {
     apply_delta(cats, position, charsAdded - charsRemoved);
     Q_ASSERT(check());
 }
 
-// rebuild plain clause' text of clause surrounding position
-//
+/** rebuild plain clause' text of clause surrounding position
+ *  access toplevel text having position
+ */
 QString pqSyntaxData::get_clause_at(int position) const
 {
     QString x;
@@ -416,13 +375,15 @@ QString pqSyntaxData::get_clause_at(int position) const
     return x;
 }
 
-// put back structure from updated, replacing matched
-//
+/** put back structure from updated, replacing matched
+ *  incremental updating after editing occurs - place new text at position
+ */
 void pqSyntaxData::reconcile(int position, const pqSyntaxData &updated)
 {
     Q_ASSERT(check());
     Q_ASSERT(updated.check());
 
+    //! recursive lambda: nice !
     std::function<void(cat &, int)> add_offset = [&](cat &c, int delta) {
         c.beg += delta;
         c.end += delta;
@@ -472,8 +433,9 @@ void pqSyntaxData::reconcile(int position, const pqSyntaxData &updated)
     Q_ASSERT(check());
 }
 
-// get offsets into description
-//
+/** get offsets into description
+ *  a clause can span more than a category area
+ */
 pqSyntaxData::range pqSyntaxData::clause_boundary(int position) const
 {
     t_nesting::const_iterator p = qLowerBound(cats.begin(), cats.end(), cat(position, position));
@@ -488,6 +450,8 @@ pqSyntaxData::range pqSyntaxData::clause_boundary(int position) const
     return range();
 }
 
+/** apply ordering constraint
+ */
 pqSyntaxData::itc pqSyntaxData::find_position(int position, const t_nesting &n)
 {
     if (!n.isEmpty()) {
@@ -501,8 +465,8 @@ pqSyntaxData::itc pqSyntaxData::find_position(int position, const t_nesting &n)
     return n.end();
 }
 
-// find the nested path of position
-//
+/** find the nested path of position
+ */
 pqSyntaxData::itcs pqSyntaxData::position_path(int position) const
 {
     itcs l;
@@ -519,6 +483,8 @@ pqSyntaxData::itcs pqSyntaxData::position_path(int position) const
     return l;
 }
 
+/** enriched with attributes from library(prolog_colour):syntax_colour/2
+ */
 void pqSyntaxData::add_element_sorted(QString desc, int from, int len, QTextCharFormat fmt)
 {
     cat c(from, from + len);
@@ -534,9 +500,9 @@ void pqSyntaxData::add_element_sorted(QString desc, int from, int len, QTextChar
         Q_ASSERT(c.check());
 }
 
-// recursive insertion, search from back
-// relies on non overlapping fragments - i.e. correctly categorized
-//
+/** recursive insertion, search from back
+ *  relies on non overlapping fragments - i.e. correctly categorized
+ */
 void pqSyntaxData::insert_sorted(cat &c, t_nesting& nest)
 {
     int inserted = -1;

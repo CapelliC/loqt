@@ -48,11 +48,11 @@ public:
     pqSyntaxData();
     ~pqSyntaxData();
 
-    // note: the nesting is recursive, and *can* be compiled just given a predeclaration.
+    //! note: the nesting is recursive, and *can* be compiled just given a predeclaration.
     struct cat;
     typedef QVector<cat> t_nesting;
 
-    // reuse pair of points from ParenMatching class
+    //! reuse pair of points from ParenMatching class
     typedef ParenMatching::range range;
 
     /** this recursive data structure it's the heart of syntax report
@@ -151,11 +151,11 @@ signals:
 
 protected:
 
+    //! actual structured representation
     t_nesting cats;
 
     //! attempt to adjust structure to recover proper nesting
     void insert_nested(cat &inner, t_nesting& nest);
-    void insert_nested_slow(cat &inner, t_nesting& nest);
 
     //! attempt to adjust structure to recover proper nesting
     void insert_sorted(cat &inner, t_nesting& nest);

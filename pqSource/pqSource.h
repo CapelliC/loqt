@@ -87,7 +87,7 @@ protected:
     QString editWhat;
     QPointer<QAction> editContext, commentContext, renameContext;
 
-    QPointer<pqSyntaxData> sd;
+    QPointer<pqSyntaxData> sd, sd_temp;
     QPointer<pqHighlighter> hl;
 
     enum DebugStatus { no_Debug, Running, Breaked } debugStatus;
@@ -157,9 +157,6 @@ protected slots:
     void runHighliter();
     void startHighliter();
     void highlightComplete();
-    void runHighliter_old();
-    void startHighliter_old();
-    void highlightComplete_old();
     void onProgress(int);
 
     void showContextMenu(const QPoint &pt);

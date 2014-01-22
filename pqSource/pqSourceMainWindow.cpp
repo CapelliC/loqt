@@ -85,12 +85,10 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
 void pqSourceMainWindow::engine_ready() {
     qDebug() << "engine_ready" << CT;
 
-    //SwiPrologEngine::in_thread _it;
+    // allocate at once an engine for GUI thread
     gui_thread_engine = new SwiPrologEngine::in_thread;
 
-    //foreach (auto m, QString("syncol,debug_helper").split(',')) {
     foreach (auto m, QString("syncol,trace_interception").split(',')) {
-        //bool rc = _it.resource_module(m);
         bool rc = gui_thread_engine->resource_module(m);
         qDebug() << m << rc;
     }
@@ -99,8 +97,10 @@ void pqSourceMainWindow::engine_ready() {
 }
 
 void pqSourceMainWindow::requestHelp(QString cursorWord) {
-    if (QWebView *h = helpView())
+    if (QWebView *h = helpView()) {
         h->setUrl(QString("http://localhost:%1/search?for=%2&in=all&match=summary").arg(helpDocPort).arg(cursorWord));
+        setTabOrder(0,0);
+    }
 }
 
 void pqSourceMainWindow::fixGeometry() {

@@ -208,6 +208,8 @@ void spqrMainWindow::engineReady() {
     connect(con->engine(), SIGNAL(query_complete(QString,int)), this, SLOT(queryComplete(QString,int)));
     connect(con->engine(), SIGNAL(query_exception(QString,QString)), this, SLOT(queryException(QString,QString)));
 
+    //static SwiPrologEngine::in_thread *it = new SwiPrologEngine::in_thread;
+
     /*
     if (false) {
         SwiPrologEngine::in_thread it;
@@ -244,7 +246,7 @@ void spqrMainWindow::queryComplete(QString query, int tot_occurrences) {
 }
 
 void spqrMainWindow::queryException(QString functor, QString exmsg) {
-    err(QString("Query Exception %1 - %2").arg(functor, exmsg));
+    err(QString("exception on '%1'\n%2").arg(functor, exmsg));
 }
 
 void spqrMainWindow::helpRequest(QString topic) {

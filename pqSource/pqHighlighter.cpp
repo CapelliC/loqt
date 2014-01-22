@@ -35,7 +35,6 @@ pqHighlighter::pqHighlighter(QTextEdit *host, pqSyntaxData *pData) :
 pqHighlighter::pqHighlighter(QTextEdit *host) :
     pqMiniSyntax(host)
 {
-
 }
 
 // coords are offsets in file

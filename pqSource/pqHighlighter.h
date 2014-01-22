@@ -24,19 +24,16 @@
 #define PQHIGHLIGHTER_H
 
 #include <QSyntaxHighlighter>
-#include <QTextEdit>
-#include <QStateMachine>
-#include <QFuture>
-#include <QProgressBar>
+#include <QTextBlock>
 #include <QPointer>
-#include <QElapsedTimer>
+#include <QMutex>
 
 #include "pqSyntaxData.h"
 #include "pqMiniSyntax.h"
 
-// highlighter specialized to handle nested categories
-// categorization performed by SWI-Prolog library(syntax_colour)
-//
+/** highlighter specialized to handle nested categories
+ *  categorization performed by SWI-Prolog library(syntax_colour)
+ */
 class pqHighlighter : public pqMiniSyntax {
     Q_OBJECT
 public:
@@ -44,19 +41,23 @@ public:
     pqHighlighter(QTextEdit *host);
     pqHighlighter(QTextEdit *host, pqSyntaxData *pData);
 
-    // reapply to lines
+    //! reapply to lines
     void rehighlightLines(ParenMatching::range position);
 
+    //! apply rules to requested text block (say, a line...)
     void highlightBlock(const QTextBlock &b, bool withFeedback = true);
 
-    // holds actual syntax info from Prolog
+    //! holds actual syntax info from Prolog
     friend class pqSyntaxData;
     QPointer<pqSyntaxData> pData;
 
 protected:
 
-    // apply configuration. Must account for unknown text position - a real complication
+    //! apply configuration. Relies on currentBlock() to access actual text position
     virtual void highlightBlock(const QString &text);
+
+    //! serialize access to UserBlockData formatting
+    QMutex blockSer;
 
 public slots:
 

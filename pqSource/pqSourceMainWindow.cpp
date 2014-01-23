@@ -79,7 +79,7 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     findReplace = new FindReplace(this);
     connect(findReplace, SIGNAL(outcome(QString)), statusBar(), SLOT(showMessage(QString)));
 
-    QTimer::singleShot(0, this, SLOT(fixGeometry()));
+    //QTimer::singleShot(0, this, SLOT(fixGeometry()));
 }
 
 void pqSourceMainWindow::engine_ready() {
@@ -94,6 +94,7 @@ void pqSourceMainWindow::engine_ready() {
     }
 
     pqGraphviz::setup();
+    fixGeometry();
 }
 
 void pqSourceMainWindow::requestHelp(QString cursorWord) {

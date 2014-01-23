@@ -48,7 +48,6 @@ HEADERS += \
     MdiHelper.h \
     pqSourceMainWindow.h \
     pqTrace.h \
-    CenterWidgets.h \
     pqTextAttributes.h \
     pqSyntaxData.h \
     symclass.h \

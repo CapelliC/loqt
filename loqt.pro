@@ -22,7 +22,8 @@ SUBDIRS += \
     pqGraphviz \
     pqSource \
     pqSourceTest \
-    spqr
+    spqr \
+    qPrologPad
 
 OTHER_FILES += \
     README.md \

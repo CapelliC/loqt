@@ -322,6 +322,7 @@ void pqSource::stepOver()
 
 void pqSource::toggleBP()
 {
+    /*
     if (sd) {
         QTextCursor c = textCursor();
         int p = c.position();
@@ -344,16 +345,19 @@ void pqSource::toggleBP()
             }
         }
     }
+    */
 }
 
 void pqSource::watchVar()
 {
+    /*
     if (sd) {
         pqSyntaxData::itcs l = sd->position_path(textCursor().position());
         if (!l.isEmpty()) {
             emit reportInfo(QString("watchVar %1 %2").arg(textCursor().position()).arg(l.size()));
         }
     }
+    */
 }
 
 pqSourceMainWindow *pqSource::findMain() const

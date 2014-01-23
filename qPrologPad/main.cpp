@@ -1,9 +1,9 @@
 /*
-    pqSource     : interfacing SWI-Prolog source files and Qt
+    qPrologPad   : SWI-Prolog PrologPad in Qt
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
-    Copyright (C): 2013,2014 Carlo Capelli
+    Copyright (C): 2014 Carlo Capelli
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -20,17 +20,13 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef CENTERWIDGETS_H
-#define CENTERWIDGETS_H
+#include <QtGui/QApplication>
+#include "qppMainWindow.h"
 
-#include <QWidget>
-
-inline void CenterWidgets(QWidget *widget, QWidget *host = 0) {
-    if (!host)
-        host = widget->parentWidget();
-
-    auto hostRect = host->geometry();
-    widget->move(hostRect.center() - widget->rect().center());
+int main(int argc, char *argv[])
+{
+    QApplication a(argc, argv);
+    qppMainWindow w(argc, argv);
+    w.show();
+    return a.exec();
 }
-
-#endif // CENTERWIDGETS_H

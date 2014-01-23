@@ -24,7 +24,7 @@
 #include <QDebug>
 
 // simply store reference data
-//
+/*
 pqHighlighter::pqHighlighter(QTextEdit *host, pqSyntaxData *pData) :
     pqMiniSyntax(host),
     pData(pData)
@@ -32,30 +32,48 @@ pqHighlighter::pqHighlighter(QTextEdit *host, pqSyntaxData *pData) :
     if (pData)
         pData->worker = this;
 }
+*/
 pqHighlighter::pqHighlighter(QTextEdit *host) :
-    pqMiniSyntax(host)
+    pqMiniSyntax(host),
+    pData(new pqSyntaxData)
 {
+    connect(this, SIGNAL(workNext(int)), SLOT(workBlock(int)));
 }
+pqHighlighter::~pqHighlighter() { delete pData; }
 
 // coords are offsets in file
 //
 void pqHighlighter::highlightBlock(const QString &text) {
-    if (pData)
+/*    if (pData)
         highlightBlock(currentBlock());
     else
-        pqMiniSyntax::highlightBlock(text);
+    */
+    pqMiniSyntax::highlightBlock(text);
+}
+
+void pqHighlighter::workBlock(int nBlock)
+{
+    QTextBlock b = document()->findBlockByNumber(nBlock);
+    pqSyntaxData::itcs v = pData->position_path(b.position());
+    //foreach(pqSyntaxData::cat c)
+    if (nBlock < document()->lastBlock().blockNumber())
+        emit workNext(nBlock + 1);
 }
 
 void pqHighlighter::highlightBlock(const QTextBlock &bl, bool withFeedback) {
 
     //qDebug() << "highlightBlock" << bl.position() << text;
-    pData->scan_nested(bl.position(), bl.position() + bl.length(), pData->cats);
-
+    //pData->scan_nested(bl.position(), bl.position() + bl.length(), pData->cats);
     if (withFeedback) {
-        pData->reportProgress(bl.blockNumber());
+        //pData->reportProgress(bl.blockNumber());
         if (bl == document()->lastBlock())
             emit highlightComplete();
     }
+}
+
+void pqHighlighter::semanticAvailable()
+{
+    emit workNext(0);
 }
 
 void pqHighlighter::rehighlightLines(ParenMatching::range mr)

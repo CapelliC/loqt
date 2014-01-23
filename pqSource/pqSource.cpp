@@ -79,7 +79,7 @@ pqSource::pqSource(QString file) :
 pqSource::~pqSource()
 {
     delete hl;
-    delete sd;
+    //delete sd;
 }
 
 // setup context menu to invoke Prolog edit facility
@@ -88,7 +88,7 @@ void pqSource::showContextMenu(const QPoint &pt)
 {
     QMenu *menu = createStandardContextMenu();
     QTextCursor c = cursorForPosition(pt);
-    if (sd && !(editWhat = sd->elementEdit(c)).isEmpty()) {
+    if (!(editWhat = hl->pData->elementEdit(c)).isEmpty()) {
         /*
         menu->addSeparator();
         menu->addAction(editContext);
@@ -189,8 +189,9 @@ void pqSource::loadSource(int line, int linepos)
     parentWidget()->setWindowTitle(name + "[*]");
     placeCursor(line, linepos);
 
-    //QTimer::singleShot(100, this, SLOT(startHighliter()));
+    //QTimer::singleShot(1, this, SLOT(startHighliter()));
     hl = new pqHighlighter(this);
+    startHighliter();
 }
 
 // positioning in source point and bringing to user attention
@@ -226,11 +227,10 @@ void pqSource::startHighliter()
             qDebug() << "syncol_allfile" << rc << "in" << tm.restart();
 
             pqTextAttributes ta;
-for (L scanres(results); scanres.next(f); )
-    qDebug() << t2w(f);
 
             for (L scanres(results); scanres.next(f); ) {
-qDebug() << t2w(f[1]) << t2w(f[2]) << t2w(f[3]) << t2w(f[4]);
+                //qDebug() << t2w(f);
+                //qDebug() << t2w(f[1]) << t2w(f[2]) << t2w(f[3]) << t2w(f[4]);
                 psd->add_element_sorted(t2w(f[3]), f[1], f[2], ta[f[4]]);
             }
 
@@ -244,44 +244,46 @@ qDebug() << t2w(f[1]) << t2w(f[2]) << t2w(f[3]) << t2w(f[4]);
     auto w = new QFutureWatcher<void>;
     connect(w, SIGNAL(finished()), this, SLOT(runHighliter()));
 
-    delete sd;
-    delete hl;
-    (sd = new pqSyntaxData)->timing.start();
-    hl = new pqHighlighter(this);
+    //delete sd;
+    //delete hl;
+    //(sd = new pqSyntaxData)->timing.start();
+    //hl = new pqHighlighter(this);
 
     // since could be a slow task, place a visual hint to what's going on...
-    CenterWidgets(sd->pgb = new QProgressBar(this));
+    //CenterWidgets(sd->pgb = new QProgressBar(this));
 
-    QTextCursor c = textCursor();
+    /*QTextCursor c = textCursor();
     c.movePosition(c.End);
     sd->pgb->setMaximum(c.position());
     //connect(sd, SIGNAL(onProgress(int)), sd->pgb, SLOT(setValue(int)));
     connect(sd, SIGNAL(onProgress(int)), this, SLOT(onProgress(int)));
     sd->pgb->show();
+    */
 
     // run the Prolog snippet in background (hl pointer)
-    w->setFuture(QtConcurrent::run(f, file, sd));
+    w->setFuture(QtConcurrent::run(f, file, hl->pData));
 }
 
 void pqSource::runHighliter()
 {
-    qDebug() << "pqSyntaxData" << file << "done in" << sd->timing.restart();
-    sd->pgb->reset();
-    sd->pgb->setMaximum(document()->lineCount());
+    hl->semanticAvailable();
 
-    Q_ASSERT(sd->check());
+    //qDebug() << "pqSyntaxData" << file << "done in" << sd->timing.restart();
+    //sd->pgb->reset();
+    //sd->pgb->setMaximum(document()->lineCount());
+    //Q_ASSERT(sd->check());
 
-    hl = new pqHighlighter(this, sd);
-    connect(hl, SIGNAL(highlightComplete()), this, SLOT(highlightComplete()));
+    //hl = new pqHighlighter(this, sd);
+    //connect(hl, SIGNAL(highlightComplete()), this, SLOT(highlightComplete()));
 }
 
 void pqSource::highlightComplete()
 {
-    qDebug() << "highlight_complete" << file << "done in" << sd->timing.elapsed();
-    set_modified(false);
-    delete sd->pgb;
+    //qDebug() << "highlight_complete" << file << "done in" << sd->timing.elapsed();
+    //set_modified(false);
+    //delete sd->pgb;
 }
-
+/*
 void pqSource::onProgress(int p)
 {
     if (sd->pgb) {
@@ -289,15 +291,18 @@ void pqSource::onProgress(int p)
         do_events();
     }
 }
+*/
 
 void pqSource::cursorPositionChanged()
 {
+    /*
     if (sd && hl) { // wait for pqSyntaxData filled
         auto c = textCursor();
         emit reportInfo(sd->elementPath(c).join(" / "));
         toggle t(skip_changes);
         sd->cursorPositionChanged(c);
     }
+    */
 }
 
 // attempt to incrementally colour modified syntax
@@ -308,11 +313,13 @@ void pqSource::contentsChange(int position, int charsRemoved, int charsAdded)
         return;
     if (skip_changes)
         return;
+    /*
     if (!sd || !hl)
         return;
 
     // reoffset
     sd->contentsChange(position, charsRemoved, charsAdded);
+        */
 
     ParenMatching::range mr(position, charsRemoved, charsAdded);
     pqSyntaxData pqsd;
@@ -320,11 +327,11 @@ void pqSource::contentsChange(int position, int charsRemoved, int charsAdded)
 
     skip_changes = true;
     try {
-        QString cap = sd->get_clause_at(position);
+        QString cap;// = sd->get_clause_at(position);
         if (!cap.isEmpty()) {
             if (recolor(A(cap), A(file), &pqsd, errorPos)) {
                 if (errorPos.type() == PL_VARIABLE) {
-                    sd->reconcile(position, pqsd);
+                    //sd->reconcile(position, pqsd);
                     hl->rehighlightBlock(document()->findBlock(position));
                     // inform user about symbol change
                     emit cursorPositionChanged();
@@ -338,7 +345,7 @@ void pqSource::contentsChange(int position, int charsRemoved, int charsAdded)
             if (!cr.trimmed().isEmpty()) {
                 if (recolor(A(cr), A(file), &pqsd, errorPos)) {
                     if (errorPos.type() == PL_VARIABLE) {
-                        sd->reconcile(document()->findBlock(mr.beg).position(), pqsd);
+                        //sd->reconcile(document()->findBlock(mr.beg).position(), pqsd);
                         hl->rehighlightLines(mr);
                         // inform user about symbol change
                         emit cursorPositionChanged();
@@ -363,7 +370,7 @@ void pqSource::closeEvent(QCloseEvent *e)
     if (!canClose())
         e->ignore();
     else {
-        delete sd;
+        //delete sd;
         delete hl;
     }
 }
@@ -464,6 +471,7 @@ bool pqSource::saveSource()
             c.setCharFormat(tcf);
         }
 
+        /*
         if (sd) {
             //toggle t(skip_changes);
             sd->clear_highlighting();
@@ -472,10 +480,12 @@ bool pqSource::saveSource()
 
         delete sd;
         delete hl;
+        */
         if (state_curr == closing)
             return true;
         state_curr = state_next = idle;
-        //startHighliter();
+        //QTimer::singleShot(1, this, SLOT(startHighliter()));
+        startHighliter();
         return true;
     }
     return false;

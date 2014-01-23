@@ -26,7 +26,9 @@
 #include <QSyntaxHighlighter>
 #include <QTextBlock>
 #include <QPointer>
+
 #include <QMutex>
+#include <QMutexLocker>
 
 #include "pqSyntaxData.h"
 #include "pqMiniSyntax.h"
@@ -39,7 +41,9 @@ class pqHighlighter : public pqMiniSyntax {
 public:
 
     pqHighlighter(QTextEdit *host);
-    pqHighlighter(QTextEdit *host, pqSyntaxData *pData);
+    ~pqHighlighter();
+
+    //pqHighlighter(QTextEdit *host, pqSyntaxData *pData);
 
     //! reapply to lines
     void rehighlightLines(ParenMatching::range position);
@@ -48,8 +52,11 @@ public:
     void highlightBlock(const QTextBlock &b, bool withFeedback = true);
 
     //! holds actual syntax info from Prolog
-    friend class pqSyntaxData;
+    //friend class pqSyntaxData;
     QPointer<pqSyntaxData> pData;
+
+    //! pData filled with prolog_colour details
+    void semanticAvailable();
 
 protected:
 
@@ -59,10 +66,12 @@ protected:
     //! serialize access to UserBlockData formatting
     QMutex blockSer;
 
-public slots:
+private slots:
+    void workBlock(int nBlock);
 
 signals:
 
+    void workNext(int nBlock);
     void highlightComplete();
 };
 

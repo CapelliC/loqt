@@ -32,9 +32,6 @@
 #include <QPointer>
 #include <QElapsedTimer>
 
-//! forward the friend declaration
-class pqHighlighter;
-
 /** this class collects structured data from SWI-Prolog syntax helper
   * as the library releases info in a non-strict lexical order, by means of a callback,
   * the code recovers the nesting and keep a sorted tree
@@ -66,7 +63,7 @@ public:
         //! summarize info as reported from Prolog
         QString desc;
 
-        //! depending on description, holds a specified format
+        //! depending on -part of- description, holds a specified format
         QTextCharFormat fmt;
 
         //! accelerate lookup - since we have a sorted structure, this should speedup positional access
@@ -79,14 +76,17 @@ public:
         int check() const;
     };
 
+    typedef t_nesting::const_iterator itc;
+    typedef QList<itc> itcs;
+
     //! from library callback (so called closure)
     void add_element(const char* functor, int from, int len);
 
     //! enriched with attributes from library(prolog_colour):syntax_colour/2
-    void add_element_attr(QString desc, int from, int len, QTextCharFormat fmt);
+    void add_element_attr(QString desc, int from, int len, const QTextCharFormat &fmt);
 
     //! enriched with attributes from library(prolog_colour):syntax_colour/2
-    void add_element_sorted(QString desc, int from, int len, QTextCharFormat fmt);
+    void add_element_sorted(QString desc, int from, int len, const QTextCharFormat &fmt);
 
     //! editing helper - highlight variables on cursor position
     void cursorPositionChanged(QTextCursor c);
@@ -96,17 +96,6 @@ public:
 
     //! get cursor element to edit
     QString elementEdit(QTextCursor c) const;
-
-    //! -- progress feedback ---
-
-    //! 1. signal advancement with QProgressBar
-    inline void reportProgress(int step) { emit onProgress(step); }
-
-    //! 2. set parameters and values in visual object
-    QPointer<QProgressBar> pgb;
-
-    //! 3. track timing
-    QElapsedTimer timing;
 
     //! debug helper - build nested structure
     QString structure() const;
@@ -122,9 +111,6 @@ public:
 
     //! a clause can span more than a category area
     range clause_boundary(int position) const;
-
-    typedef t_nesting::const_iterator itc;
-    typedef QList<itc> itcs;
 
     //! find the end point of cursor position
     itcs position_path(int position) const;
@@ -144,6 +130,9 @@ public:
     //! debugging helper: return true if out-of-order
     bool check() const;
 
+    //! get all applicable attributes from position <p> for length <c>
+    itcs matched_attrs(int p, int c) const;
+
 signals:
 
     //! 4. connection point
@@ -161,7 +150,7 @@ protected:
     void insert_sorted(cat &inner, t_nesting& nest);
 
     //! navigate area hierarchy for range matching
-    void scan_nested(int p, int c, const t_nesting& nest);
+    //void scan_nested(int p, int c, const t_nesting& nest);
 
     //! remember previous variable highlighting
     QList<const cat*> hvars;
@@ -170,7 +159,7 @@ protected:
     void underline(const cat* c, bool u);
 
     //! categorized area text cursor
-    QTextCursor area(const cat* c) const;
+    QTextCursor area(const cat* c) const { return area(*c); }
     QTextCursor area(range r) const;
 
     QTextCursor onech(int p) const { return area(range(p, p + 1)); }
@@ -186,10 +175,6 @@ protected:
 
     //! remember highlighted match
     range paren;
-
-    //! give access to actual Qt interface
-    friend class pqHighlighter;
-    QPointer<pqHighlighter> worker;
 
     //! recursive offseting stored data
     void apply_delta(t_nesting &cats, int position, int delta);

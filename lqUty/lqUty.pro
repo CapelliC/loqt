@@ -39,7 +39,8 @@ HEADERS += lqUty.h \
     lqLogger.h \
     lqAniMachine.h \
     CodeMirrorFile.h \
-    CodeMirror.h
+    CodeMirror.h \
+    CenterWidgets.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -70,7 +71,8 @@ OTHER_FILES += \
     codemirror/addon/edit/matchbrackets.js \
     codemirror/mode/prolog/prolog.js \
     codemirror/mode/prolog/index.html \
-    CodeMirror.html
+    CodeMirror.html \
+    codemirror/LICENSE
 
 RESOURCES += \
     lqUty.qrc

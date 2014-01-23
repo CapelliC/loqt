@@ -21,7 +21,7 @@
 */
 
 #include "pqSyntaxData.h"
-#include "pqHighlighter.h"
+//#include "pqHighlighter.h"
 #include "PREDICATE.h"
 
 #include <QStack>
@@ -34,10 +34,10 @@ pqSyntaxData::pqSyntaxData() {
 
 pqSyntaxData::~pqSyntaxData() {
     //qDebug() << "pqSyntaxData::~pqSyntaxData" << CVP(this);
-    delete pgb;
+    //delete pgb;
 }
 
-/** from library callback (so called closure)
+/** insert qualified fragment - usually from library callback (so called closure)
  */
 void pqSyntaxData::add_element(const char* functor, int from, int len)
 {
@@ -45,28 +45,25 @@ void pqSyntaxData::add_element(const char* functor, int from, int len)
     c.desc = functor;
     insert_nested(c, cats);
 
-    if (cats.count() % 10 == 0)
+    /*if (cats.count() % 10 == 0)
         reportProgress(from);
-
     foreach (auto c, cats)
-        Q_ASSERT(c.check());
+        Q_ASSERT(c.check());*/
 }
 
 /** enriched with attributes from library(prolog_colour):syntax_colour/2
  */
-void pqSyntaxData::add_element_attr(QString desc, int from, int len, QTextCharFormat fmt)
+void pqSyntaxData::add_element_attr(QString desc, int from, int len, const QTextCharFormat &fmt)
 {
     cat c(from, from + len);
     c.fmt = fmt;
     c.desc = desc;
-
     insert_nested(c, cats);
 
-    if (cats.count() % 10 == 0)
+    /*if (cats.count() % 10 == 0)
         reportProgress(from);
-
     foreach (auto c, cats)
-        Q_ASSERT(c.check());
+        Q_ASSERT(c.check());*/
 }
 
 /** recursive insertion, search from back
@@ -110,8 +107,20 @@ void pqSyntaxData::insert_nested(cat &c, t_nesting& nest)
         nest.insert(0, 1, c);
 }
 
+/** apply collected attributes
+itcs getBlockAttributes(const QTextBlock &block) const;
+
+void pqSyntaxData::colorBlock(const QTextBlock &block, QSyntaxHighlighter &qsh) {
+    int p = block.position(), c = p + block.length();
+    itc x = find_position(p, cats);
+    if (x != cats.end()) {
+        qsh.setFormat(p, c, x->fmt);
+    }
+}
+*/
+
 /** recursive locating in categorized
- */
+ *
 void pqSyntaxData::scan_nested(int p, int c, const t_nesting& nest)
 {
     // should use a binary search instead...
@@ -125,12 +134,13 @@ void pqSyntaxData::scan_nested(int p, int c, const t_nesting& nest)
             int e = std::min(q, c);
 
             if (x.fmt.isValid())
-                worker->setFormat(b - p, e - b, x.fmt);
+                ;//worker->setFormat(b - p, e - b, x.fmt);
 
             scan_nested(p, c, x.nesting);
         }
     }
 }
+*/
 
 /** factorize out debugging variables highlighting
  */
@@ -205,20 +215,15 @@ void pqSyntaxData::cursorPositionChanged(QTextCursor c)
     test_highlighting(c);
 }
 
-/** get categorized area (cursor with selection)
- */
-QTextCursor pqSyntaxData::area(const cat* c) const
-{
-    return area(*c);
-}
-
 /** get range area (cursor with selection)
  */
 QTextCursor pqSyntaxData::area(range r) const
 {
+    QTextCursor C; /*
     QTextCursor C(worker->document());
     C.setPosition(r.beg);
     C.movePosition(C.NextCharacter, C.KeepAnchor, r.size());
+    */
     return C;
 }
 
@@ -364,6 +369,7 @@ void pqSyntaxData::contentsChange(int position, int charsRemoved, int charsAdded
 QString pqSyntaxData::get_clause_at(int position) const
 {
     QString x;
+    /*
     if (worker) {
         range cb = clause_boundary(position);
         if (cb.size() > 0 && cb.end < cats.size()) {
@@ -372,6 +378,7 @@ QString pqSyntaxData::get_clause_at(int position) const
             x = range(start, stop).plainText(worker->document());
         }
     }
+    */
     return x;
 }
 
@@ -485,7 +492,7 @@ pqSyntaxData::itcs pqSyntaxData::position_path(int position) const
 
 /** enriched with attributes from library(prolog_colour):syntax_colour/2
  */
-void pqSyntaxData::add_element_sorted(QString desc, int from, int len, QTextCharFormat fmt)
+void pqSyntaxData::add_element_sorted(QString desc, int from, int len, const QTextCharFormat &fmt)
 {
     cat c(from, from + len);
     c.fmt = fmt;
@@ -493,11 +500,12 @@ void pqSyntaxData::add_element_sorted(QString desc, int from, int len, QTextChar
 
     insert_sorted(c, cats);
 
+    /*
     if (cats.count() % 10 == 0)
         reportProgress(from);
-
     foreach (auto c, cats)
         Q_ASSERT(c.check());
+    */
 }
 
 /** recursive insertion, search from back
@@ -545,4 +553,28 @@ void pqSyntaxData::insert_sorted(cat &c, t_nesting& nest)
     // outmost, eventually will be nested later
     if (inserted == -1)
         nest.insert(0, 1, c);
+}
+
+pqSyntaxData::itcs pqSyntaxData::matched_attrs(int p, int c) const {
+
+    itcs result;
+    const t_nesting *n = &cats;
+
+    // should use a binary search instead...
+    foreach(const cat& x, *n) {
+        // f,q cat coords
+        int f = x.beg;
+        int q = x.end;
+        if (c > f && p < q) {
+            // offset in block
+            int b = std::max(f, p);
+            int e = std::min(q, c);
+
+            if (x.fmt.isValid())
+                result << &x;
+
+            //scan_nested(p, c, x.nesting);
+        }
+    }
+    return result;
 }

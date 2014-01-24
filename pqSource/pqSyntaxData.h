@@ -36,14 +36,9 @@
   * as the library releases info in a non-strict lexical order, by means of a callback,
   * the code recovers the nesting and keep a sorted tree
   */
-class PQSOURCESHARED_EXPORT pqSyntaxData : public QObject {
-
-    Q_OBJECT
+class PQSOURCESHARED_EXPORT pqSyntaxData {
 
 public:
-
-    pqSyntaxData();
-    ~pqSyntaxData();
 
     //! note: the nesting is recursive, and *can* be compiled just given a predeclaration.
     struct cat;
@@ -88,23 +83,11 @@ public:
     //! enriched with attributes from library(prolog_colour):syntax_colour/2
     void add_element_sorted(QString desc, int from, int len, const QTextCharFormat &fmt);
 
-    //! editing helper - highlight variables on cursor position
-    void cursorPositionChanged(QTextCursor c);
-
-    //! get 'the breadcrumbs' of current under cursor element
-    QStringList elementPath(QTextCursor c) const;
-
-    //! get cursor element to edit
-    QString elementEdit(QTextCursor c) const;
-
     //! debug helper - build nested structure
     QString structure() const;
 
     //! keep the structure aligned while editing
     void contentsChange(int position, int charsRemoved, int charsAdded);
-
-    //! access toplevel text having position
-    QString get_clause_at(int position) const;
 
     //! incremental updating after editing occurs - place new text at position
     void reconcile(int last_change_position, const pqSyntaxData &updated);
@@ -118,25 +101,8 @@ public:
     //! apply ordering constraint
     static itc find_position(int p, const t_nesting &n);
 
-    //! if matching, highlight
-    void test_highlighting(QTextCursor c);
-
-    //! in case parenthesis have been matched ...
-    void clear_highlighting();
-
-    //! clear current variables highlighting
-    void clear_hvars();
-
     //! debugging helper: return true if out-of-order
     bool check() const;
-
-    //! get all applicable attributes from position <p> for length <c>
-    itcs matched_attrs(int p, int c) const;
-
-signals:
-
-    //! 4. connection point
-    void onProgress(int line);
 
 protected:
 
@@ -149,32 +115,8 @@ protected:
     //! attempt to adjust structure to recover proper nesting
     void insert_sorted(cat &inner, t_nesting& nest);
 
-    //! navigate area hierarchy for range matching
-    //void scan_nested(int p, int c, const t_nesting& nest);
-
     //! remember previous variable highlighting
     QList<const cat*> hvars;
-
-    //! change underline of categorized area
-    void underline(const cat* c, bool u);
-
-    //! categorized area text cursor
-    QTextCursor area(const cat* c) const { return area(*c); }
-    QTextCursor area(range r) const;
-
-    QTextCursor onech(int p) const { return area(range(p, p + 1)); }
-    QTextCursor onech(QTextCursor p) const { return onech(p.position()); }
-
-    void pairchf(range r, QTextCharFormat f) {
-        onech(r.beg).setCharFormat(f);
-        onech(r.end).setCharFormat(f);
-    }
-
-    //! fetch categorized area text
-    QString text(const cat* c) const;
-
-    //! remember highlighted match
-    range paren;
 
     //! recursive offseting stored data
     void apply_delta(t_nesting &cats, int position, int delta);

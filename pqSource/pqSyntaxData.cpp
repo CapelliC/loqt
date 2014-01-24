@@ -24,18 +24,8 @@
 //#include "pqHighlighter.h"
 #include "PREDICATE.h"
 
-#include <QStack>
 #include <QtAlgorithms>
 #include <QTextStream>
-
-pqSyntaxData::pqSyntaxData() {
-    //qDebug() << "pqSyntaxData::pqSyntaxData" << CVP(this);
-}
-
-pqSyntaxData::~pqSyntaxData() {
-    //qDebug() << "pqSyntaxData::~pqSyntaxData" << CVP(this);
-    //delete pgb;
-}
 
 /** insert qualified fragment - usually from library callback (so called closure)
  */
@@ -44,11 +34,6 @@ void pqSyntaxData::add_element(const char* functor, int from, int len)
     cat c(from, from + len);
     c.desc = functor;
     insert_nested(c, cats);
-
-    /*if (cats.count() % 10 == 0)
-        reportProgress(from);
-    foreach (auto c, cats)
-        Q_ASSERT(c.check());*/
 }
 
 /** enriched with attributes from library(prolog_colour):syntax_colour/2
@@ -59,11 +44,16 @@ void pqSyntaxData::add_element_attr(QString desc, int from, int len, const QText
     c.fmt = fmt;
     c.desc = desc;
     insert_nested(c, cats);
+}
 
-    /*if (cats.count() % 10 == 0)
-        reportProgress(from);
-    foreach (auto c, cats)
-        Q_ASSERT(c.check());*/
+/** enriched with attributes from library(prolog_colour):syntax_colour/2
+ */
+void pqSyntaxData::add_element_sorted(QString desc, int from, int len, const QTextCharFormat &fmt)
+{
+    cat c(from, from + len);
+    c.fmt = fmt;
+    c.desc = desc;
+    insert_sorted(c, cats);
 }
 
 /** recursive insertion, search from back
@@ -107,179 +97,11 @@ void pqSyntaxData::insert_nested(cat &c, t_nesting& nest)
         nest.insert(0, 1, c);
 }
 
-/** apply collected attributes
-itcs getBlockAttributes(const QTextBlock &block) const;
-
-void pqSyntaxData::colorBlock(const QTextBlock &block, QSyntaxHighlighter &qsh) {
-    int p = block.position(), c = p + block.length();
-    itc x = find_position(p, cats);
-    if (x != cats.end()) {
-        qsh.setFormat(p, c, x->fmt);
-    }
-}
-*/
-
-/** recursive locating in categorized
- *
-void pqSyntaxData::scan_nested(int p, int c, const t_nesting& nest)
-{
-    // should use a binary search instead...
-    foreach(const cat& x, nest) {
-        // f,q cat coords
-        int f = x.beg;
-        int q = x.end;
-        if (c > f && p < q) {
-            // offset in block
-            int b = std::max(f, p);
-            int e = std::min(q, c);
-
-            if (x.fmt.isValid())
-                ;//worker->setFormat(b - p, e - b, x.fmt);
-
-            scan_nested(p, c, x.nesting);
-        }
-    }
-}
-*/
-
-/** factorize out debugging variables highlighting
- */
-void pqSyntaxData::clear_hvars()
-{
-    foreach(const cat* x, hvars)
-        underline(x, false);
-    hvars.clear();
-}
-
-void pqSyntaxData::clear_highlighting() {
-    if (paren.size()) {
-        pairchf(paren, QTextCharFormat());
-        paren = range();
-    }
-}
-
-void pqSyntaxData::test_highlighting(QTextCursor c) {
-    ParenMatching m(c);
-    if (m)
-        (paren = m.positions).format_both(c, paren.bold());
-}
-
-/** handle dynamic highlighting
- *  same clause variables
- *  parenthesis matching (TBD check for quoted strings / comments etc)
- */
-void pqSyntaxData::cursorPositionChanged(QTextCursor c)
-{
-    // scan top level
-    const t_nesting *scan = &cats;
-    const cat *inner = 0;
-
-    QStack<const cat*> stcat;
-    l:foreach(const cat& x, *scan) {
-        if (x.contains(c.position())) {
-            inner = &x;
-            scan = &x.nesting;
-            if (stcat.isEmpty())
-                stcat.push(&x);
-            goto l;
-        }
-    }
-
-    //cannot use: prevents steady document display update
-    //blockSig bs(worker->document());
-
-    clear_highlighting();
-
-    if (inner && inner->desc == "var") {
-        if (!hvars.contains(inner)) {
-
-            clear_hvars();
-
-            QString sym = text(inner);
-            while (!stcat.isEmpty()) {
-                const cat* t = stcat.pop();
-                if (t->desc == "var" && text(t) == sym)
-                    hvars.append(t);
-                foreach(const cat& x, t->nesting)
-                    stcat.push(&x);
-            }
-
-            foreach(const cat* x, hvars)
-                underline(x, true);
-        }
-        return;
-    }
-
-    clear_hvars();
-
-    test_highlighting(c);
-}
-
-/** get range area (cursor with selection)
- */
-QTextCursor pqSyntaxData::area(range r) const
-{
-    QTextCursor C; /*
-    QTextCursor C(worker->document());
-    C.setPosition(r.beg);
-    C.movePosition(C.NextCharacter, C.KeepAnchor, r.size());
-    */
-    return C;
-}
-
-/** get text of categorized area
- */
-QString pqSyntaxData::text(const cat* c) const { return area(c).selectedText(); }
-
 bool pqSyntaxData::check() const
 {
-    //qDebug() << "check" << structure();
     foreach (auto c, cats)
         Q_ASSERT(c.check());
     return true;
-}
-
-/** change underline of categorized area
- *  this requires signals NOT disabled in document
- */
-void pqSyntaxData::underline(const cat* c, bool u)
-{
-    QTextCharFormat f;
-    f.setFontUnderline(u);
-    area(c).setCharFormat(f);
-}
-
-/** top down 'breadcrumbs' location of current cursor element
- */
-QStringList pqSyntaxData::elementPath(QTextCursor c) const
-{
-    QStringList l;
-    const t_nesting *n = &cats;
-    _:foreach(const cat& x, *n)
-        if (x.contains(c.position())) {
-            if (!x.desc.isEmpty())
-                l.append(x.desc);
-            n = &x.nesting;
-            goto _;
-        }
-    return l;
-}
-
-/** peek inner nested element
- */
-QString pqSyntaxData::elementEdit(QTextCursor c) const
-{
-    const t_nesting *n = &cats;
-    const cat *i = 0;
-    _:foreach(const cat& x, *n)
-        if (x.contains(c.position())) {
-            i = &x;
-            n = &x.nesting;
-            goto _;
-        }
-    if (i)
-        return text(i);
-    return QString();
 }
 
 /** debugging helper, after changing insertion strategy to more efficient one
@@ -361,25 +183,6 @@ void pqSyntaxData::contentsChange(int position, int charsRemoved, int charsAdded
 {
     apply_delta(cats, position, charsAdded - charsRemoved);
     Q_ASSERT(check());
-}
-
-/** rebuild plain clause' text of clause surrounding position
- *  access toplevel text having position
- */
-QString pqSyntaxData::get_clause_at(int position) const
-{
-    QString x;
-    /*
-    if (worker) {
-        range cb = clause_boundary(position);
-        if (cb.size() > 0 && cb.end < cats.size()) {
-            // get plain text
-            int start = cats[cb.beg].beg, stop = cats[cb.end].end;
-            x = range(start, stop).plainText(worker->document());
-        }
-    }
-    */
-    return x;
 }
 
 /** put back structure from updated, replacing matched
@@ -490,24 +293,6 @@ pqSyntaxData::itcs pqSyntaxData::position_path(int position) const
     return l;
 }
 
-/** enriched with attributes from library(prolog_colour):syntax_colour/2
- */
-void pqSyntaxData::add_element_sorted(QString desc, int from, int len, const QTextCharFormat &fmt)
-{
-    cat c(from, from + len);
-    c.fmt = fmt;
-    c.desc = desc;
-
-    insert_sorted(c, cats);
-
-    /*
-    if (cats.count() % 10 == 0)
-        reportProgress(from);
-    foreach (auto c, cats)
-        Q_ASSERT(c.check());
-    */
-}
-
 /** recursive insertion, search from back
  *  relies on non overlapping fragments - i.e. correctly categorized
  */
@@ -553,28 +338,4 @@ void pqSyntaxData::insert_sorted(cat &c, t_nesting& nest)
     // outmost, eventually will be nested later
     if (inserted == -1)
         nest.insert(0, 1, c);
-}
-
-pqSyntaxData::itcs pqSyntaxData::matched_attrs(int p, int c) const {
-
-    itcs result;
-    const t_nesting *n = &cats;
-
-    // should use a binary search instead...
-    foreach(const cat& x, *n) {
-        // f,q cat coords
-        int f = x.beg;
-        int q = x.end;
-        if (c > f && p < q) {
-            // offset in block
-            int b = std::max(f, p);
-            int e = std::min(q, c);
-
-            if (x.fmt.isValid())
-                result << &x;
-
-            //scan_nested(p, c, x.nesting);
-        }
-    }
-    return result;
 }

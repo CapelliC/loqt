@@ -57,3 +57,23 @@ else:unix:!symbian: LIBS += -L$$OUT_PWD/../pqGraphviz/ -lpqGraphviz
 
 INCLUDEPATH += $$PWD/../pqGraphviz
 DEPENDPATH += $$PWD/../pqGraphviz
+
+RESOURCES += \
+    qPrologPad.qrc
+
+OTHER_FILES += \
+    prolog/newFileDefaultScript.pl \
+    qppView.html \
+    prologpad/test.pl \
+    prologpad/server.pl \
+    prologpad/README.md \
+    prologpad/jquery.pl \
+    prologpad/jquery.js \
+    prologpad/ide.css \
+    prologpad/fuelux.pl \
+    prologpad/filetree.pl \
+    prologpad/codemirror.pl \
+    prologpad/codemirror/LICENSE \
+    prologpad/codemirror/lib/codemirror.js \
+    prologpad/codemirror/lib/codemirror.css \
+    prologpad/codemirror/mode/prolog/prolog.js

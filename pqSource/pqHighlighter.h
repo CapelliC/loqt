@@ -36,42 +36,77 @@
 /** highlighter specialized to handle nested categories
  *  categorization performed by SWI-Prolog library(syntax_colour)
  */
-class pqHighlighter : public pqMiniSyntax {
+class pqHighlighter : public pqMiniSyntax, public pqSyntaxData {
     Q_OBJECT
 public:
 
     pqHighlighter(QTextEdit *host);
-    ~pqHighlighter();
-
-    //pqHighlighter(QTextEdit *host, pqSyntaxData *pData);
 
     //! reapply to lines
     void rehighlightLines(ParenMatching::range position);
 
     //! apply rules to requested text block (say, a line...)
-    void highlightBlock(const QTextBlock &b, bool withFeedback = true);
+    void highlightBlock(const QTextBlock &b);
 
-    //! holds actual syntax info from Prolog
-    //friend class pqSyntaxData;
-    QPointer<pqSyntaxData> pData;
+    //! if matching, highlight
+    void test_highlighting(QTextCursor c);
 
-    //! pData filled with prolog_colour details
-    void semanticAvailable();
+    //! in case parenthesis have been matched ...
+    void clear_highlighting();
+
+    //! clear current variables highlighting
+    void clear_hvars();
+
+    void scan_start();
+    void scan_done();
+    bool sem_info_avail() const { return status == completed; }
+
+    //! editing helper - highlight variables on cursor position
+    void cursorPositionChanged(QTextCursor c);
+
+    //! get 'the breadcrumbs' of current under cursor element
+    QStringList elementPath(QTextCursor c) const;
+
+    //! get cursor element to edit
+    QString elementEdit(QTextCursor c) const;
+
+    //! access toplevel text having position
+    QString get_clause_at(int position) const;
 
 protected:
+
+    //! serialize access to UserBlockData formatting
+    enum {idle, scanning, completed} status;
 
     //! apply configuration. Relies on currentBlock() to access actual text position
     virtual void highlightBlock(const QString &text);
 
-    //! serialize access to UserBlockData formatting
-    QMutex blockSer;
+    //! change attributes on range based on collected semantic analysis
+    void set_sem_attrs(int p, int c, const t_nesting &nest);
 
-private slots:
-    void workBlock(int nBlock);
+    //! change underline of categorized area
+    void underline(const cat* c, bool u);
+
+    //! categorized area text cursor
+    QTextCursor area(const cat* c) const { return area(*c); }
+    QTextCursor area(range r) const;
+
+    QTextCursor onech(int p) const { return area(range(p, p + 1)); }
+    QTextCursor onech(QTextCursor p) const { return onech(p.position()); }
+
+    //! fetch categorized area text
+    QString text(const cat* c) const;
+
+    void pairchf(range r, QTextCharFormat f) {
+        onech(r.beg).setCharFormat(f);
+        onech(r.end).setCharFormat(f);
+    }
+
+    //! remember highlighted match
+    range paren;
 
 signals:
 
-    void workNext(int nBlock);
     void highlightComplete();
 };
 

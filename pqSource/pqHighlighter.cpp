@@ -22,58 +22,46 @@
 
 #include "pqHighlighter.h"
 #include <QDebug>
+#include <QStack>
 
-// simply store reference data
-/*
-pqHighlighter::pqHighlighter(QTextEdit *host, pqSyntaxData *pData) :
-    pqMiniSyntax(host),
-    pData(pData)
-{
-    if (pData)
-        pData->worker = this;
-}
-*/
 pqHighlighter::pqHighlighter(QTextEdit *host) :
     pqMiniSyntax(host),
-    pData(new pqSyntaxData)
+    status(idle)
 {
     connect(this, SIGNAL(workNext(int)), SLOT(workBlock(int)));
 }
-pqHighlighter::~pqHighlighter() { delete pData; }
 
 // coords are offsets in file
 //
 void pqHighlighter::highlightBlock(const QString &text) {
-/*    if (pData)
-        highlightBlock(currentBlock());
+    if (status == completed) {
+        QTextBlock b = currentBlock();
+        set_sem_attrs(b.position(), b.position() + b.length(), cats);
+    }
     else
-    */
-    pqMiniSyntax::highlightBlock(text);
+        pqMiniSyntax::highlightBlock(text);
 }
 
-void pqHighlighter::workBlock(int nBlock)
-{
-    QTextBlock b = document()->findBlockByNumber(nBlock);
-    pqSyntaxData::itcs v = pData->position_path(b.position());
-    //foreach(pqSyntaxData::cat c)
-    if (nBlock < document()->lastBlock().blockNumber())
-        emit workNext(nBlock + 1);
-}
+void pqHighlighter::set_sem_attrs(int p, int c, const t_nesting &nest) {
+    foreach(const cat& x, nest) {
+        // f,q cat coords
+        int f = x.beg;
+        int q = x.end;
+        if (c > f && p < q) {
+            // offset in block
+            int b = std::max(f, p);
+            int e = std::min(q, c);
 
-void pqHighlighter::highlightBlock(const QTextBlock &bl, bool withFeedback) {
+            if (x.fmt.isValid())
+                setFormat(b - p, e - b, x.fmt);
 
-    //qDebug() << "highlightBlock" << bl.position() << text;
-    //pData->scan_nested(bl.position(), bl.position() + bl.length(), pData->cats);
-    if (withFeedback) {
-        //pData->reportProgress(bl.blockNumber());
-        if (bl == document()->lastBlock())
-            emit highlightComplete();
+            set_sem_attrs(p, c, x.nesting);
+        }
     }
 }
 
-void pqHighlighter::semanticAvailable()
-{
-    emit workNext(0);
+void pqHighlighter::highlightBlock(const QTextBlock &b) {
+    set_sem_attrs(b.position(), b.position() + b.length(), cats);
 }
 
 void pqHighlighter::rehighlightLines(ParenMatching::range mr)
@@ -83,7 +71,160 @@ void pqHighlighter::rehighlightLines(ParenMatching::range mr)
         b = document()->findBlock(mr.beg),
         e = document()->findBlock(mr.end);
     for ( ; b != e; b = b.next())
-        highlightBlock(b, false);
+        highlightBlock(b);
     if (e != document()->end())
-        highlightBlock(b, false);
+        highlightBlock(b);
+}
+
+/** handle dynamic highlighting
+ *  same clause variables
+ *  parenthesis matching (TBD check for quoted strings / comments etc)
+ */
+void pqHighlighter::cursorPositionChanged(QTextCursor c)
+{
+    // scan top level
+    const t_nesting *scan = &cats;
+    const cat *inner = 0;
+
+    QStack<const cat*> stcat;
+    l:foreach(const cat& x, *scan) {
+        if (x.contains(c.position())) {
+            inner = &x;
+            scan = &x.nesting;
+            if (stcat.isEmpty())
+                stcat.push(&x);
+            goto l;
+        }
+    }
+
+    //cannot use: prevents steady document display update
+    //blockSig bs(worker->document());
+
+    clear_highlighting();
+
+    if (inner && inner->desc == "var") {
+        if (!hvars.contains(inner)) {
+
+            clear_hvars();
+
+            QString sym = text(inner);
+            while (!stcat.isEmpty()) {
+                const cat* t = stcat.pop();
+                if (t->desc == "var" && text(t) == sym)
+                    hvars.append(t);
+                foreach(const cat& x, t->nesting)
+                    stcat.push(&x);
+            }
+
+            foreach(const cat* x, hvars)
+                underline(x, true);
+        }
+        return;
+    }
+
+    clear_hvars();
+    test_highlighting(c);
+}
+
+/** get range area (cursor with selection)
+ */
+QTextCursor pqHighlighter::area(range r) const
+{
+    QTextCursor C(document());
+    C.setPosition(r.beg);
+    C.movePosition(C.NextCharacter, C.KeepAnchor, r.size());
+    return C;
+}
+
+/** get text of categorized area
+ */
+QString pqHighlighter::text(const cat* c) const { return area(c).selectedText(); }
+
+/** change underline of categorized area
+ *  this requires signals NOT disabled in document
+ */
+void pqHighlighter::underline(const cat* c, bool u)
+{
+    QTextCharFormat f;
+    f.setFontUnderline(u);
+    area(c).setCharFormat(f);
+}
+
+/** factorize out debugging variables highlighting
+ */
+void pqHighlighter::clear_hvars()
+{
+    foreach(const cat* x, hvars)
+        underline(x, false);
+    hvars.clear();
+}
+
+void pqHighlighter::clear_highlighting() {
+    if (paren.size()) {
+        pairchf(paren, QTextCharFormat());
+        paren = range();
+    }
+}
+
+void pqHighlighter::test_highlighting(QTextCursor c) {
+    ParenMatching m(c);
+    if (m)
+        (paren = m.positions).format_both(c, paren.bold());
+}
+
+void pqHighlighter::scan_start() {
+    cats.clear();
+    status = scanning;
+}
+
+void pqHighlighter::scan_done() {
+    status = completed;
+}
+
+/** top down 'breadcrumbs' location of current cursor element
+ */
+QStringList pqHighlighter::elementPath(QTextCursor c) const
+{
+    QStringList l;
+    const t_nesting *n = &cats;
+    _:foreach(const cat& x, *n)
+        if (x.contains(c.position())) {
+            if (!x.desc.isEmpty())
+                l.append(x.desc);
+            n = &x.nesting;
+            goto _;
+        }
+    return l;
+}
+
+/** peek inner nested element
+ */
+QString pqHighlighter::elementEdit(QTextCursor c) const
+{
+    const t_nesting *n = &cats;
+    const cat *i = 0;
+    _:foreach(const cat& x, *n)
+        if (x.contains(c.position())) {
+            i = &x;
+            n = &x.nesting;
+            goto _;
+        }
+    if (i)
+        return text(i);
+    return QString();
+}
+
+/** rebuild plain clause' text of clause surrounding position
+ *  access toplevel text having position
+ */
+QString pqHighlighter::get_clause_at(int position) const
+{
+    QString x;
+    range cb = clause_boundary(position);
+    if (cb.size() > 0 && cb.end < cats.size()) {
+        // get plain text
+        int start = cats[cb.beg].beg, stop = cats[cb.end].end;
+        x = range(start, stop).plainText(document());
+    }
+    return x;
 }

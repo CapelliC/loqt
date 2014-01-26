@@ -62,6 +62,8 @@ protected:
     QToolBar *fileToolBar;
     QToolBar *editToolBar;
     QToolBar *debugToolBar;
+    QToolBar *helpBar;
+
     QComboBox *queriesBox;
 
     QAction *newAct;

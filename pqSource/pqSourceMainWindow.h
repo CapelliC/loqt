@@ -32,7 +32,7 @@
 #include "SwiPrologEngine.h"
 
 class pqSource;
-class QWebView;
+class pqDocView;
 
 class PQSOURCESHARED_EXPORT pqSourceMainWindow : public MdiHelper
 {
@@ -72,7 +72,7 @@ protected:
     QFile reportFile;
     void reportToFile(QString msg);
 
-    QWebView *helpView();
+    pqDocView *helpView();
 
 public slots:
 

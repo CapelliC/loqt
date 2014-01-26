@@ -211,12 +211,12 @@ void pqSource::startHighliter()
         QElapsedTimer tm;
         tm.start();
         SwiPrologEngine::in_thread _it;
-        qDebug() << "engine in " << tm.restart();
+        qDebug() << file << "engine in " << tm.restart();
 
         try {
             T results, f;
             int rc = syncol_allfile(A(file), results);
-            qDebug() << "syncol_allfile" << rc << "in" << tm.restart();
+            qDebug() << file << "syncol_allfile" << rc << "in" << tm.restart();
 
             pqTextAttributes ta;
 
@@ -224,7 +224,7 @@ void pqSource::startHighliter()
                 psd->add_element_sorted(t2w(f[3]), f[1], f[2], ta[f[4]]);
             }
 
-            qDebug() << "add_element_attr" << "in" << tm.elapsed();
+            qDebug() << file << "done add_element_attr" << "in" << tm.elapsed();
         }
         catch(PlException e) {
             qDebug() << t2w(e);
@@ -241,7 +241,7 @@ void pqSource::startHighliter()
 
 void pqSource::runHighliter()
 {
-    qDebug() << hl->structure();
+    //qDebug() << hl->structure();
     hl->scan_done();
     hl->rehighlight();
 }

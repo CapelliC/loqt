@@ -385,6 +385,8 @@ void MdiHelper::createToolBars()
     queriesBox->setToolTip(tr("Hold the query used to start the debugger"));
     queriesBox->setStatusTip(tr("Debugger will start with this query. <editor> refers to 'scriptname'."));
     debugToolBar->addWidget(queriesBox);
+
+    helpBar = addToolBar("help");
 }
 
 void MdiHelper::createStatusBar()

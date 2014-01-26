@@ -34,5 +34,6 @@
         <file>prolog/pldoc/pub-bg.png</file>
         <file>prolog/pldoc/public.png</file>
         <file>prolog/pldoc/source.png</file>
+        <file>prolog/pqSourceTemplate.pl</file>
     </qresource>
 </RCC>

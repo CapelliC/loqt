@@ -49,18 +49,18 @@ qppMainWindow::qppMainWindow(int argc, char *argv[], QWidget *parent)
     File->addAction(tr("&Close"), this, SLOT(closeFile()), QKeySequence::Close);
     File->addSeparator();
 
+    mruMenu = File->addMenu("Recent &Files...");
+
     lqPreferences s;
     loadMru(s, this);
 
-    //s.read(this, "window");
     split->restoreState(s.value("split_console").toByteArray());
-    //mru->focus = s.value("current_source").toInt();
 
     File->addSeparator();
     File->addAction(tr("&Quit"), this, SLOT(quitRequest()), QKeySequence::Quit);
 
+    /*
     QMenu* Debug = menuBar()->addMenu(tr("&Debug"));
-
     using namespace Qt;
     Debug->addAction(tr("&Compile"), this, SLOT(Compile()), Key_F2);
     Debug->addAction(tr("&Trace"), this, SLOT(Trace()), CTRL+Key_F5);
@@ -70,6 +70,7 @@ qppMainWindow::qppMainWindow(int argc, char *argv[], QWidget *parent)
     Debug->addAction(tr("&Step Over"), this, SLOT(StepOver()), Key_F10);
     Debug->addAction(tr("Step &Into"), this, SLOT(StepInto()), Key_F11);
     Debug->addAction(tr("Step &Out"), this, SLOT(StepOut()), SHIFT+Key_F11);
+    */
 
     connect(this, SIGNAL(openSourceFileSig(QString)), this, SLOT(openSourceFile(QString)));
     connect(this, SIGNAL(msgtSig(QString)), this, SLOT(msg(QString)));

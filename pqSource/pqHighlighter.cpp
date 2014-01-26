@@ -28,7 +28,6 @@ pqHighlighter::pqHighlighter(QTextEdit *host) :
     pqMiniSyntax(host),
     status(idle)
 {
-    connect(this, SIGNAL(workNext(int)), SLOT(workBlock(int)));
 }
 
 // coords are offsets in file

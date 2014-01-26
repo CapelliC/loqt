@@ -5,7 +5,7 @@
 #--------------------------------------------------
 # Copyright (C) : 2013,2014 Carlo Capelli
 
-QT += gui
+QT += gui webkit
 
 TARGET = pqGraphviz
 TEMPLATE = lib
@@ -13,11 +13,13 @@ TEMPLATE = lib
 DEFINES += PQGRAPHVIZ_LIBRARY
 
 SOURCES += \
-    pqGraphviz.cpp
+    pqGraphviz.cpp \
+    pqDocView.cpp
 
 HEADERS += \
     pqGraphviz.h \
-    pqGraphviz_global.h
+    pqGraphviz_global.h \
+    pqDocView.h
 
 OTHER_FILES += \
     prolog/gv_uty.pl \
@@ -65,3 +67,10 @@ DEPENDPATH += $$PWD/../pqConsole
 
 RESOURCES += \
     pqGraphviz.qrc
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty
+else:unix:!symbian: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
+
+INCLUDEPATH += $$PWD/../lqUty
+DEPENDPATH += $$PWD/../lqUty

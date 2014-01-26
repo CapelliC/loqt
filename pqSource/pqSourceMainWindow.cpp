@@ -28,6 +28,8 @@
 #include "FindReplace.h"
 #include "do_events.h"
 #include "pqGraphviz.h"
+#include "file2string.h"
+#include "pqDocView.h"
 
 #include <QDebug>
 #include <QStatusBar>
@@ -41,7 +43,6 @@
 #include <QComboBox>
 #include <QWidgetAction>
 #include <QStringListModel>
-#include <QWebView>
 
 structure1(library)
 structure1(atom)
@@ -98,9 +99,9 @@ void pqSourceMainWindow::engine_ready() {
 }
 
 void pqSourceMainWindow::requestHelp(QString cursorWord) {
-    if (QWebView *h = helpView()) {
-        h->setUrl(QString("http://localhost:%1/search?for=%2&in=all&match=summary").arg(helpDocPort).arg(cursorWord));
-        setTabOrder(0,0);
+    if (pqDocView *h = helpView()) {
+        h->helpTopic(cursorWord);
+        mdiArea()->setActiveSubWindow(qobject_cast<QMdiSubWindow*>(h->parentWidget()));
     }
 }
 
@@ -270,7 +271,10 @@ void pqSourceMainWindow::newFile() {
                 QString module = QFileInfo(path).baseName();
                 if (module[0].isUpper() || module.contains(' '))
                     module = "'" + module + "'";
+                //QString module = QFileInfo(path).baseName().replace(' ', '_');
+                QString now = QDateTime::currentDateTime().toString();
                 QString user = QFileInfo(qApp->applicationFilePath()).owner();
+#if 0
                 s << QString(
                      "/** <module> %2\n"
                      " *\n"
@@ -280,6 +284,8 @@ void pqSourceMainWindow::newFile() {
                      ":- module(%2, [%2/0]).\n\n"
                      "%2 :- writeln(%2).\n").arg(path, module, QDateTime::currentDateTime().toString(), user);
                                                  //QTime::currentTime().toString(), user);
+#endif
+                s << file2string(":/prolog/pqSourceTemplate.pl").arg(module, path, now, user);
             }
             openFile(path);
         }
@@ -358,79 +364,11 @@ void pqSourceMainWindow::saveFileAs() {
 
 void pqSourceMainWindow::helpStart()
 {
-    QString msg;
-    try {
-        reportInfo(tr("starting doc_server at port %1").arg(helpDocPort));
-
-        if (PlCall("use_module(library(pldoc))")) {
-            if (PlCall(QString("doc_server(%1)").arg(helpDocPort).toUtf8())) {
-
-                //
-                if (PlCall("use_module(library(pldoc/doc_library))")) {
-                    if (PlCall("doc_load_library"))
-                        reportInfo(tr("doc_load_library at port %1 ok").arg(helpDocPort));
-                }
-                //
-
-                if (QWebView *w = helpView()) {
-                    w->setUrl(QString("http://localhost:%1").arg(helpDocPort));
-                    reportInfo(tr("doc_server started at port %1").arg(helpDocPort));
-                }
-                else
-                    msg = tr("cannot open helpView");
-            }
-            else
-                msg = tr("cannot start doc_server at port %1").arg(helpDocPort);
-        }
-        else
-            msg = tr("library(pldoc) not available");
+    if (pqDocView* w = helpView()) {
+        reportInfo(tr("doc_server started at port %1").arg(helpDocPort));
+        w->addFeedback(helpBar, statusBar());
     }
-    catch(PlException e) {
-        msg = t2w(e);
-    }
-
-    if (!msg.isEmpty())
-        reportError(msg);
 }
-
-/*
-void pqSourceMainWindow::helpStart()
-{
-    QString msg;
-    try {
-        reportInfo(tr("starting doc_server at port %1").arg(helpDocPort));
-
-        if (PlCall("use_module(library(pldoc))")) {
-            if (PlCall(QString("doc_server(%1)").arg(helpDocPort).toUtf8())) {
-
-                //
-                if (PlCall("use_module(library(pldoc/doc_library))")) {
-                    if (PlCall("doc_load_library"))
-                        reportInfo(tr("doc_load_library at port %1 ok").arg(helpDocPort));
-                }
-                //
-
-                if (QWebView *w = helpView()) {
-                    w->setUrl(QString("http://localhost:%1").arg(helpDocPort));
-                    reportInfo(tr("doc_server started at port %1").arg(helpDocPort));
-                }
-                else
-                    msg = tr("cannot open helpView");
-            }
-            else
-                msg = tr("cannot start doc_server at port %1").arg(helpDocPort);
-        }
-        else
-            msg = tr("library(pldoc) not available");
-    }
-    catch(PlException e) {
-        msg = t2w(e);
-    }
-
-    if (!msg.isEmpty())
-        reportError(msg);
-}
-*/
 
 // make resources available
 //
@@ -481,35 +419,11 @@ void pqSourceMainWindow::helpDoc()
     }
 }
 
-struct tag {
-    tag(QString t, QTextStream &s) : t(t),s(s)
-    {
-        s << '<' << t << '>';
-    }
-    ~tag()
-    {
-        s << '<' << '/' << t << '>';
-    }
-
-    QString t;
-    QTextStream &s;
-};
-struct table : tag { table(QTextStream &s) : tag("table", s) {}};
-struct td : tag { td(QTextStream &s) : tag("td", s) {}};
-struct tr : tag { tr(QTextStream &s) : tag("tr", s) {}};
-
 void pqSourceMainWindow::about() {
-    //SwiPrologEngine::in_thread it;
     QMessageBox info(this);
     PlTerm S;
     if (message_to_string(A("about"), S)) {
-        /*
-        info.setText(QString("<p><img src=\":/swipl.png\"></img>%1</p><hr>%2").arg(P).arg(tr("<p><ol>"
-            "<li>pqConsole: SWI-Prolog interface to Qt</li>"
-            "<li>pqSource : SWI-Prolog source goodies</li></ol>"
-            "</p> by <i><a href=\"mailto:cc.carlo.cap@gmail.com\">Carlo Capelli</a></i>")));
-        */
-#define TD  "<td align=center>"
+        #define TD  "<td align=center>"
         info.setText(QString(
             "<table>"
             "<tr>"TD"<img src=':/swipl.png'></td>"                                          TD"%1</td></tr>"
@@ -531,7 +445,6 @@ QString pqSourceMainWindow::symbol(QWidget *w) {
 
     if (auto *s = qobject_cast<pqSource*>(w))
         return path2title(s->file);
-        //return QString(tr("Source %1")).arg(path2title(s->file));
 
     return w->windowTitle();
 }
@@ -655,42 +568,20 @@ void pqSourceMainWindow::reportError(QString msg)
 
 /** find or build the help view
  */
-QWebView *pqSourceMainWindow::helpView()
+pqDocView *pqSourceMainWindow::helpView()
 {
-    QWebView *w;
+    pqDocView *v;
     foreach(QMdiSubWindow *s, mdiArea()->subWindowList())
-        if ((w = qobject_cast<QWebView*>(s->widget())))
-            return w;
+        if ((v = qobject_cast<pqDocView*>(s->widget())))
+            return v;
 
-    QString msg;
-    reportInfo(tr("starting doc_server at port %1").arg(helpDocPort));
-    mdiArea()->addSubWindow(w = new QWebView(this));
+    v = new pqDocView(this);
+    v->startPlDoc();
+    QMdiSubWindow *w = mdiArea()->addSubWindow(v);
     w->setWindowTitle(tr("Help (courtesy plDoc)"));
     w->show();
 
-    try {
-        if (PlCall("use_module(library(pldoc))")) {
-            if (PlCall(QString("doc_server(%1)").arg(helpDocPort).toUtf8())) {
-                /*if (PlCall("use_module(library(pldoc/doc_library))")) {
-                    if (PlCall("doc_load_library"))
-                        reportInfo(tr("doc_load_library at port %1 ok").arg(helpDocPort));
-                }*/
-                w->setUrl(QString("http://localhost:%1").arg(helpDocPort));
-                reportInfo(tr("doc_server started at port %1").arg(helpDocPort));
-            }
-            else
-                msg = tr("cannot start doc_server at port %1").arg(helpDocPort);
-        }
-        else
-            msg = tr("library(pldoc) not available");
-    }
-    catch(PlException e) {
-        msg = t2w(e);
-    }
-
-    if (!msg.isEmpty())
-        reportError(msg);
-    return w;
+    return v;
 }
 
 /** make a XREF report in graph shape for current source
@@ -704,7 +595,7 @@ void pqSourceMainWindow::viewGraph()
         auto m = mdiArea()->addSubWindow(x);
         m->show();
     }
-        */
+    */
 }
 
 /** get a list of all sources matching bool inspect(pqSource)

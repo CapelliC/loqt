@@ -57,7 +57,8 @@ public:
     /** get a list of all sources matching bool inspect(pqSource) */
     QList<pqSource*> matching_sources(std::function<bool(pqSource*)> inspect);
 
-    enum { helpDocPort = 4001 };
+    //! fetch the host MainWindow for PlEngines
+    static pqSourceMainWindow* hostEngines();
 
 signals:
     
@@ -97,6 +98,7 @@ public slots:
     void reportInfo(QString msg);
 
     void viewGraph();
+    void requestHelp(QString cursorWord);
 
 protected slots:
 
@@ -114,7 +116,6 @@ protected slots:
     void watchVar();
 
     void engine_ready();
-    void requestHelp(QString cursorWord);
 };
 
 #endif // PQSOURCEMAINWINDOW_H

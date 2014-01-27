@@ -33,6 +33,15 @@ pqHighlighter::pqHighlighter(QTextEdit *host) :
 // coords are offsets in file
 //
 void pqHighlighter::highlightBlock(const QString &text) {
+    if (!marker.isNull() && currentBlock() == marker.block()) {
+        QTextCharFormat f;
+        f.setBackground(Qt::yellow);
+        int s = marker.selectionStart(), e = marker.selectionEnd(), b = marker.block().position();
+        setFormat(s - b, e - s, f);
+        marker = QTextCursor();
+        return;
+    }
+
     if (status == completed) {
         QTextBlock b = currentBlock();
         set_sem_attrs(b.position(), b.position() + b.length(), cats);
@@ -60,6 +69,7 @@ void pqHighlighter::set_sem_attrs(int p, int c, const t_nesting &nest) {
 }
 
 void pqHighlighter::highlightBlock(const QTextBlock &b) {
+
     set_sem_attrs(b.position(), b.position() + b.length(), cats);
 }
 
@@ -226,4 +236,12 @@ QString pqHighlighter::get_clause_at(int position) const
         x = range(start, stop).plainText(document());
     }
     return x;
+}
+
+/** required by FindReplace to change attributes without undue document modification
+ */
+void pqHighlighter::markCursor(QTextCursor c)
+{
+    marker = c;
+    rehighlightBlock(c.block());
 }

@@ -49,6 +49,9 @@ public:
     //! create commands in toolbar and connect messages to status bar
     void addFeedback(QToolBar *tbar, QStatusBar* sbar);
 
+    //! qualify HTTP localhost port used
+    enum { helpDocPort = 4001 };
+
 private slots:
     void initUrl();
 
@@ -62,6 +65,8 @@ private:
 
     QPointer<QToolBar> toolBar;
     QPointer<QStatusBar> statusBar;
+
+    QStringList requests;
 };
 
 #endif // PQDOCVIEW_H

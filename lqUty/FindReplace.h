@@ -65,11 +65,14 @@ protected:
 
     QTextDocument::FindFlags flags() const;
     QTextCursor start();
+
     void mark(QTextCursor c, bool current, bool repl = false);
+    void notfound();
 
 signals:
 
     void outcome(QString s);
+    void markCursor(QTextCursor c);
 
 public slots:
     void onFind();

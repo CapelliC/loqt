@@ -36,42 +36,52 @@ pqDocView::pqDocView(QWidget *parent) :
     setHtml(QString("<h4>%1</h4>").arg(tr("Please wait, plDoc is starting...")));
 }
 
-const int helpDocPort = 4001;
-
 bool pqDocView::startPlDoc()
 {
-    QString msg;
 
     // start from a background thread
     auto f = [&]() {
+        QString msg;
         SwiPrologEngine::in_thread _it;
         try {
-            if (!PlCall("use_module(library(pldoc))"))
-                msg = tr("library(pldoc) not available");
-            else if (!PlCall(QString("doc_server(%1)").arg(helpDocPort).toUtf8()))
-                msg = tr("cannot start doc_server at port %1").arg(helpDocPort);
+            if (true) { //!PlCall("current_module(pldoc)")) {
+                if (!PlCall("use_module(library(pldoc))"))
+                    msg = tr("library(pldoc) not available");
+                else {
+                    //if (!PlCall("current_module(pldoc_http)"))
+                        if (!PlCall(QString("doc_server(%1)").arg(helpDocPort).toUtf8()))
+                            msg = tr("cannot start doc_server at port %1").arg(helpDocPort);
+                }
+            }
+            else
+                msg = "pldoc already running";
         }
         catch(PlException e) {
             msg = t2w(e);
         }
+        qDebug() << "msg:" << msg;
     };
 
-    if (msg.isEmpty()) {
+    //Q_ASSERT(msg.isEmpty());
+        requests << QString("http://localhost:%1").arg(helpDocPort);
         auto w = new QFutureWatcher<void>;
         connect(w, SIGNAL(finished()), this, SLOT(initUrl()));
 
-        // run the Prolog snippet in background (hl pointer)
+        // run the Prolog snippet in background
         w->setFuture(QtConcurrent::run(f));
-        return true;
-    }
 
-    QMessageBox::critical(this, tr("error"), tr("error '%1' starting plDoc server").arg(msg));
-    return false;
+        return true;
+    //}
+
+    //QMessageBox::critical(this, tr("error"), tr("error '%1' starting plDoc server").arg(msg));
+    //return false;
 }
 
 void pqDocView::initUrl()
 {
-    setUrl(QString("http://localhost:%1").arg(helpDocPort));
+    qDebug() << "initUrl()" << requests.join(" $ ");
+    if (requests.count())
+        setUrl(requests.takeFirst());
 }
 
 void pqDocView::linkHovered(QString link, QString title, QString)
@@ -84,7 +94,8 @@ void pqDocView::linkHovered(QString link, QString title, QString)
 
 bool pqDocView::helpTopic(QString topic)
 {
-    setUrl(QString("http://localhost:%1/search?for=%2&in=all&match=summary").arg(helpDocPort).arg(topic));
+    requests << QString("http://localhost:%1/search?for=%2&in=all&match=summary").arg(helpDocPort).arg(topic);
+    emit initUrl();
     return true;
 }
 

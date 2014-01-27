@@ -82,6 +82,8 @@ public:
     void insertFromMimeData(const QMimeData *source);
     bool is_modified() const;
 
+    pqHighlighter *semanticHighlighter() const { return hl; }
+
 protected:
 
     QString editWhat;

@@ -73,6 +73,9 @@ public:
     //! access toplevel text having position
     QString get_clause_at(int position) const;
 
+    //! FindReplace duty
+    Q_SLOT void markCursor(QTextCursor c);
+
 protected:
 
     //! serialize access to UserBlockData formatting
@@ -104,6 +107,9 @@ protected:
 
     //! remember highlighted match
     range paren;
+
+    //! FindReplace duty
+    QTextCursor marker;
 
 signals:
 

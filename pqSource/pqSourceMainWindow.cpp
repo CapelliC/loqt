@@ -71,6 +71,7 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     e->setLineWrapMode(e->NoWrap);
 
     //mdiArea()->addSubWindow(e)->setWindowTitle("Console");
+    //! added a class as required to veto closing a console
     MdiChildWithCheck *mcc = new MdiChildWithCheck;
     mcc->setWidget(e);
     mcc->setAttribute(Qt::WA_DeleteOnClose);
@@ -102,13 +103,6 @@ void pqSourceMainWindow::engine_ready() {
 
     pqGraphviz::setup();
     fixGeometry();
-}
-
-void pqSourceMainWindow::requestHelp(QString cursorWord) {
-    if (pqDocView *h = helpView()) {
-        h->helpTopic(cursorWord);
-        mdiArea()->setActiveSubWindow(qobject_cast<QMdiSubWindow*>(h->parentWidget()));
-    }
 }
 
 void pqSourceMainWindow::fixGeometry() {
@@ -148,29 +142,12 @@ void pqSourceMainWindow::fixGeometry() {
 void pqSourceMainWindow::closeEvent(QCloseEvent *e) {
     Q_UNUSED(e)
 
-    qDebug() << "pqSourceMainWindow::closeEvent";
-/*
-    foreach (auto w, mdiArea()->subWindowList()) {
-        if (auto s = qobject_cast<pqSource*>(w->widget()))
-            if (!s->canClose()) {
-                e->ignore();
-                return;
-            }
-        if (auto c = qobject_cast<ConsoleEdit*>(w->widget())) {
-            if (!c->can_close()) {
-                e->ignore();
-                return;
-            }
-        }
-    }
-*/
     Preferences p;
     storeMru(p);
 
     p.beginGroup("geometry");
     p.remove("");
     p.setValue(metaObject()->className(), saveGeometry());
-    //p.savePosSizeState(metaObject()->className(), this);
 
     foreach (auto w, mdiArea()->subWindowList()) {
         QString key = w->widget()->metaObject()->className();
@@ -183,7 +160,6 @@ void pqSourceMainWindow::closeEvent(QCloseEvent *e) {
             key = QString("%1/%2").arg(key).arg(c->thread_id());
         }
         p.setValue(key, w->saveGeometry());
-        //p.savePosSizeState(key, w);
     }
     p.endGroup();
 
@@ -283,7 +259,6 @@ void pqSourceMainWindow::newFile() {
                 QString module = QFileInfo(path).baseName();
                 if (module[0].isUpper() || module.contains(' '))
                     module = "'" + module + "'";
-                //QString module = QFileInfo(path).baseName().replace(' ', '_');
                 QString now = QDateTime::currentDateTime().toString();
                 QString user = QFileInfo(qApp->applicationFilePath()).owner();
                 s << file2string(":/prolog/pqSourceTemplate.pl").arg(module, path, now, user);
@@ -360,14 +335,6 @@ void pqSourceMainWindow::saveFileAs() {
             if (s->saveSourceAs(dia.selectedFiles()[0]))
                 insertPath(this, s->file);
         }
-    }
-}
-
-void pqSourceMainWindow::helpStart()
-{
-    if (pqDocView* w = helpView()) {
-        reportInfo(tr("doc_server started at port %1").arg(helpDocPort));
-        w->addFeedback(helpBar, statusBar());
     }
 }
 
@@ -451,6 +418,17 @@ QString pqSourceMainWindow::symbol(QWidget *w) {
     return w->windowTitle();
 }
 
+/** fetch the host MainWindow for PlEngines
+  * scan parents chain from any ConsoleEdit
+  */
+pqSourceMainWindow* pqSourceMainWindow::hostEngines() {
+    if (ConsoleEdit *e = pqConsole::peek_first())
+        for (auto p = e->parentWidget(); p; p = p->parentWidget())
+            if (auto w = qobject_cast<pqSourceMainWindow*>(p))
+                return w;
+    return 0;
+}
+
 // place the hook in required module
 #undef PROLOG_MODULE
 #define PROLOG_MODULE "prolog_edit"
@@ -470,7 +448,14 @@ PREDICATE(edit_source, 1) {
                 linepos = head[1];
         }
     }
-
+    if (!file.isEmpty())
+        if (auto w = pqSourceMainWindow::hostEngines())
+            pqConsole::gui_run([&]() {
+                auto r = new pqSourceMainWindow::reqEditSource(file, QByteArray(), line, linepos);
+                qApp->postEvent(w, r);
+                rc = true;
+            });
+/*
     if (!file.isEmpty())
         if (ConsoleEdit *e = pqConsole::peek_first()) {
             for (auto p = e->parentWidget(); p; p = p->parentWidget())
@@ -482,6 +467,7 @@ PREDICATE(edit_source, 1) {
                     });
                 }
         }
+*/
     qDebug() << "return" << rc;
     return rc;
 }
@@ -526,8 +512,11 @@ QString pqSourceMainWindow::currentQuery() const {
 
 /** find/replace interface */
 void pqSourceMainWindow::find() {
-    if (auto e = activeChild<QTextEdit>())
+    if (auto e = activeChild<pqSource>()) {
+        disconnect(findReplace, SIGNAL(markCursor(QTextCursor)), 0, 0);
+        connect(findReplace, SIGNAL(markCursor(QTextCursor)), e->semanticHighlighter(), SLOT(markCursor(QTextCursor)));
         findReplace->do_find(e);
+    }
 }
 void pqSourceMainWindow::findNext() {
     if (auto e = activeChild<QTextEdit>())
@@ -578,15 +567,18 @@ void pqSourceMainWindow::reportError(QString msg)
 
 /** find or build the help view
  */
-pqDocView *pqSourceMainWindow::helpView()
-{
+pqDocView *pqSourceMainWindow::helpView() {
     pqDocView *v;
     foreach(QMdiSubWindow *s, mdiArea()->subWindowList())
-        if ((v = qobject_cast<pqDocView*>(s->widget())))
+        if ((v = qobject_cast<pqDocView*>(s->widget()))) {
+            mdiArea()->setActiveSubWindow(s);
             return v;
+        }
 
     v = new pqDocView(this);
     v->startPlDoc();
+    v->addFeedback(helpBar, statusBar());
+
     QMdiSubWindow *w = mdiArea()->addSubWindow(v);
     w->setWindowTitle(tr("Help (courtesy plDoc)"));
     w->show();
@@ -594,10 +586,38 @@ pqDocView *pqSourceMainWindow::helpView()
     return v;
 }
 
+void pqSourceMainWindow::requestHelp(QString topic) {
+    if (pqDocView *h = helpView())
+        h->helpTopic(topic);
+}
+
+void pqSourceMainWindow::helpStart() {
+    if (helpView())
+        reportInfo(tr("doc_server started at port %1").arg(pqDocView::helpDocPort));
+}
+
+#undef PROLOG_MODULE
+#define PROLOG_MODULE "prolog"
+
+//! serve help/0, help/1, apropos/1
+//! see [[help_hook][http://www.swi-prolog.org/pldoc/doc_for?object=%27prolog:help_hook%27/1]]
+PREDICATE(help_hook, 1) {
+    QString topic = t2w(PL_A1);
+    qDebug() << "help_hook" << topic;
+
+    bool rc = false;
+    if (auto w = pqSourceMainWindow::hostEngines())
+        pqConsole::gui_run([&]() {
+            w->requestHelp(topic);
+            rc = true;
+        });
+
+    return rc;
+}
+
 /** make a XREF report in graph shape for current source
  */
-void pqSourceMainWindow::viewGraph()
-{
+void pqSourceMainWindow::viewGraph() {
     qDebug() << "viewGraph";
     /*if (auto e = activeChild<pqSource>()) {
         auto x = new pqXRef();

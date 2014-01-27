@@ -30,6 +30,7 @@
 #include <QCheckBox>
 #include <QTextCursor>
 #include <QTimer>
+#include <QSyntaxHighlighter>
 
 /** construct UI objects with default UX
  *  retrieve previous settings from lqPreferences
@@ -138,20 +139,28 @@ void FindReplace::do_find(QTextEdit *target)
     QTextCursor c = target->textCursor();
     if (c.hasSelection())
         to_search.setEditText(c.selectedText());
-
+    //emit onFind();
     show();
 }
 
 void FindReplace::do_findNext(QTextEdit *target)
 {
+    this->target = target;
+    emit onFindNext();
 }
 
 void FindReplace::do_findPrevious(QTextEdit *target)
 {
+    this->target = target;
+    backward.setChecked(!backward.isChecked());
+    emit onFindNext();
 }
 
 void FindReplace::do_replace(QTextEdit *target)
 {
+    this->target = target;
+    show();
+    emit onReplace();
 }
 
 /** decode UI current settings
@@ -184,11 +193,7 @@ QTextCursor FindReplace::start()
  */
 void FindReplace::mark(QTextCursor c, bool current, bool repl)
 {
-    {   blockSig s(target);
-        QTextCharFormat f;
-        f.setBackground(Qt::yellow);
-        c.setCharFormat(f);
-    }
+    emit markCursor(c);
     emit outcome(tr("Text has been found."));
 
     if (current) {
@@ -213,9 +218,10 @@ void FindReplace::onFind()
         mark(c, true);
         hide();
     }
+    else notfound();
 }
 
-/** serve user request: find next occurence
+/** serve user request: find next occurrence
  */
 void FindReplace::onFindNext()
 {
@@ -223,9 +229,10 @@ void FindReplace::onFindNext()
     if (c.hasSelection()) {
         mark(c, true);
     }
+    else notfound();
 }
 
-/** serve user request: replace current occurence
+/** serve user request: replace current occurrence
  */
 void FindReplace::onReplace()
 {
@@ -233,10 +240,11 @@ void FindReplace::onReplace()
         QTextCursor c = start();
         if (c.hasSelection())
             mark(c, true, true);
+        else notfound();
     }
 }
 
-/** replace current occurence, find next
+/** replace current occurrence, find next
  */
 void FindReplace::onReplaceFind()
 {
@@ -246,6 +254,7 @@ void FindReplace::onReplaceFind()
             mark(c, true, true);
             QTimer::singleShot(10, this, SLOT(onFindNext()));
         }
+        else notfound();
     }
 }
 
@@ -259,5 +268,13 @@ void FindReplace::onReplaceAll()
             mark(c, true, true);
             QTimer::singleShot(10, this, SLOT(onReplaceAll()));
         }
+        else notfound();
     }
+}
+
+/** emit a message to warn user that selection not has been found
+ */
+void FindReplace::notfound()
+{
+    emit outcome(tr("Text '%1' not found.").arg(to_search.currentText()));
 }

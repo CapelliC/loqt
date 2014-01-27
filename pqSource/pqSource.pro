@@ -39,7 +39,8 @@ SOURCES += \
     pqSyntaxData.cpp \
     symclass.cpp \
     XmlSyntaxHighlighter.cpp \
-    pqSourceMainWindow.cpp
+    pqSourceMainWindow.cpp \
+    MdiChildWithCheck.cpp
 
 HEADERS += \
     pqSource.h \
@@ -51,7 +52,8 @@ HEADERS += \
     pqTextAttributes.h \
     pqSyntaxData.h \
     symclass.h \
-    XmlSyntaxHighlighter.h
+    XmlSyntaxHighlighter.h \
+    MdiChildWithCheck.h
 
 unix {
 

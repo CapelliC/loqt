@@ -31,6 +31,9 @@
 #include <QTextCursor>
 #include <QTimer>
 
+/** construct UI objects with default UX
+ *  retrieve previous settings from lqPreferences
+ */
 FindReplace::FindReplace(QWidget *parent) :
     QDialog(parent),
 
@@ -102,6 +105,8 @@ FindReplace::FindReplace(QWidget *parent) :
     p.endGroup();
 }
 
+/** commit user current settings to lqPreferences
+ */
 FindReplace::~FindReplace()
 {
     lqPreferences p;
@@ -124,9 +129,11 @@ FindReplace::~FindReplace()
     p.endGroup();
 }
 
-void FindReplace::do_search(QTextEdit *ed)
+/** apply current settings to buffer
+ */
+void FindReplace::do_find(QTextEdit *target)
 {
-    target = ed;
+    this->target = target;
 
     QTextCursor c = target->textCursor();
     if (c.hasSelection())
@@ -135,7 +142,20 @@ void FindReplace::do_search(QTextEdit *ed)
     show();
 }
 
+void FindReplace::do_findNext(QTextEdit *target)
+{
+}
 
+void FindReplace::do_findPrevious(QTextEdit *target)
+{
+}
+
+void FindReplace::do_replace(QTextEdit *target)
+{
+}
+
+/** decode UI current settings
+ */
 QTextDocument::FindFlags FindReplace::flags() const
 {
     QTextDocument::FindFlags f = 0;
@@ -148,6 +168,8 @@ QTextDocument::FindFlags FindReplace::flags() const
     return f;
 }
 
+/** apply to current document
+ */
 QTextCursor FindReplace::start()
 {
     QString s = to_search.currentText();
@@ -158,6 +180,8 @@ QTextCursor FindReplace::start()
         return target->document()->find(s, c, flags());
 }
 
+/** put visual clue about found items
+ */
 void FindReplace::mark(QTextCursor c, bool current, bool repl)
 {
     {   blockSig s(target);
@@ -180,6 +204,8 @@ void FindReplace::mark(QTextCursor c, bool current, bool repl)
     }
 }
 
+/** serve user request
+ */
 void FindReplace::onFind()
 {
     QTextCursor c = start();
@@ -189,6 +215,8 @@ void FindReplace::onFind()
     }
 }
 
+/** serve user request: find next occurence
+ */
 void FindReplace::onFindNext()
 {
     QTextCursor c = start();
@@ -197,6 +225,8 @@ void FindReplace::onFindNext()
     }
 }
 
+/** serve user request: replace current occurence
+ */
 void FindReplace::onReplace()
 {
     if (canReplace()) {
@@ -206,6 +236,8 @@ void FindReplace::onReplace()
     }
 }
 
+/** replace current occurence, find next
+ */
 void FindReplace::onReplaceFind()
 {
     if (canReplace()) {
@@ -217,6 +249,8 @@ void FindReplace::onReplaceFind()
     }
 }
 
+/** replace all occurrences from cursor point
+ */
 void FindReplace::onReplaceAll()
 {
     if (canReplace()) {

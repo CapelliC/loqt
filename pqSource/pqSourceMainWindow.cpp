@@ -30,6 +30,8 @@
 #include "pqGraphviz.h"
 #include "file2string.h"
 #include "pqDocView.h"
+#include "MdiChildWithCheck.h"
+#include "FindReplace.h"
 
 #include <QDebug>
 #include <QStatusBar>
@@ -68,7 +70,11 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     connect(e, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
     e->setLineWrapMode(e->NoWrap);
 
-    mdiArea()->addSubWindow(e)->setWindowTitle("Console");
+    //mdiArea()->addSubWindow(e)->setWindowTitle("Console");
+    MdiChildWithCheck *mcc = new MdiChildWithCheck;
+    mcc->setWidget(e);
+    mcc->setAttribute(Qt::WA_DeleteOnClose);
+    mdiArea()->addSubWindow(mcc);
 
     /* doesn't work - why ?
     QComboBox *comboBox = new QComboBox(menuBar());
@@ -183,14 +189,20 @@ void pqSourceMainWindow::closeEvent(QCloseEvent *e) {
 
     // save for later quit_request(), that issues a PL_halt, then issues a $rl_history
     foreach (auto w, mdiArea()->subWindowList())
-        if (auto c = qobject_cast<ConsoleEdit*>(w->widget()))
+        if (auto c = qobject_cast<ConsoleEdit*>(w->widget())) {
             pqConsole::last_history_lines = c->history_lines();
+            qobject_cast<MdiChildWithCheck*>(w)->quitting = true;
+        }
 
     mdiArea()->closeAllSubWindows();
     if (mdiArea()->currentSubWindow()) {
         e->ignore();
         return;
     }
+
+    foreach (auto w, mdiArea()->subWindowList())
+        if (qobject_cast<ConsoleEdit*>(w->widget()))
+            qobject_cast<MdiChildWithCheck*>(w)->quitting = false;
 
     p.setValue("windowState", saveState());
 
@@ -274,17 +286,6 @@ void pqSourceMainWindow::newFile() {
                 //QString module = QFileInfo(path).baseName().replace(' ', '_');
                 QString now = QDateTime::currentDateTime().toString();
                 QString user = QFileInfo(qApp->applicationFilePath()).owner();
-#if 0
-                s << QString(
-                     "/** <module> %2\n"
-                     " *\n"
-                     " *  file %1, created at %3\n"
-                     " *  user %4\n"
-                     " */\n\n"
-                     ":- module(%2, [%2/0]).\n\n"
-                     "%2 :- writeln(%2).\n").arg(path, module, QDateTime::currentDateTime().toString(), user);
-                                                 //QTime::currentTime().toString(), user);
-#endif
                 s << file2string(":/prolog/pqSourceTemplate.pl").arg(module, path, now, user);
             }
             openFile(path);
@@ -423,17 +424,18 @@ void pqSourceMainWindow::about() {
     QMessageBox info(this);
     PlTerm S;
     if (message_to_string(A("about"), S)) {
-        #define TD  "<td align=center>"
+        auto TD = [](QString s="") { return "<td align=center>"+s+"</td>"; };
+        auto TR = [](QString s="") { return "<tr>"+s+"</tr>"; };
         info.setText(QString(
             "<table>"
-            "<tr>"TD"<img src=':/swipl.png'></td>"                                          TD"%1</td></tr>"
-                         "<tr></tr>"
-            "<tr>"TD"<a href='https://github.com/CapelliC/pqConsole'>pqConsole</a></td>"    TD"SWI-Prolog interface to Qt</td></tr>"
-            "<tr>"TD"<a href=''>pqGraphviz</a></td>"                                        TD"SWI-Prolog+Qt interface to Graphviz</td></tr>"
-            "<tr>"TD"<a href=''>pqSource</a></td>"                                          TD"SWI-Prolog source goodies</td></tr>"
-                         "<tr></tr>"
-            "<tr>"TD"by</td>"                                                               TD"<a href=\"mailto:cc.carlo.cap@gmail.com\">ing. Carlo Capelli</td></tr>"
-            "</table>").arg(t2w(S)));
+            +TR(TD("<img src=':/swipl.png'>")+TD(t2w(S)))
+            +TR()
+            +TR(TD("<a href='%1'>pqConsole</a>")    .arg("https://github.com/CapelliC/pqConsole")                   +TD("SWI-Prolog interface to Qt"))
+            +TR(TD("<a href='%1'>pqGraphviz</a>")   .arg("https://github.com/CapelliC/loqt/tree/master/pqGraphviz") +TD("SWI-Prolog+Qt interface to Graphviz"))
+            +TR(TD("<a href='%4'>pqSource</a>")     .arg("https://github.com/CapelliC/loqt/tree/master/pqSource")   +TD("SWI-Prolog source goodies"))
+            +TR()
+            +TR(TD("by")+                            TD("<a href='mailto:%1'>ing. Carlo Capelli").arg("cc.carlo.cap@gmail.com"))
+            +"</table>"));
     }
     info.exec();
 }
@@ -523,14 +525,22 @@ QString pqSourceMainWindow::currentQuery() const {
 }
 
 /** find/replace interface */
-void pqSourceMainWindow::find()
-{
+void pqSourceMainWindow::find() {
     if (auto e = activeChild<QTextEdit>())
-        findReplace->do_search(e);
+        findReplace->do_find(e);
 }
-void pqSourceMainWindow::findNext() {}
-void pqSourceMainWindow::findPrevious() {}
-void pqSourceMainWindow::replace() {}
+void pqSourceMainWindow::findNext() {
+    if (auto e = activeChild<QTextEdit>())
+        findReplace->do_findNext(e);
+}
+void pqSourceMainWindow::findPrevious() {
+    if (auto e = activeChild<QTextEdit>())
+        findReplace->do_findPrevious(e);
+}
+void pqSourceMainWindow::replace() {
+    if (auto e = activeChild<QTextEdit>())
+        findReplace->do_replace(e);
+}
 
 /** simple logging to text file
  */

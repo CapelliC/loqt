@@ -27,12 +27,12 @@
 #include <QCloseEvent>
 
 #include "pqSource_global.h"
-#include "MdiHelper.h"
-#include "FindReplace.h"
 #include "SwiPrologEngine.h"
+#include "MdiHelper.h"
 
 class pqSource;
 class pqDocView;
+class FindReplace;
 
 class PQSOURCESHARED_EXPORT pqSourceMainWindow : public MdiHelper
 {

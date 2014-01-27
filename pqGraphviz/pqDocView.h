@@ -55,7 +55,6 @@ private slots:
 public slots:
 
     void linkHovered(QString,QString,QString);
-    void statusBarMessage(QString);
     void loadFinished(bool);
     void loadProgress(int);
 

@@ -27,13 +27,16 @@
 #include "lqPreferences.h"
 
 #include <QDialog>
-#include <QTextDocument>
+#include <QPointer>
 #include <QTextEdit>
 #include <QComboBox>
 #include <QCheckBox>
 #include <QPushButton>
-#include <QPointer>
+#include <QTextDocument>
 
+/** find/replace in a QTextEdit buffer
+ *  put Qt text framework and QRegExp to work
+ */
 class LQUTYSHARED_EXPORT FindReplace : public QDialog
 {
     Q_OBJECT
@@ -43,7 +46,13 @@ public:
     explicit FindReplace(QWidget *parent = 0);
     ~FindReplace();
 
-    void do_search(QTextEdit *target);
+    //! apply user selection to <target>
+    void do_find(QTextEdit *target);
+    void do_findNext(QTextEdit *target);
+    void do_findPrevious(QTextEdit *target);
+    void do_replace(QTextEdit *target);
+
+    //! check if replace string has been filled
     bool canReplace() const { return !to_replace.currentText().isEmpty(); }
 
 protected:

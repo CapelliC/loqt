@@ -23,7 +23,8 @@ SOURCES += lqUty.cpp \
     lqLogger.cpp \
     lqAniMachine.cpp \
     CodeMirrorFile.cpp \
-    CodeMirror.cpp
+    CodeMirror.cpp \
+    XmlSyntaxHighlighter.cpp
 
 HEADERS += lqUty.h \
     lqUty_global.h \
@@ -40,7 +41,8 @@ HEADERS += lqUty.h \
     lqAniMachine.h \
     CodeMirrorFile.h \
     CodeMirror.h \
-    CenterWidgets.h
+    CenterWidgets.h \
+    XmlSyntaxHighlighter.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

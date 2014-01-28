@@ -33,8 +33,42 @@
 #include <QCheckBox>
 #include <QPushButton>
 #include <QTextDocument>
+#include <QPlainTextEdit>
 
-/** find/replace in a QTextEdit buffer
+/** make an interface exposing shared functionalities
+ *  between QTextEdit and QPlainTextEdit
+ */
+struct EditInterface {
+
+    EditInterface() {}
+    EditInterface(QTextEdit *edit) : edit(edit) {}
+    EditInterface(QPlainTextEdit *plain) : plain(plain) {}
+
+    QTextCursor textCursor() const {
+        if (edit) return edit->textCursor();
+        if (plain) return plain->textCursor();
+        return QTextCursor();
+    }
+    QTextDocument* document() const {
+        if (edit) return edit->document();
+        if (plain) return plain->document();
+        return 0;
+    }
+
+    void setTextCursor(QTextCursor c) {
+        if (edit) edit->setTextCursor(c); else
+        if (plain) plain->setTextCursor(c);
+    }
+    void ensureCursorVisible() {
+        if (edit) edit->ensureCursorVisible(); else
+        if (plain) plain->ensureCursorVisible();
+    }
+
+    QPointer<QTextEdit> edit;
+    QPointer<QPlainTextEdit> plain;
+};
+
+/** find/replace in a QPlainTextEdit/QTextEdit buffer
  *  put Qt text framework and QRegExp to work
  */
 class LQUTYSHARED_EXPORT FindReplace : public QDialog
@@ -47,17 +81,17 @@ public:
     ~FindReplace();
 
     //! apply user selection to <target>
-    void do_find(QTextEdit *target);
-    void do_findNext(QTextEdit *target);
-    void do_findPrevious(QTextEdit *target);
-    void do_replace(QTextEdit *target);
+    void do_find(EditInterface i);
+    void do_findNext(EditInterface i);
+    void do_findPrevious(EditInterface i);
+    void do_replace(EditInterface i);
 
     //! check if replace string has been filled
     bool canReplace() const { return !to_replace.currentText().isEmpty(); }
 
 protected:
 
-    QPointer<QTextEdit> target;
+    EditInterface ei;
 
     QComboBox to_search, to_replace;
     QPushButton find, findNext, replace, replaceFind, replaceAll;

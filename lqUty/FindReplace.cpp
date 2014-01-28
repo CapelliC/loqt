@@ -132,33 +132,31 @@ FindReplace::~FindReplace()
 
 /** apply current settings to buffer
  */
-void FindReplace::do_find(QTextEdit *target)
+void FindReplace::do_find(EditInterface i)
 {
-    this->target = target;
-
-    QTextCursor c = target->textCursor();
+    ei = i;
+    QTextCursor c = ei.textCursor();
     if (c.hasSelection())
         to_search.setEditText(c.selectedText());
-    //emit onFind();
     show();
 }
 
-void FindReplace::do_findNext(QTextEdit *target)
+void FindReplace::do_findNext(EditInterface i)
 {
-    this->target = target;
+    ei = i;
     emit onFindNext();
 }
 
-void FindReplace::do_findPrevious(QTextEdit *target)
+void FindReplace::do_findPrevious(EditInterface i)
 {
-    this->target = target;
+    ei = i;
     backward.setChecked(!backward.isChecked());
     emit onFindNext();
 }
 
-void FindReplace::do_replace(QTextEdit *target)
+void FindReplace::do_replace(EditInterface i)
 {
-    this->target = target;
+    ei = i;
     show();
     emit onReplace();
 }
@@ -182,11 +180,11 @@ QTextDocument::FindFlags FindReplace::flags() const
 QTextCursor FindReplace::start()
 {
     QString s = to_search.currentText();
-    QTextCursor c = target->textCursor();
+    QTextCursor c = ei.textCursor();
     if (regex.isChecked())
-        return target->document()->find(QRegExp(s), c, flags());
+        return ei.document()->find(QRegExp(s), c, flags());
     else
-        return target->document()->find(s, c, flags());
+        return ei.document()->find(s, c, flags());
 }
 
 /** put visual clue about found items
@@ -197,8 +195,8 @@ void FindReplace::mark(QTextCursor c, bool current, bool repl)
     emit outcome(tr("Text has been found."));
 
     if (current) {
-        target->setTextCursor(c);
-        target->ensureCursorVisible();
+        ei.setTextCursor(c);
+        ei.ensureCursorVisible();
     }
 
     if (repl) {

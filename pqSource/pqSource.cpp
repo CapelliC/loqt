@@ -176,7 +176,8 @@ void pqSource::loadSource(int line, int linepos)
     Preferences pref;
     setFont(pref.console_font);
 
-    setText(QTextStream(&x).readAll());
+    //setText(QTextStream(&x).readAll());
+    setPlainText(QTextStream(&x).readAll());
     connect(document(), SIGNAL(contentsChange(int,int,int)), this, SLOT(contentsChange(int,int,int)));
 
     QString name = QFileInfo(file).fileName();

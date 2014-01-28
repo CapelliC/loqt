@@ -29,6 +29,11 @@ pqHighlighter::pqHighlighter(QTextEdit *host) :
     status(idle)
 {
 }
+pqHighlighter::pqHighlighter(QPlainTextEdit *host) :
+    pqMiniSyntax(host),
+    status(idle)
+{
+}
 
 // coords are offsets in file
 //

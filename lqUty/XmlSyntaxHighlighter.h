@@ -41,11 +41,13 @@
 #ifndef XMLSYNTAXHIGHLIGHTER_H
 #define XMLSYNTAXHIGHLIGHTER_H
 
-#include "pqSource_global.h"
+#include "lqUty_global.h"
 
 #include <QtGui/QSyntaxHighlighter>
 
-class PQSOURCESHARED_EXPORT XmlSyntaxHighlighter : public QSyntaxHighlighter
+/** adapted from Qt Nokia sample code
+ */
+class LQUTYSHARED_EXPORT XmlSyntaxHighlighter : public QSyntaxHighlighter
 {
     public:
         XmlSyntaxHighlighter(QTextDocument *parent = 0);

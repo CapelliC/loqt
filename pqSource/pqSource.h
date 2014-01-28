@@ -25,7 +25,7 @@
 
 #include "pqSource_global.h"
 
-#include <QTextEdit>
+#include <QPlainTextEdit>
 #include <QAction>
 #include <QPointer>
 #include <QStateMachine>
@@ -42,7 +42,7 @@
    relies on pqConsole for initialized syncronous Prolog interface
 */
 
-typedef QTextEdit pqSourceBaseClass;
+typedef QPlainTextEdit pqSourceBaseClass;
 
 class PQSOURCESHARED_EXPORT pqSource : public pqSourceBaseClass {
 

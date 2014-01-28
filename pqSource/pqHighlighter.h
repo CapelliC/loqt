@@ -41,6 +41,7 @@ class pqHighlighter : public pqMiniSyntax, public pqSyntaxData {
 public:
 
     pqHighlighter(QTextEdit *host);
+    pqHighlighter(QPlainTextEdit *host);
 
     //! reapply to lines
     void rehighlightLines(ParenMatching::range position);

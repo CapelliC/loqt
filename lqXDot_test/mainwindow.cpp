@@ -179,9 +179,7 @@ void MainWindow::makeSvg(QString f) {
         qDebug() << name;
         if (gvRenderFilename(view()->getContext(), view()->getGraph(), "svg", name.toUtf8().constData()) == 0) {
             svgv()->openFile(name);
-            QFile f(name);
-            if (f.open(QFile::ReadOnly))
-                svgxml()->setPlainText(file2string(f));
+            svgxml()->setPlainText(file2string(name));
             new XmlSyntaxHighlighter(svgxml()->document());
         }
         else
@@ -329,8 +327,7 @@ void MainWindow::cursorPositionChanged() {
     rci.showCursorPosition(source());
 }
 
-void MainWindow::scriptChanged(QString path)
-{
+void MainWindow::scriptChanged(QString path) {
     MB req(MB::Warning, tr("Warning"), tr("Script has been modified"), MB::Yes|MB::Ignore, this);
     req.setInformativeText(tr("Do you want to reload '%1'").arg(path));
     if (req.exec() == MB::Yes)

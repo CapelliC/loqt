@@ -519,22 +519,21 @@ void pqSourceMainWindow::find() {
     }
 }
 void pqSourceMainWindow::findNext() {
-    if (auto e = activeChild<QTextEdit>())
+    if (auto e = activeChild<pqSourceBaseClass>())
         findReplace->do_findNext(e);
 }
 void pqSourceMainWindow::findPrevious() {
-    if (auto e = activeChild<QTextEdit>())
+    if (auto e = activeChild<pqSourceBaseClass>())
         findReplace->do_findPrevious(e);
 }
 void pqSourceMainWindow::replace() {
-    if (auto e = activeChild<QTextEdit>())
+    if (auto e = activeChild<pqSourceBaseClass>())
         findReplace->do_replace(e);
 }
 
 /** simple logging to text file
  */
-void pqSourceMainWindow::reportToFile(QString msg)
-{
+void pqSourceMainWindow::reportToFile(QString msg) {
     if (!reportFile.isOpen()) {
         reportFile.setFileName("reportFile.txt");
         reportFile.open(QFile::WriteOnly);
@@ -546,16 +545,14 @@ void pqSourceMainWindow::reportToFile(QString msg)
 
 /** display msg
  */
-void pqSourceMainWindow::reportInfo(QString msg)
-{
+void pqSourceMainWindow::reportInfo(QString msg) {
     reportToFile("i:" + msg);
     do_events();
 }
 
 /** display error message box and report to logger
  */
-void pqSourceMainWindow::reportError(QString msg)
-{
+void pqSourceMainWindow::reportError(QString msg) {
     reportToFile("e:" + msg);
 
     QMessageBox e(this);
@@ -580,7 +577,6 @@ pqDocView *pqSourceMainWindow::helpView() {
     v->addFeedback(helpBar, statusBar());
 
     QMdiSubWindow *w = mdiArea()->addSubWindow(v);
-    w->setWindowTitle(tr("Help (courtesy plDoc)"));
     w->show();
 
     return v;

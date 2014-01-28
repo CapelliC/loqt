@@ -34,6 +34,7 @@ pqDocView::pqDocView(QWidget *parent) :
     QWebView(parent)
 {
     setHtml(QString("<h4>%1</h4>").arg(tr("Please wait, plDoc is starting...")));
+    setWindowTitle(tr("Help (courtesy plDoc)"));
 }
 
 bool pqDocView::startPlDoc()

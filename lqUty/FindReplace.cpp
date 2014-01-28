@@ -136,8 +136,10 @@ void FindReplace::do_find(EditInterface i)
 {
     ei = i;
     QTextCursor c = ei.textCursor();
-    if (c.hasSelection())
+    if (c.hasSelection()) {
         to_search.setEditText(c.selectedText());
+        find.setFocus();
+    }
     show();
 }
 

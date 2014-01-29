@@ -21,6 +21,9 @@
 */
 
 #include "pqHighlighter.h"
+#include "PREDICATE.h"
+#include "SwiPrologEngine.h"
+
 #include <QDebug>
 #include <QStack>
 
@@ -241,6 +244,30 @@ QString pqHighlighter::get_clause_at(int position) const
         x = range(start, stop).plainText(document());
     }
     return x;
+}
+
+predicate3(read_term_from_atom)
+
+/** return functor/arity if available
+ *  arity is simply # children of shared parent
+ */
+QString pqHighlighter::get_predicate_indicator(QTextCursor c) const
+{
+    itcs pp = position_path(c.position());
+    if (pp.size() == 3 && pp[0]->desc == "clause" && pp[1]->desc == "body") {
+        SwiPrologEngine::in_thread e;
+        try {
+            T V, E; L l(E); l.close();
+            if (read_term_from_atom(A(pp[2]->desc), V, E))
+                if (V.arity() == 2)
+                    return QString("%1/%2").arg(text(pp[2])).arg(V[2].arity()); //-> t2w(V[2]);
+        }
+        catch(PlException ex) {
+            qDebug() << t2w(ex);
+        }
+        //return QString("%1/%2").arg(text(pp.last())).arg(pp[pp.count()-2]->nesting.size());
+    }
+    return "";
 }
 
 /** required by FindReplace to change attributes without undue document modification

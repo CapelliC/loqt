@@ -74,6 +74,9 @@ public:
     //! access toplevel text having position
     QString get_clause_at(int position) const;
 
+    //! from semantic tagging, if available
+    QString get_predicate_indicator(QTextCursor c) const;
+
     //! FindReplace duty
     Q_SLOT void markCursor(QTextCursor c);
 

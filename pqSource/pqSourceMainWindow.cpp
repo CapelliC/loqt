@@ -281,7 +281,7 @@ void pqSourceMainWindow::openFileIndex(int index) {
 }
 
 void pqSourceMainWindow::make() {
-    auto l = matching_sources([](pqSource* s) { return s->is_modified(); });
+    auto l = matchingSubWindows<pqSource>([](pqSource* s) { return s->is_modified(); });
     if (!l.isEmpty()) {
         QMessageBox mb(this);
         mb.setIcon(mb.Warning);
@@ -625,7 +625,6 @@ void pqSourceMainWindow::viewGraph() {
 }
 
 /** get a list of all sources matching bool inspect(pqSource)
- */
 QList<pqSource*> pqSourceMainWindow::matching_sources(std::function<bool(pqSource*)> inspect)
 {
     QList<pqSource*> l;
@@ -635,3 +634,4 @@ QList<pqSource*> pqSourceMainWindow::matching_sources(std::function<bool(pqSourc
                 l << s;
     return l;
 }
+ */

@@ -369,10 +369,15 @@ void pqSource::keyPressEvent(QKeyEvent *e)
     }
     if (e->key() == Qt::Key_Help || e->key() == Qt::Key_F1) {
         QTextCursor c = textCursor();
-        c.select(c.WordUnderCursor);
-        QString w = c.selectedText();
-        if (!w.isEmpty())
-            emit requestHelp(w);
+        QString topic;
+        if (hl->sem_info_avail())
+            topic = hl->get_predicate_indicator(c);
+        if (topic == "") {
+            c.select(c.WordUnderCursor);
+            topic = c.selectedText();
+        }
+        if (!topic.isEmpty())
+            emit requestHelp(topic);
     }
     pqSourceBaseClass::keyPressEvent(e);
 }

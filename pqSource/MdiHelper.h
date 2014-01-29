@@ -122,6 +122,17 @@ protected:
         return qobject_cast<T*>(activeMdiChild());
     }
 
+    template<class T>
+    QList<T*> matchingSubWindows(std::function<bool(T*)> match) const
+    {
+        QList<T*> l;
+        foreach (auto w, mdiArea()->subWindowList())
+            if (auto s = qobject_cast<T*>(w->widget()))
+                if (match(s))
+                    l << s;
+        return l;
+    }
+
     // associate a string key with a widget
     virtual QString symbol(QWidget *w) {
         // rough approx.

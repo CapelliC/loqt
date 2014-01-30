@@ -104,6 +104,15 @@ bool pqSyntaxData::check() const
     return true;
 }
 
+/** very basic visit code
+ */
+void pqSyntaxData::topdown_preorder(const pqSyntaxData::cat &c, std::function<void (const pqSyntaxData::cat &)> f) const
+{
+    f(c);
+    foreach(const cat &e, c.nesting)
+        topdown_preorder(e, f);
+}
+
 /** debugging helper, after changing insertion strategy to more efficient one
  */
 QString pqSyntaxData::cat::structure(QString indent) const

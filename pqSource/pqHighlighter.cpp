@@ -260,12 +260,11 @@ QString pqHighlighter::get_predicate_indicator(QTextCursor c) const
             T V, E; L l(E); l.close();
             if (read_term_from_atom(A(pp[2]->desc), V, E))
                 if (V.arity() == 2)
-                    return QString("%1/%2").arg(text(pp[2])).arg(V[2].arity()); //-> t2w(V[2]);
+                    return QString("%1/%2").arg(text(pp[2])).arg(V[2].arity());
         }
         catch(PlException ex) {
             qDebug() << t2w(ex);
         }
-        //return QString("%1/%2").arg(text(pp.last())).arg(pp[pp.count()-2]->nesting.size());
     }
     return "";
 }
@@ -276,4 +275,15 @@ void pqHighlighter::markCursor(QTextCursor c)
 {
     marker = c;
     rehighlightBlock(c.block());
+}
+
+/** access clause structure, if available, and scan for all vars
+ */
+QStringList pqHighlighter::vars(QTextCursor p) const
+{
+    QSet<QString> vs;
+    itcs pp = position_path(p.position());
+    if (!pp.isEmpty())
+        topdown_preorder(*pp[0], [&](const cat &c) { if (c.desc == "var")  vs << text(&c); });
+    return vs.toList();
 }

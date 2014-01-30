@@ -32,6 +32,7 @@
 #include <QStateMachine>
 #include <QElapsedTimer>
 #include <QTimer>
+#include <QCompleter>
 
 #include "pqConsole.h"
 #include "ConsoleEdit.h"
@@ -91,7 +92,6 @@ protected:
     QString editWhat;
     QPointer<QAction> editContext, commentContext, renameContext;
 
-    //QPointer<pqSyntaxData> sd, sd_temp;
     QPointer<pqHighlighter> hl;
 
     enum DebugStatus { no_Debug, Running, Breaked } debugStatus;
@@ -129,21 +129,23 @@ protected:
     QTimer track_changes;
     int last_change_position;
 
-    /*/ instead of build/reset each time
-    SwiPrologEngine::in_thread *syn_server;
-    void setup_engine();
-    */
-
     QPointer<SwiPrologEngine> deb_server;
     QString sent_command;
 
     QMutex sync;
     QWaitCondition ready;
 
+    //! breakpoints
     typedef QList<pqSyntaxData::range> t_bkps;
     t_bkps bkps;
 
     pqSourceMainWindow *findMain() const;
+
+    //! make autocompletion case sensitive, with predicates sorted by - some kind of - proximity
+    QPointer<QCompleter> autocomp;
+
+    Q_SLOT void onCompletion(QString completion);
+    void completerInit(QTextCursor c);
 
 signals:
 
@@ -161,7 +163,6 @@ protected slots:
     void runHighliter();
     void startHighliter();
     void highlightComplete();
-    //void onProgress(int);
 
     void showContextMenu(const QPoint &pt);
     void editInvoke();

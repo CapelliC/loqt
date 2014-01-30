@@ -38,6 +38,7 @@
  */
 class pqHighlighter : public pqMiniSyntax, public pqSyntaxData {
     Q_OBJECT
+
 public:
 
     pqHighlighter(QTextEdit *host);
@@ -79,6 +80,9 @@ public:
 
     //! FindReplace duty
     Q_SLOT void markCursor(QTextCursor c);
+
+    //! get vars of current <p> clause
+    QStringList vars(QTextCursor p) const;
 
 protected:
 

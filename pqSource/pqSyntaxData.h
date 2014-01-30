@@ -32,6 +32,8 @@
 #include <QPointer>
 #include <QElapsedTimer>
 
+#include <functional>
+
 /** this class collects structured data from SWI-Prolog syntax helper
   * as the library releases info in a non-strict lexical order, by means of a callback,
   * the code recovers the nesting and keep a sorted tree
@@ -103,6 +105,9 @@ public:
 
     //! debugging helper: return true if out-of-order
     bool check() const;
+
+    //! it's a basic visit
+    void topdown_preorder(const cat& c, std::function<void(const cat &)>) const;
 
 protected:
 

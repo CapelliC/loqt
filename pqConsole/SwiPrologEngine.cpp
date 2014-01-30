@@ -160,7 +160,7 @@ ssize_t SwiPrologEngine::_write_(void *handle, char *buf, size_t bufsize) {
     Q_UNUSED(handle);
     if (spe) {   // not terminated?
         emit spe->user_output(QString::fromUtf8(buf, bufsize));
-        if (spe->target->status == ConsoleEdit::running)
+        if (spe->target && spe->target->status == ConsoleEdit::running)
             spe->flush();
     }
     return bufsize;

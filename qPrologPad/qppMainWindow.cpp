@@ -111,12 +111,11 @@ int qppMainWindow::findTab(QString path) const {
 void qppMainWindow::closeEvent(QCloseEvent *event) {
     for (int t = 0; t < tab->count(); ++t)
         if (auto *e = qobject_cast<qppViewFile*>(tab->widget(t)))
-            ; /*
-            if (!e->maybeSave()) {
+            //if (!e->maybeSave()) {
+            if (!e) {
                 event->ignore();
                 return;
             }
-            */
 
     event->accept();
 }
@@ -127,10 +126,9 @@ void qppMainWindow::openFile() {
 }
 void qppMainWindow::closeFile() {
     if (auto e = qobject_cast<qppViewFile *>(tab->currentWidget())) {
-        /*
-        if (e->isModified())
-            e->save();
-            */
+        Q_UNUSED(e)
+        //if (e->isModified())
+            //e->save();
         tab->removeTab(tab->currentIndex());
     }
 }
@@ -157,7 +155,7 @@ void qppMainWindow::editFile(QString file) {
 }
 
 void qppMainWindow::openSourceFile(QString file) {
-
+    Q_UNUSED(file)
     /*
     QAction *before = 0, *curr = 0;
     foreach (auto a, mru->files->actions())

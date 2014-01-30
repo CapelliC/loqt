@@ -39,6 +39,7 @@
 #include <QtConcurrentRun>
 #include <QFutureWatcher>
 #include <QInputDialog>
+#include <QStringListModel>
 
 /** from :/prolog/syncol.pl */
 predicate2(syncol)
@@ -64,16 +65,14 @@ pqSource::pqSource(QString file) :
     debugCommand(no_Command),
     skip_changes(),
     last_change_position(-1)
-    //syn_server(0)
 {
     editContext = new QAction(tr("Edit..."), this);
-    connect(editContext, SIGNAL(triggered()), this, SLOT(editInvoke()));
+    connect(editContext, SIGNAL(triggered()), SLOT(editInvoke()));
 
     setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(showContextMenu(const QPoint&)));
 
     connect(this, SIGNAL(cursorPositionChanged()), SLOT(cursorPositionChanged()));
-    //connect(this, SIGNAL(setCallSig(long,long)), SLOT(showCall(long,long)));
 
     hl = new pqHighlighter(this);
 }
@@ -330,8 +329,37 @@ void pqSource::closeEvent(QCloseEvent *e)
 
 void pqSource::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab) {
-        QTextCursor c = textCursor();
+    using namespace Qt;
+    QTextCursor c = textCursor();
+
+    bool on_completion = autocomp && autocomp->popup()->isVisible();
+    if (on_completion) {
+        // following keys are forwarded by the completer to the widget
+        switch (e->key()) {
+        case Key_Enter:
+        case Key_Return:
+        case Key_Escape:
+        case Key_Tab:
+        case Key_Backtab:
+            e->ignore();
+            return; // let the completer do default behavior
+        default:
+            completerInit(c);
+            break;
+        }
+        c.movePosition(c.StartOfWord, c.KeepAnchor);
+        //c.select(QTextCursor::WordUnderCursor);
+        autocomp->setCompletionPrefix(c.selectedText());
+        autocomp->popup()->setCurrentIndex(autocomp->completionModel()->index(0, 0));
+        return;
+    }
+
+    if (e->key() == Key_Space && e->modifiers() == ControlModifier) {
+        completerInit(c);
+        return;
+    }
+
+    if (e->key() == Key_Tab || e->key() == Key_Backtab) {
         if (c.hasSelection()) {
             QTextBlock  x = document()->findBlock(c.selectionStart()),
                         y = document()->findBlock(c.selectionEnd());
@@ -339,7 +367,7 @@ void pqSource::keyPressEvent(QKeyEvent *e)
                 int tab2chars = -1;
                 while (x < y) {
                     c.setPosition(x.position());
-                    if (e->key() == Qt::Key_Backtab) {
+                    if (e->key() == Key_Backtab) {
                         if (tab2chars == -1)
                             tab2chars = tabStopWidth() / QFontMetrics(c.charFormat().font()).charWidth(" ", 0);
                         QString l = x.text();
@@ -367,8 +395,8 @@ void pqSource::keyPressEvent(QKeyEvent *e)
             }
         }
     }
-    if (e->key() == Qt::Key_Help || e->key() == Qt::Key_F1) {
-        QTextCursor c = textCursor();
+
+    if (e->key() == Key_Help || e->key() == Key_F1) {
         QString topic;
         if (hl->sem_info_avail())
             topic = hl->get_predicate_indicator(c);
@@ -379,7 +407,56 @@ void pqSource::keyPressEvent(QKeyEvent *e)
         if (!topic.isEmpty())
             emit requestHelp(topic);
     }
+
     pqSourceBaseClass::keyPressEvent(e);
+}
+
+void pqSource::onCompletion(QString completion) {
+    int extra = completion.length() - autocomp->completionPrefix().length();
+    textCursor().insertText(completion.right(extra));
+}
+
+predicate3(setof)
+structure1(current_module)
+
+void pqSource::completerInit(QTextCursor c) {
+
+    emit reportInfo(tr("starting completion, please wait..."));
+
+    // issue setof(M,current_module(M),L)
+    QSet<QString> syms;
+    Completion::initialize(syms);
+
+    if (hl->sem_info_avail())
+        // get vars
+        foreach (QString s, hl->vars(c))
+            syms.insert(s);
+
+    QStringList sorted = syms.toList();
+    sorted.sort();
+
+    if (!autocomp) {
+        autocomp = new QCompleter(new QStringListModel(sorted));
+        autocomp->setWidget(this);
+        //autocomp->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+        //autocomp->setCompletionMode(QCompleter::InlineCompletion);
+        connect(autocomp, SIGNAL(activated(QString)), SLOT(onCompletion(QString)));
+    }
+    else {
+        auto model = qobject_cast<QStringListModel*>(autocomp->model());
+        model->setStringList(sorted);
+    }
+
+    c.movePosition(c.StartOfWord, c.KeepAnchor);
+    QString prefix = c.selectedText();
+    autocomp->setCompletionPrefix(prefix);
+    //autocomp->popup()->setCurrentIndex(autocomp->completionModel()->index(0, 0));
+
+    QRect cr = cursorRect();
+    cr.setWidth(300);
+    autocomp->complete(cr);
+
+    emit reportInfo(tr("completion available, %1 items").arg(sorted.size()));
 }
 
 bool pqSource::is_modified() const

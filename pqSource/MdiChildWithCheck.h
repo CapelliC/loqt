@@ -26,16 +26,23 @@
 #include <QMdiSubWindow>
 #include <QCloseEvent>
 
+/** sole purpose of this class is to avoid the user closes the console window
+ */
 class MdiChildWithCheck : public QMdiSubWindow
 {
     Q_OBJECT
 
 public:
 
-    MdiChildWithCheck();
+    //! define messages to expose on closing
+    MdiChildWithCheck(QString msgboxTitle = "Error", QString msgboxMessage = "Console cannot be closed");
+
+    //! set this flag to inhibit the check - mandatory on application quit
     bool quitting;
 
 protected:
+
+    QString msgboxTitle, msgboxMessage;
     virtual void closeEvent(QCloseEvent *closeEvent);
 };
 

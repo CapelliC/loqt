@@ -24,7 +24,8 @@
 #include "ConsoleEdit.h"
 #include <QMessageBox>
 
-MdiChildWithCheck::MdiChildWithCheck() : quitting(false)
+MdiChildWithCheck::MdiChildWithCheck(QString msgboxTitle, QString msgboxMessage) :
+    quitting(false), msgboxTitle(msgboxTitle), msgboxMessage(msgboxMessage)
 {
 }
 
@@ -32,7 +33,7 @@ void MdiChildWithCheck::closeEvent(QCloseEvent *closeEvent)
 {
     if (qobject_cast<ConsoleEdit*>(widget()))
         if (!quitting) {
-            QMessageBox::critical(this, "Error", "Console cannot be closed");
+            QMessageBox::critical(this, msgboxTitle, msgboxMessage);
             closeEvent->ignore();
             return;
         }

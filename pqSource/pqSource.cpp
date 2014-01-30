@@ -344,13 +344,14 @@ void pqSource::keyPressEvent(QKeyEvent *e)
             e->ignore();
             return; // let the completer do default behavior
         default:
-            completerInit(c);
+            //completerInit(c);
             break;
         }
+
+        pqSourceBaseClass::keyPressEvent(e);
         c.movePosition(c.StartOfWord, c.KeepAnchor);
-        //c.select(QTextCursor::WordUnderCursor);
         autocomp->setCompletionPrefix(c.selectedText());
-        autocomp->popup()->setCurrentIndex(autocomp->completionModel()->index(0, 0));
+        //autocomp->popup()->setCurrentIndex(autocomp->completionModel()->index(0, 0));
         return;
     }
 
@@ -416,8 +417,8 @@ void pqSource::onCompletion(QString completion) {
     textCursor().insertText(completion.right(extra));
 }
 
-predicate3(setof)
-structure1(current_module)
+//predicate3(setof)
+//structure1(current_module)
 
 void pqSource::completerInit(QTextCursor c) {
 

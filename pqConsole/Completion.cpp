@@ -92,7 +92,7 @@ void Completion::initialize(QSet<QString> &strings, bool reload) {
         curr.clear();
         SwiPrologEngine::in_thread _int;
         try {
-            /*
+
             PlTerm p,m,a,l,v;
             PlQuery q("setof",
                 PlTermv(p,
@@ -104,21 +104,7 @@ void Completion::initialize(QSet<QString> &strings, bool reload) {
                 l));
             if (q.next_solution())
                 for (PlTail x(l); x.next(v); )
-                    lcurr << t2w(v);
-            */
-            /*
-            PlTerm p,m,a,l,v;
-                PlTermv(p,
-                    quv(m,
-                        quv(a,
-                            join(PlCompound("current_predicate", mod(m, arith(p, a))),
-                                neg(C("sub_atom", PlTermv(p, zero, one, _V, A("$"))))
-                    ))),
-                l));
-            if (q.next_solution())
-                for (PlTail x(l); x.next(v); )
-                    lcurr << t2w(v);
-            */
+                    curr << t2w(v);
 
             PlTerm M, Ms;
             if (PlCall("setof", PlTermv(M, PlCompound("current_module", M), Ms)))

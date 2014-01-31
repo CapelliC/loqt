@@ -46,6 +46,7 @@
 #include <QWidgetAction>
 #include <QStringListModel>
 #include <QFont>
+#include <QFontDialog>
 
 structure1(library)
 structure1(atom)
@@ -590,6 +591,7 @@ void pqSourceMainWindow::requestHelp(QString topic) {
 
 void pqSourceMainWindow::viewSWIPrologPref()
 {
+    openFile("~/.plrc");
 }
 
 void pqSourceMainWindow::selectColors()
@@ -598,6 +600,16 @@ void pqSourceMainWindow::selectColors()
 
 void pqSourceMainWindow::selectFont()
 {
+    Preferences p;
+    bool ok = false;
+    QFont font = QFontDialog::getFont(&ok, p.console_font, this);
+    if (ok) {
+        foreach (auto w, mdiArea()->subWindowList())
+            if (QTextEdit* e = qobject_cast<QTextEdit*>(w->widget()))
+                e->setFont(font);
+        p.console_font = font;
+        p.save();
+    }
 }
 
 void pqSourceMainWindow::incFont()

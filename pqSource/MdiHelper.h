@@ -36,6 +36,9 @@
 #include "MruHelper.h"
 #include "RowColIndicators.h"
 
+/** this class defines the IDE global layout
+ *  create widgets for commanders and feedback
+ */
 class PQSOURCESHARED_EXPORT MdiHelper : public QMainWindow, protected MruHelper
 {
     Q_OBJECT
@@ -55,6 +58,7 @@ protected:
 
     QMenu *fileMenu;
     QMenu *editMenu;
+    QMenu *prefMenu;
     QMenu *debugMenu;
     QMenu *windowMenu;
     QMenu *helpMenu;
@@ -82,6 +86,12 @@ protected:
     QAction *findNextAct;
     QAction *findPreviousAct;
     QAction *replaceAct;
+
+    QAction *viewSWIPrologPrefAct;
+    QAction *selectColorsAct;
+    QAction *selectFontAct;
+    QAction *incFontAct;
+    QAction *decFontAct;
 
     QAction *makeAct;
     QAction *consultAct;

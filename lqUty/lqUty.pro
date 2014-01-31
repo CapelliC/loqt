@@ -42,7 +42,8 @@ HEADERS += lqUty.h \
     CodeMirrorFile.h \
     CodeMirror.h \
     CenterWidgets.h \
-    XmlSyntaxHighlighter.h
+    XmlSyntaxHighlighter.h \
+    EditInterface.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

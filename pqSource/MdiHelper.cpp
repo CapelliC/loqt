@@ -180,6 +180,28 @@ void MdiHelper::createActions()
     replaceAct->setIconVisibleInMenu(true);
     connect(replaceAct, SIGNAL(triggered()), this, SLOT(replace()));
 
+    viewSWIPrologPrefAct = new QAction(tr("SWI-Prolog &Preferences"), this);
+    viewSWIPrologPrefAct->setStatusTip(tr("Edit SWI-Prolog global preferences (restart this application to see changes)"));
+    connect(viewSWIPrologPrefAct, SIGNAL(triggered()), SLOT(viewSWIPrologPref()));
+
+    selectColorsAct = new QAction(tr("Select &Colors..."), this);
+    selectColorsAct->setStatusTip(tr("Choose the color palette used for text rendering"));
+    connect(selectColorsAct, SIGNAL(triggered()), SLOT(selectColors()));
+
+    selectFontAct = new QAction(tr("Select &Font..."), this);
+    selectFontAct->setStatusTip(tr("Choose the font used to display text"));
+    connect(selectFontAct, SIGNAL(triggered()), SLOT(selectFont()));
+
+    incFontAct = new QAction(tr("&Increase Font Size (Ctrl++)"), this);
+    incFontAct->setShortcut(QKeySequence("Ctrl++"));
+    incFontAct->setStatusTip(tr("Make characters bigger (Increase Font size)"));
+    connect(incFontAct, SIGNAL(triggered()), SLOT(incFont()));
+
+    decFontAct = new QAction(tr("&Decrease Font Size (Ctrl+-)"), this);
+    decFontAct->setShortcut(QKeySequence("Ctrl+-"));
+    decFontAct->setStatusTip(tr("Make characters smaller (Decrease Font Size)"));
+    connect(decFontAct, SIGNAL(triggered()), SLOT(decFont()));
+
     QMdiArea *mdiArea = this->mdiArea();
 
     closeAct = new QAction(tr("Cl&ose"), this);
@@ -324,6 +346,13 @@ void MdiHelper::createMenus()
     editMenu->addAction(findNextAct);
     editMenu->addAction(findPreviousAct);
     editMenu->addAction(replaceAct);
+
+    prefMenu = menuBar()->addMenu(tr("&Preferences"));
+    prefMenu->addAction(viewSWIPrologPrefAct);
+    prefMenu->addAction(selectColorsAct);
+    prefMenu->addAction(selectFontAct);
+    prefMenu->addAction(incFontAct);
+    prefMenu->addAction(decFontAct);
 
     debugMenu = menuBar()->addMenu(tr("&Debug"));
     debugMenu->addAction(makeAct);

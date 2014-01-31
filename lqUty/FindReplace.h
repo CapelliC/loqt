@@ -23,50 +23,13 @@
 #ifndef FINDREPLACE_H
 #define FINDREPLACE_H
 
-#include "lqUty_global.h"
 #include "lqPreferences.h"
 
 #include <QDialog>
-#include <QPointer>
-#include <QTextEdit>
 #include <QComboBox>
 #include <QCheckBox>
 #include <QPushButton>
-#include <QTextDocument>
-#include <QPlainTextEdit>
-
-/** make an interface exposing shared functionalities
- *  between QTextEdit and QPlainTextEdit
- */
-struct EditInterface {
-
-    EditInterface() {}
-    EditInterface(QTextEdit *edit) : edit(edit) {}
-    EditInterface(QPlainTextEdit *plain) : plain(plain) {}
-
-    QTextCursor textCursor() const {
-        if (edit) return edit->textCursor();
-        if (plain) return plain->textCursor();
-        return QTextCursor();
-    }
-    QTextDocument* document() const {
-        if (edit) return edit->document();
-        if (plain) return plain->document();
-        return 0;
-    }
-
-    void setTextCursor(QTextCursor c) {
-        if (edit) edit->setTextCursor(c); else
-        if (plain) plain->setTextCursor(c);
-    }
-    void ensureCursorVisible() {
-        if (edit) edit->ensureCursorVisible(); else
-        if (plain) plain->ensureCursorVisible();
-    }
-
-    QPointer<QTextEdit> edit;
-    QPointer<QPlainTextEdit> plain;
-};
+#include "EditInterface.h"
 
 /** find/replace in a QPlainTextEdit/QTextEdit buffer
  *  put Qt text framework and QRegExp to work

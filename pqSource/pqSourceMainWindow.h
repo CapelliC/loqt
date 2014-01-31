@@ -100,6 +100,12 @@ public slots:
     void viewGraph();
     void requestHelp(QString cursorWord);
 
+    void viewSWIPrologPref();
+    void selectColors();
+    void selectFont();
+    void incFont();
+    void decFont();
+
 protected slots:
 
     void fixGeometry();

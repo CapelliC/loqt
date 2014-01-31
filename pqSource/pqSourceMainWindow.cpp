@@ -45,6 +45,7 @@
 #include <QComboBox>
 #include <QWidgetAction>
 #include <QStringListModel>
+#include <QFont>
 
 structure1(library)
 structure1(atom)
@@ -585,6 +586,42 @@ pqDocView *pqSourceMainWindow::helpView() {
 void pqSourceMainWindow::requestHelp(QString topic) {
     if (pqDocView *h = helpView())
         h->helpTopic(topic);
+}
+
+void pqSourceMainWindow::viewSWIPrologPref()
+{
+}
+
+void pqSourceMainWindow::selectColors()
+{
+}
+
+void pqSourceMainWindow::selectFont()
+{
+}
+
+void pqSourceMainWindow::incFont()
+{
+    foreach (auto w, mdiArea()->subWindowList()) {
+        if (QTextEdit* e = qobject_cast<QTextEdit*>(w->widget())) {
+            QFont f = e->font();
+            if (f.pointSize() != -1)
+                f.setPointSize(f.pointSize() + 1);
+            e->setFont(f);
+        }
+    }
+}
+
+void pqSourceMainWindow::decFont()
+{
+    foreach (auto w, mdiArea()->subWindowList()) {
+        if (QTextEdit* e = qobject_cast<QTextEdit*>(w->widget())) {
+            QFont f = e->font();
+            if (f.pointSize() != -1)
+                f.setPointSize(f.pointSize() - 1);
+            e->setFont(f);
+        }
+    }
 }
 
 void pqSourceMainWindow::helpStart() {

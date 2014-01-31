@@ -70,7 +70,6 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     if (argc == 3)
         mode = argv[2];
 
-    //foreach (QString layout, QString("dot neato fdp sfdp twopi circo").split(' ')) {
     foreach (QString layout, QString("dot neato fdp sfdp twopi circo").split(' ')) {
         auto a = m->addAction(layout, this, SLOT(changeLayout()));
         a->setCheckable(true);
@@ -249,10 +248,10 @@ void MainWindow::viewDot() {
     QFile t(f);
     if (t.open(t.ReadOnly|t.Text)) {
         setCentralWidget(tabs = new QTabWidget);
-        tabs->addTab(new lqXDotView, "lq&XDot view");
-        tabs->addTab(new SvgView, "&Svg view");
-        tabs->addTab(new QTextEdit, "&Dot source");
-        tabs->addTab(new QTextEdit, "Svg Xml sourc&e");
+        tabs->addTab(new lqXDotView,    tr("lq&XDot view"));
+        tabs->addTab(new SvgView,       tr("&Svg view"));
+        tabs->addTab(new QTextEdit,     tr("&Dot source"));
+        tabs->addTab(new QTextEdit,     tr("Svg Xml sourc&e"));
 
         lqPreferences p;
         //source()->setFont(p.console_font);

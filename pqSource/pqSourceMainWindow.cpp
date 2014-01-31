@@ -209,18 +209,20 @@ void pqSourceMainWindow::openFiles() {
         openFile(p);
 }
 
-void pqSourceMainWindow::openFile(QString path, QByteArray geometry, int line, int linepos) {
+void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, int linepos) {
+
+    absp.replace("~", QDir::homePath());
 
     foreach (QMdiSubWindow *w, mdiArea()->subWindowList())
         if (auto s = qobject_cast<pqSource*>(w->widget()))
-            if (s->file == path) {
+            if (s->file == absp) {
                 s->placeCursor(line, linepos);
                 return;
             }
 
-    if (QFile::exists(path)) {
+    if (QFile::exists(absp)) {
 
-        auto e = new pqSource(path);
+        auto e = new pqSource(absp);
         e->setLineWrapMode(e->NoWrap);
 
         connect(e, SIGNAL(reportInfo(QString)), statusBar(), SLOT(showMessage(QString)));
@@ -230,7 +232,6 @@ void pqSourceMainWindow::openFile(QString path, QByteArray geometry, int line, i
         connect(e, SIGNAL(cursorPositionChanged()), SLOT(cursorPositionChanged()));
         connect(e, SIGNAL(requestHelp(QString)), SLOT(requestHelp(QString)));
 
-        insertPath(this, path);
         auto w = mdiArea()->addSubWindow(e);
         if (!geometry.isEmpty()) {
             w->restoreGeometry(geometry);
@@ -241,11 +242,11 @@ void pqSourceMainWindow::openFile(QString path, QByteArray geometry, int line, i
         w->show();
 
         e->loadSource(line, linepos);
-        insertPath(this, path);
+        insertPath(this, absp);
     }
     else {
-        QMessageBox::critical(this, tr("Error"), tr("File %1 not found").arg(path));
-        removePath(this, path);
+        QMessageBox::critical(this, tr("Error"), tr("File %1 not found").arg(absp));
+        removePath(this, absp);
     }
 }
 

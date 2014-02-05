@@ -106,6 +106,8 @@ public slots:
     void incFont();
     void decFont();
 
+    void markCursor(QTextCursor c);
+
 protected slots:
 
     void fixGeometry();

@@ -38,7 +38,6 @@ file_xref :-
 show_inclusions(Pred) :-
 	module_property(file_xref, file(F)),
 	call(Pred, F).
-    
 
 %%	file_inclusions_graph(+File) is det
 %

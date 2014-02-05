@@ -116,10 +116,9 @@ bool lqXDotView::render_script(QString script, QString algo)
   */
 void lqXDotView::render_graph()
 {
-    QString tc = attr_str(Gp(*cg), "truecolor");
-    truecolor_ = tc == "yes" || tc == "true";
-
+    truecolor_ = attr_bool(Gp(*cg), "truecolor");
     imagepath_ = attr_str(Gp(*cg), "imagepath");
+
     if (!imagepath_.isEmpty()) {
         QDir cd(imagepath_);
         if (cd.exists())
@@ -287,7 +286,8 @@ void lqXDotView::exportAs(QString fmt)
     }
 }
 
-void lqXDotView::setFoldedScene(lqXDotScene* s, QPointF p) {
+void lqXDotView::setFoldedScene(lqXDotScene* s, QPointF p)
+{
     Q_UNUSED(p)
     setRenderHint(QPainter::Antialiasing);
     setRenderHint(QPainter::TextAntialiasing);

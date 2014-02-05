@@ -1,22 +1,18 @@
 /** <module> odbc_schema
  *
- *  build a graph of DB schema
+ *  build a graph of DB schema, links by foreign keys
  */
 
 :- module(odbc_schema,
-	[show_schema/3
+        [show_schema/1
 	,connect_db/4
-	]).
+        ,connect_db/5
+        ]).
 
-% :- use_module(gv_uty).
 :- use_module(library(odbc)).
-:- use_module(library(semweb/rdf_db)).
 :- use_module(library(http/html_write)).
 
-:- rdf_register_prefix(odbc_schema, 'http://www.swi-prolog.org/odbc_schema#').
-
-show_schema(Db, Uid, Pwd) :-
-	connect_db(Db, Uid, Pwd, Connection),
+show_schema(Connection) :-
 	graph_window(schema_db(RootGraph, Connection), RootGraph, [node_defaults([shape=none])]),
 	odbc_disconnect(Connection).
 
@@ -46,5 +42,8 @@ make_table(RootGraph, Connection, Table) :-
 	make_node(RootGraph, Table, [label:html(HTML)], _).
 
 connect_db(Db, Uid, Pwd, Connection) :-
-	format(atom(S), 'driver=mysql;db=~s;uid=~s;pwd=~s', [Db, Uid, Pwd]),
-	odbc_driver_connect(S, Connection, []).
+    connect_db(mysql, Db, Uid, Pwd, Connection).
+
+connect_db(Driver, Db, Uid, Pwd, Connection) :-
+    format(atom(S), 'driver=~s;db=~s;uid=~s;pwd=~s', [Driver, Db, Uid, Pwd]),
+    odbc_driver_connect(S, Connection, []).

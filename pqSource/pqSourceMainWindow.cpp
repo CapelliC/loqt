@@ -199,16 +199,16 @@ void pqSourceMainWindow::customEvent(QEvent *event) {
     emit openFile(res->file, res->geometry, res->line, res->linepos);
 }
 
-inline QString prologFiles() { return QObject::tr("Prolog files (*.pl *.plt *.pro)"); }
+inline QString prologFiles() { return QObject::tr("Prolog files (*.pl *.plt *.pro)" ";;All files (*.*)"); }
 inline QString prologSuffix() { return "pl"; }
-
+/*
 void pqSourceMainWindow::openFiles() {
     foreach(QString p,
             QFileDialog::getOpenFileNames(this, tr("Open Files"), QString(),
                 prologFiles() + tr(";;All files (*.*)")))
         openFile(p);
 }
-
+*/
 void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, int linepos) {
 
     absp.replace("~", QDir::homePath());
@@ -515,9 +515,12 @@ QString pqSourceMainWindow::currentQuery() const {
 
 /** find/replace interface */
 void pqSourceMainWindow::find() {
-    if (auto e = activeChild<pqSource>()) {
+    if (auto e = activeChild<pqSourceBaseClass>()) {
         disconnect(findReplace, SIGNAL(markCursor(QTextCursor)), 0, 0);
-        connect(findReplace, SIGNAL(markCursor(QTextCursor)), e->semanticHighlighter(), SLOT(markCursor(QTextCursor)));
+        if (auto s = qobject_cast<pqSource*>(e))
+            connect(findReplace, SIGNAL(markCursor(QTextCursor)), s->semanticHighlighter(), SLOT(markCursor(QTextCursor)));
+        else
+            connect(findReplace, SIGNAL(markCursor(QTextCursor)), SLOT(markCursor(QTextCursor)));
         findReplace->do_find(e);
     }
 }
@@ -635,6 +638,13 @@ void pqSourceMainWindow::decFont()
             e->setFont(f);
         }
     }
+}
+
+void pqSourceMainWindow::markCursor(QTextCursor c)
+{
+    //! locate text document requiring mark ?
+    QTextCharFormat f; f.setBackground(Qt::yellow);
+    c.setCharFormat(f);
 }
 
 void pqSourceMainWindow::helpStart() {

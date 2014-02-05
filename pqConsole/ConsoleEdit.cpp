@@ -253,7 +253,7 @@ void ConsoleEdit::keyPressEvent(QKeyEvent *event) {
         down = false;
         // fall throu
     case Key_Down:
-        if (!ctrl) {
+        if (ctrl) { //if (!ctrl) {
             // naive history handler
             if (editable) {
                 if (!history.empty()) {
@@ -1028,25 +1028,30 @@ void ConsoleEdit::set_editable(bool allow) {
 
 void ConsoleEdit::selectionChanged()
 {
+    foreach (ExtraSelection s, extraSelections())
+        s.cursor.setCharFormat(s.format);
+    extraSelections().clear();
+
     QTextCursor c = textCursor();
     if (c.hasSelection()) {
         QString csel = c.selectedText();
-        c.movePosition(c.Start);
         QList<ExtraSelection> lsel;
         QTextCharFormat bold = ParenMatching::range::bold();
-        for ( ; ; ) {
-            c = document()->find(csel, c);
-            if (c.isNull())
-                break;
-            lsel.append(ExtraSelection {c, bold});
-            c.setCharFormat(bold);
+
+        QTextCursor cfirst = cursorForPosition(QPoint(0, 0));
+        if (!cfirst.isNull()) {
+            while (c.block() != cfirst.block())
+                c.movePosition(c.Up);
+            c.movePosition(c.Up);
+            for ( ; ; ) {
+                c = document()->find(csel, c, QTextDocument::FindCaseSensitively);
+                if (c.isNull() || !c.block().isVisible())
+                    break;
+                lsel.append(ExtraSelection {c, c.blockCharFormat()});
+                c.setCharFormat(bold);
+            }
         }
+
         setExtraSelections(lsel);
-    }
-    else {
-        QTextCharFormat clear = QTextCharFormat();
-        foreach (ExtraSelection s, extraSelections())
-            s.cursor.setCharFormat(clear);
-        extraSelections().clear();
     }
 }

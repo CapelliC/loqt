@@ -56,6 +56,12 @@ inline cstr attr_str(void* obj, cstr name) {
     return agget(obj, ccstr(name));
 }
 
+//! get Graphviz bool attribute preserving CV qualifiers
+inline bool attr_bool(void *obj, cstr name) {
+    QString a = attr_str(obj, name);
+    return a == "yes" || a == "true";
+}
+
 //! fetch localized string from untyped Graphviz constant
 inline QString attr_qstr(void* obj, cstr name) {
     return QString::fromUtf8(agget(obj, ccstr(name)));

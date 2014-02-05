@@ -54,9 +54,7 @@ lqXDotScene::lqXDotScene(lqContextGraph *cg) : cg(cg),
 
 void lqXDotScene::build()
 {
-    QString tc = attr_str(Gp(*cg), "truecolor");
-    truecolor_ = tc == "yes" || tc == "true";
-
+    truecolor_ = attr_bool(Gp(*cg), "truecolor");
     imagepath_ = attr_str(Gp(*cg), "imagepath");
 
     subgraphs(Gp(*cg), 1);

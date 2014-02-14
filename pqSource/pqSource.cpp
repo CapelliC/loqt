@@ -179,11 +179,16 @@ void pqSource::loadSource(int line, int linepos)
     setPlainText(QTextStream(&x).readAll());
     connect(document(), SIGNAL(contentsChange(int,int,int)), this, SLOT(contentsChange(int,int,int)));
 
-    QString name = QFileInfo(file).fileName();
-    parentWidget()->setWindowTitle(name + "[*]");
+    setTitle();
     placeCursor(line, linepos);
 
     startHighliter();
+}
+
+void pqSource::setTitle()
+{
+    QString name = QFileInfo(file).fileName();
+    parentWidget()->setWindowTitle(name + "[*]");
 }
 
 // positioning in source point and bringing to user attention
@@ -526,8 +531,9 @@ bool pqSource::saveSourceAs(QString newFile)
     QFile f(newFile);
     if (f.open(f.WriteOnly|f.Text)) {
         QTextStream(&f) << toPlainText();
-        set_modified(false);
         file = newFile;
+        setTitle();
+        set_modified(false);
         return true;
     }
     return false;

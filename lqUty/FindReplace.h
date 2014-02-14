@@ -47,17 +47,25 @@ public:
     void do_find(EditInterface i);
     void do_findNext(EditInterface i);
     void do_findPrevious(EditInterface i);
+    void do_findAll(EditInterface i);
     void do_replace(EditInterface i);
+    void do_replaceAll(EditInterface i);
 
     //! check if replace string has been filled
     bool canReplace() const { return !to_replace.currentText().isEmpty(); }
+
+    //! findAll matched
+    QList<QTextEdit::ExtraSelection> allMarks;
+
+    //! show matched cursor highlighted
+    static void showMatch(QTextCursor c);
 
 protected:
 
     EditInterface ei;
 
     QComboBox to_search, to_replace;
-    QPushButton find, findNext, replace, replaceFind, replaceAll;
+    QPushButton find, findNext, findAll, replace, replaceFind, replaceAll;
     QCheckBox regex, wholeWord, caseSensitive, backward;
 
     QTextDocument::FindFlags flags() const;
@@ -65,6 +73,7 @@ protected:
 
     void mark(QTextCursor c, bool current, bool repl = false);
     void notfound();
+    void delayAction(const char *slot);
 
 signals:
 
@@ -74,6 +83,7 @@ signals:
 public slots:
     void onFind();
     void onFindNext();
+    void onFindAll();
     void onReplace();
     void onReplaceFind();
     void onReplaceAll();

@@ -1,12 +1,14 @@
 /** <module> file_xref
  *	testbed for preliminary library(prolog_xref) usage
  *
- *  @file /home/carlo/prolog/file_xref.pl, created at Fri Nov 8 10:35:36 2013
- *  @user carlo
- *
  *  library xref does a great job analyzing call graph and inclusions,
  *  here I'm just trying to get that represented by means
  *  of graphviz + html, showcasing integration pqConsole/meta Qt.
+ *
+ *  @version 1.0.0
+ *  @author carlo
+ *  @license LGPL 2.1
+ *  @copyright carlo 2013
  */
 
 :- module(file_xref,
@@ -17,42 +19,39 @@
 
 :- use_module(library(prolog_xref)).
 :- use_module(library(semweb/rdf_db)).
-:- use_module(library(semweb/rdfs)).
 :- use_module(library(debug)).
 
-:- use_module(spqr(gv_uty)).
-:- use_module(paths_prefix).
+:- if(\+current_module(gv_uty)).
+:- use_module('../../prolog/gv_uty').
+:- endif.
 
-:- rdf_register_prefix(fx, 'http://www.swi-prolog.org/file_xref#').
+:- use_module(fs_rdf).
+
+:- rdf_register_prefix(file_xref, 'http://www.swi-prolog.org/file_xref#').
 :- meta_predicate show_inclusions(1).
 
-%%	pqSourceFileXref is det
+%%	file_xref is det.
 %
 %	use this file as basic test case
 %
 file_xref :-
-	show_inclusions(file_inclusions_graph).
-%file_xref :-
-%	show_inclusions(file_inclusions_simple).
+%	show_inclusions(file_inclusions_graph).
+	show_inclusions(file_inclusions_simple).
     
 show_inclusions(Pred) :-
 	module_property(file_xref, file(F)),
 	call(Pred, F).
 
-%%	file_inclusions_graph(+File) is det
+%%	file_inclusions_graph(+File) is det.
 %
 %	display some graphs as built from library(prolog_xref)
 %	make a cluster for each common path
 %
 file_inclusions_graph(File) :-
-	init,
-	time(store_inclusions(File)),
-
-	setof(Path, B^A^(rdf(B, fx:source, A), paths_prefix:path_names(A, Path)), Paths),
-        paths_prefix:paths_prefix(Paths, Trie),
-	paths_prefix:paths_simplify(Trie, Simple),
-paths_prefix:paths_display(Simple,[]),
-	graph_window(clustered_inclusions(G, Simple, File, _), G, [window_title(File)]).
+	init(File). /*,
+	setof(Path, B^A^(rdf(B, file_xref:source, A), path_names(A, Path)), Paths),
+	paths_prefix(Paths, Trie),
+	graph_window(clustered_inclusions(G, Trie, File, _), G, [window_title(File)]).*/
 
 %%	file_inclusions_simple(+File) is det
 %
@@ -60,52 +59,29 @@ paths_prefix:paths_display(Simple,[]),
 %	no clusters
 %
 file_inclusions_simple(File) :-
-	init,
-	debug(inclusions, 'started ~s', [File]),
-	time(store_inclusions(File)),
-	debug(inclusions, 'building graph ~s', [File]),
-	graph_window(inclusions(G, File, _), G, [window_title(File)]).
+	init(File),
+	graph_window(simple_inclusions(G, File, _), G, [window_title(File)]).
 
-%%	store_inclusions(+Path) is det.
-%
-%	recurse on xref_uses_file, storing visited inclusions in RDF DB
-%
-store_inclusions(Path) :-
-		rdf(_, fx:source, Path)
-	->	debug(inclusions, 'circular dependency ~s', [Path])
-	;	xref_source(Path, [register_called(all)]),
-		rdf_bnode(B),
-		rdf_assert(B, fx:source, Path),
-		forall(xref_uses_file(Path, Spec, Used),
-		(	rdf_assert(B, fx:uses, Used),
-			term_to_atom(Spec, ASpec),
-			rdf_assert(B, fx:spec, ASpec),
-			store_inclusions(Used)
-		))
-	.
-
-%%	clustered_inclusions(+G, +Trie, +File, -N) is det
+%%	clustered_inclusions(+G, +Trie, +File, -N) is det.
 %
 %	lookup node (ID is the bnode(ID)) in cluster appropriate for path
 %
 clustered_inclusions(G, Trie, Path, N) :-
-	rdf(B, fx:source, Path),
+	rdf(B, file_xref:source, Path),
 	(	find_node(G, B, N)
 	->	debug(inclusions, 'Path ~w found ~w', [Path, N])
-	;	paths_prefix:path_names(Path, Parts),
+	;	path_names(Path, Parts),
 		last(Parts, Name),
-        debug(inclusions, 'locating ~w', [Path]),
 		locate_cluster(G, Trie, Parts, [], C),
-        debug(inclusions, 'cluster is ~w', [C]),
 		make_node(C, B, [label:Name], N),
-		forall(rdf(B, fx:uses, U),
-		(	rdf(B, fx:spec, S),
+		forall(rdf(B, file_xref:uses, U),
+		(	rdf(B, file_xref:spec, S),
 			clustered_inclusions(G, Trie, U, M),
 			new_edge(G, N, M, label:S, _)
 		))
 	).
 
-%%	locate_cluster(+Subgraph, +Trie, +File, +Seen, -Cluster) is det
+%%	locate_cluster(+Subgraph, +Trie, +File, +Seen, -Cluster) is det.
 %
 locate_cluster(G, _Trie, [_File], Seen, C) :-
 	lookup_cluster(G, Seen, C).
@@ -120,32 +96,57 @@ locate_cluster(G, Trie, [Dir|Path], Seen, C) :-
 %
 lookup_cluster(G, Seen, C) :-
 	reverse(Seen, RSeen),
-	paths_prefix:path_names(CPath, RSeen),
+	path_names(CPath, RSeen),
 	(	find_cluster(G, CPath, C)
 	->	true
 	;	make_cluster(G, CPath, label:CPath, C)
 	).
 
-%%	inclusions(+G, +F, -N) is det.
+%%	simple_inclusions(+G, +F, -N) is det.
 %
 %	recurse on xref_uses_file, making node N and storing in DB
 %	preliminary test without clustering
 %
-inclusions(G, F, N) :-
+simple_inclusions(G, F, N) :-
 	find_node(G, F, N) -> true ;
 	make_node(G, F, N),
-	rdf(B, fx:source, F),
-	forall(rdf(B, fx:uses, U),
-	(	rdf(B, fx:spec, S),
-		inclusions(G, U, M),
+	rdf(B, file_xref:source, F),
+	forall(rdf(B, file_xref:uses, U),
+	(	rdf(B, file_xref:spec, S),
+		simple_inclusions(G, U, M),
 		new_edge(G, N, M, E),
 		set_attrs(E, label:S)
 	)).
 
-%%	init is det.
+%%	init(+File) is det.
 %
-%	reset_db and init metadata about this representation
+%	reset_db and init metadata about this representation, then 
 %
-init :-
+init(File) :-
 	rdf_reset_db,
-	rdf_assert(fx:xref_source, rdf:type, rdfs:'Class').
+	time(store_inclusions(File)).
+
+%%	store_inclusions(+Path) is det.
+%
+%	recurse on xref_uses_file, storing visited inclusions in RDF DB
+%
+store_inclusions(Path) :-
+		store_absolute_filepath(Path, RefPath),
+		rdf(_, file_xref:source, RefPath)
+	->	debug(inclusions, 'circular dependency ~s', [Path])
+	;	xref_source(Path, [register_called(all)]),
+		rdf_bnode(B),
+		rdf_assert(B, file_xref:source, RefPath),
+		forall(xref_uses_file(Path, Spec, Used),
+		(	rdf_assert(B, file_xref:uses, Used),
+			term_to_atom(Spec, ASpec),
+			rdf_assert(B, file_xref:spec, ASpec),
+			store_inclusions(Used)
+		))
+	.
+
+%%	path_names(?Path, ?Names) is det.
+%
+%	concatenates path fragments with slash
+%
+path_names(Path, Names) :- atomic_list_concat(Names, /, Path).

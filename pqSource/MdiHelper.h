@@ -133,14 +133,31 @@ protected:
     }
 
     template<class T>
+    QList<T*> typedSubWindows() const
+    {
+        QList<T*> l;
+        foreach (auto w, mdiArea()->subWindowList())
+            if (auto s = qobject_cast<T*>(w->widget()))
+                l << s;
+        return l;
+    }
+
+    template<class T>
     QList<T*> matchingSubWindows(std::function<bool(T*)> match) const
     {
+        QList<T*> l;
+        foreach (auto s, typedSubWindows<T>())
+            if (match(s))
+                l << s;
+        return l;
+        /*
         QList<T*> l;
         foreach (auto w, mdiArea()->subWindowList())
             if (auto s = qobject_cast<T*>(w->widget()))
                 if (match(s))
                     l << s;
         return l;
+        */
     }
 
     // associate a string key with a widget

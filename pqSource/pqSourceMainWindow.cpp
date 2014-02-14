@@ -104,7 +104,8 @@ void pqSourceMainWindow::engine_ready() {
     }
 
     pqGraphviz::setup();
-    fixGeometry();
+    QTimer::singleShot(10, this, SLOT(fixGeometry()));
+    //fixGeometry();
 }
 
 void pqSourceMainWindow::fixGeometry() {
@@ -112,24 +113,25 @@ void pqSourceMainWindow::fixGeometry() {
     loadMru(p, this);
 
     p.beginGroup("geometry");
-    foreach (QString k, p.allKeys())
+    foreach (QString k, p.allKeys()) {
+        QByteArray A = p.value(k).toByteArray();
         if (k == metaObject()->className())
-            restoreGeometry(p.value(k).toByteArray());
-            //p.loadPosSizeState(k, this);
+            restoreGeometry(A);
         else {
             int x = k.indexOf('/');
             if (x != -1) {
                 int i = k.mid(x + 1).toInt();
                 if (k.left(x) == ConsoleEdit::staticMetaObject.className()) {
-                    auto w = mdiArea()->subWindowList().at(0);
-                    w->restoreGeometry(p.value(k).toByteArray());
+                    QMdiSubWindow *w = mdiArea()->subWindowList().at(0);
+                    w->restoreGeometry(A);
                     int dy = w->y() == 24 ? 0 : w->y();
                     w->move(w->x(), dy);
                 } else if (k.left(x) == pqSource::staticMetaObject.className()) {
-                    qApp->postEvent(this, new reqEditSource(files[i], p.value(k).toByteArray()));
+                    qApp->postEvent(this, new reqEditSource(files[i], A));
                 }
             }
         }
+    }
     p.endGroup();
 
     restoreState(p.value("windowState").toByteArray());
@@ -201,14 +203,7 @@ void pqSourceMainWindow::customEvent(QEvent *event) {
 
 inline QString prologFiles() { return QObject::tr("Prolog files (*.pl *.plt *.pro)" ";;All files (*.*)"); }
 inline QString prologSuffix() { return "pl"; }
-/*
-void pqSourceMainWindow::openFiles() {
-    foreach(QString p,
-            QFileDialog::getOpenFileNames(this, tr("Open Files"), QString(),
-                prologFiles() + tr(";;All files (*.*)")))
-        openFile(p);
-}
-*/
+
 void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, int linepos) {
 
     absp.replace("~", QDir::homePath());
@@ -330,7 +325,8 @@ void pqSourceMainWindow::saveFile() {
 
 void pqSourceMainWindow::saveFileAs() {
     qDebug() << "saveFileAs";
-    if (auto s = qobject_cast<pqSource*>(activeMdiChild())) {
+    //if (auto s = qobject_cast<pqSource*>(activeMdiChild())) {
+    if (auto s = activeChild<pqSource>()) {
         QFileDialog dia(this, tr("Save Prolog Source"), QString(), prologFiles());
         dia.setAcceptMode(dia.AcceptSave);
         dia.setDefaultSuffix(prologSuffix());
@@ -366,7 +362,8 @@ struct pldocBrowser : QTextBrowser {
 
 void pqSourceMainWindow::helpDoc()
 {
-    if (auto s = qobject_cast<pqSource*>(activeMdiChild())) {
+    //if (auto s = qobject_cast<pqSource*>(activeMdiChild())) {
+    if (auto s = activeChild<pqSource>()) {
         //SwiPrologEngine::in_thread t;
         T html, options, anvar;
         L options_(options); options_.append(::files(anvar)); options_.close();
@@ -642,9 +639,7 @@ void pqSourceMainWindow::decFont()
 
 void pqSourceMainWindow::markCursor(QTextCursor c)
 {
-    //! locate text document requiring mark ?
-    QTextCharFormat f; f.setBackground(Qt::yellow);
-    c.setCharFormat(f);
+    FindReplace::showMatch(c);
 }
 
 void pqSourceMainWindow::helpStart() {
@@ -694,4 +689,4 @@ QList<pqSource*> pqSourceMainWindow::matching_sources(std::function<bool(pqSourc
                 l << s;
     return l;
 }
- */
+*/

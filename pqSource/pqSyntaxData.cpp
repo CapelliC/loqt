@@ -246,6 +246,8 @@ void pqSyntaxData::reconcile(int position, const pqSyntaxData &updated)
     }
     else if (updated.cats[0].desc == "comment") {
     }
+    else if (updated.cats[0].desc == "structured_comment") {
+    }
     else
         Q_ASSERT(false);
 

@@ -77,7 +77,6 @@ protected:
 
 public slots:
 
-    void openFiles();
     void openFile(QString p, QByteArray g = QByteArray(), int line = 0, int linepos = 0);
 
     void newFile();

@@ -37,16 +37,21 @@ typedef QPair<QObject*, pqTrace::callback> t_callback;
 static QList<t_callback> debug_callbacks;
 
 PREDICATE(pq_trace_interception, 4) {
-    qDebug() << "pq_trace_interception";
+    //qDebug() << "pq_trace_interception";
+    //return FALSE;
     const PlTerm
         &Port = PL_A1,
         &Frame = PL_A2,
         &Choice = PL_A3;
+    qDebug() << "pq_trace_interception" << t2w(Port) << t2w(Frame) << t2w(Choice);
     PlTerm Action = PL_A4;
     foreach(t_callback c, debug_callbacks)
-        if (c.second(c.first, Port, Frame, Choice, Action))
-            return TRUE;
-    return FALSE;
+        if (c.second(c.first, Port, Frame, Choice, Action)) {
+            qDebug() << "action:" << t2w(Action);
+            break;
+        }
+    //qDebug() << "false";
+    return TRUE;
 }
 
 QString pqTrace::newFileHeader(QString path) {

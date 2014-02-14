@@ -40,6 +40,7 @@ FindReplace::FindReplace(QWidget *parent) :
 
     find(tr("&Find")),
     findNext(tr("Find &Next")),
+    findAll(tr("Find &All")),
     replace(tr("&Replace")),
     replaceFind(tr("Replace && Find")),
     replaceAll(tr("Replace &All")),
@@ -52,11 +53,6 @@ FindReplace::FindReplace(QWidget *parent) :
     setWindowTitle(tr("Find/Replace Text"));
     //setAttribute(Qt::WA_DeleteOnClose);
 
-    find.setDefault(true);
-
-    to_search.setEditable(true);
-    to_replace.setEditable(true);
-
     QFormLayout *l = new QFormLayout;
     l->addRow(tr("&Pattern"), &to_search);
     l->addRow(tr("&Replace"), &to_replace);
@@ -64,6 +60,7 @@ FindReplace::FindReplace(QWidget *parent) :
     QHBoxLayout *h = new QHBoxLayout;
     h->addWidget(&find);
     h->addWidget(&findNext);
+    h->addWidget(&findAll);
     h->addWidget(&replace);
     h->addWidget(&replaceFind);
     h->addWidget(&replaceAll);
@@ -84,6 +81,7 @@ FindReplace::FindReplace(QWidget *parent) :
     to_replace.setToolTip(tr("Specify the text to replace when searched text is found."));
     find.setToolTip(tr("Find the first occurrence of text from cursor."));
     findNext.setToolTip(tr("Find the next occurrence of text, starting from last found."));
+    findAll.setToolTip(tr("Find all occurrences of text, starting from last found."));
     replace.setToolTip(tr("Replace current found text instance."));
     replaceFind.setToolTip(tr("Replace current found text instance and search next."));
     replaceAll.setToolTip(tr("Replace all instances of matching text."));
@@ -94,6 +92,10 @@ FindReplace::FindReplace(QWidget *parent) :
 
     connect(&find, SIGNAL(clicked()), this, SLOT(onFind()));
     connect(&findNext, SIGNAL(clicked()), this, SLOT(onFindNext()));
+    connect(&findAll, SIGNAL(clicked()), this, SLOT(onFindAll()));
+    connect(&replace, SIGNAL(clicked()), this, SLOT(onReplace()));
+    connect(&replaceFind, SIGNAL(clicked()), this, SLOT(onReplaceFind()));
+    connect(&replaceAll, SIGNAL(clicked()), this, SLOT(onReplaceAll()));
 
     lqPreferences p;
     p.beginGroup("FindReplace");
@@ -104,6 +106,15 @@ FindReplace::FindReplace(QWidget *parent) :
     caseSensitive.setChecked(p.value("caseSensitive").toBool());
     wholeWord.setChecked(p.value("wholeWord").toBool());
     p.endGroup();
+
+    find.setDefault(true);
+
+    to_search.setEditable(true);
+    to_search.setCurrentIndex(-1);
+    to_search.setFocus();
+
+    to_replace.setEditable(true);
+    to_replace.setCurrentIndex(-1);
 }
 
 /** commit user current settings to lqPreferences
@@ -138,8 +149,9 @@ void FindReplace::do_find(EditInterface i)
     QTextCursor c = ei.textCursor();
     if (c.hasSelection()) {
         to_search.setEditText(c.selectedText());
-        find.setFocus();
+        to_search.setFocus();
     }
+    backward.setChecked(false);
     show();
 }
 
@@ -148,11 +160,16 @@ void FindReplace::do_findNext(EditInterface i)
     ei = i;
     emit onFindNext();
 }
+void FindReplace::do_findAll(EditInterface i)
+{
+    ei = i;
+    emit onFindAll();
+}
 
 void FindReplace::do_findPrevious(EditInterface i)
 {
     ei = i;
-    backward.setChecked(!backward.isChecked());
+    backward.setChecked(true);
     emit onFindNext();
 }
 
@@ -232,6 +249,18 @@ void FindReplace::onFindNext()
     else notfound();
 }
 
+/** serve user request: find next occurrence
+ */
+void FindReplace::onFindAll()
+{
+    QTextCursor c = start();
+    if (c.hasSelection()) {
+        mark(c, true);
+        delayAction(SLOT(onFindAll()));
+    }
+    else notfound();
+}
+
 /** serve user request: replace current occurrence
  */
 void FindReplace::onReplace()
@@ -252,7 +281,7 @@ void FindReplace::onReplaceFind()
         QTextCursor c = start();
         if (c.hasSelection()) {
             mark(c, true, true);
-            QTimer::singleShot(10, this, SLOT(onFindNext()));
+            delayAction(SLOT(onFindNext()));
         }
         else notfound();
     }
@@ -266,7 +295,7 @@ void FindReplace::onReplaceAll()
         QTextCursor c = start();
         if (c.hasSelection()) {
             mark(c, true, true);
-            QTimer::singleShot(10, this, SLOT(onReplaceAll()));
+            delayAction(SLOT(onReplaceAll()));
         }
         else notfound();
     }
@@ -277,4 +306,21 @@ void FindReplace::onReplaceAll()
 void FindReplace::notfound()
 {
     emit outcome(tr("Text '%1' not found.").arg(to_search.currentText()));
+}
+
+/** run requested slot after a small delay
+ */
+void FindReplace::delayAction(const char *slot)
+{
+    QTimer::singleShot(10, this, slot);
+}
+
+/** should check current styling
+ */
+void FindReplace::showMatch(QTextCursor c)
+{
+    //! locate text document requiring mark ?
+    QTextCharFormat f;
+    f.setBackground(Qt::yellow);
+    c.setCharFormat(f);
 }

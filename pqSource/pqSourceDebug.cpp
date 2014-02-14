@@ -187,31 +187,33 @@ void pqSource::sendCommand(QString cmd)
         connect(deb_server, SIGNAL(query_complete(QString,int)), this, SLOT(query_complete(QString,int)));
         connect(deb_server, SIGNAL(query_exception(QString,QString)), this, SLOT(query_exception(QString,QString)));
     }
-    deb_server->query_run(sent_command = cmd);
+    sent_commands << cmd;
+    deb_server->query_run(cmd);
 }
 
 void pqSource::query_result(QString q, int n)
 {
-    qDebug() << "query_result" << sent_command << q << n;
+    qDebug() << "query_result" << sent_commands << q << n;
 }
 
 void pqSource::query_complete(QString q, int n)
 {
-    qDebug() << "query_complete" << sent_command << q << n;
-    if (sent_command == q) {
+    qDebug() << "query_complete" << sent_commands << q << n;
+    if (sent_commands.count() && sent_commands.takeFirst() == q) {
         emit reportInfo(QString("query_complete %1").arg(q));
-        sent_command.clear();
         state_curr = state_next;
         state_next = idle;
     }
-    else
-        emit reportError(QString("query_complete mismatch %1!=%2").arg(q, sent_command));
+    else {
+        emit reportError(QString("query_complete mismatch %1!=%2").arg(q, sent_commands.join(" :: ")));
+        sent_commands.clear();
+    }
 }
 
 void pqSource::query_exception(QString query, QString message)
 {
-    qDebug() << "query_exception" << sent_command << query << message;
-    sent_command.clear();
+    qDebug() << "query_exception" << sent_commands << query << message;
+    sent_commands.clear();
 }
 
 bool pqSource::wait_cmd(PlTerm &Action)
@@ -278,7 +280,7 @@ void pqSource::stop()
 
 void pqSource::run()
 {
-    if (debugStatus == no_Debug && state_curr == compiled)
+    if (debugStatus == no_Debug) // && state_curr == compiled)
         entry_debug_mode(findMain()->currentQuery(), Run);
     else if (debugStatus == Breaked) {
         set_action(Run);
@@ -290,14 +292,14 @@ void pqSource::run()
 
 void pqSource::stepIn()
 {
-    if (debugStatus == no_Debug && state_curr == compiled)
+    if (debugStatus == no_Debug) // && state_curr == compiled)
         entry_debug_mode(findMain()->currentQuery(), StepIn);
     else if (debugStatus == Breaked) {
         set_action(StepIn);
         emit reportInfo("stepIn");
     }
     else
-        emit reportError("Cannot stepIn");
+         emit reportError("Cannot stepIn");
 }
 
 void pqSource::stepOut()
@@ -322,6 +324,8 @@ void pqSource::stepOver()
 
 void pqSource::toggleBP()
 {
+    //sendCommand();
+
     /*
     if (sd) {
         QTextCursor c = textCursor();

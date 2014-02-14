@@ -130,7 +130,7 @@ protected:
     int last_change_position;
 
     QPointer<SwiPrologEngine> deb_server;
-    QString sent_command;
+    QStringList sent_commands;
 
     QMutex sync;
     QWaitCondition ready;
@@ -146,6 +146,8 @@ protected:
 
     Q_SLOT void onCompletion(QString completion);
     void completerInit(QTextCursor c);
+
+    void setTitle();
 
 signals:
 

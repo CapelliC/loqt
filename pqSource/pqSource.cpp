@@ -182,7 +182,14 @@ void pqSource::loadSource(int line, int linepos)
     setTitle();
     placeCursor(line, linepos);
 
-    startHighliter();
+    int lc = document()->lineCount();
+    const int MAX_LINES = 1000;
+    if (lc < MAX_LINES) {
+        emit reportInfo(tr("highlighting %1 lines").arg(lc));
+        startHighliter();
+    }
+    else
+        emit reportInfo(tr("file too big to highlight (%1, max. %2)").arg(lc).arg(MAX_LINES));
 }
 
 void pqSource::setTitle()

@@ -148,6 +148,7 @@ protected:
     void completerInit(QTextCursor c);
 
     void setTitle();
+    void reportUser(QString info);
 
 signals:
 

@@ -28,6 +28,8 @@
 #include "pqTrace.h"
 #include "pqTextAttributes.h"
 #include "do_events.h"
+#include "file2string.h"
+#include "thousandsDots.h"
 
 #include <QFile>
 #include <QMenu>
@@ -168,34 +170,50 @@ void pqSource::loadSource(int line, int linepos)
 {
     QFile x(file);
     if (!x.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        emit reportInfo("can't open " + file);
+        reportUser("can't open " + file);
         return;
     }
 
     Preferences pref;
     setFont(pref.console_font);
 
-    //setText(QTextStream(&x).readAll());
-    setPlainText(QTextStream(&x).readAll());
-    connect(document(), SIGNAL(contentsChange(int,int,int)), this, SLOT(contentsChange(int,int,int)));
+    reportUser(tr("reading %1 file (size %2)").arg(file, thousandsDots(x.size())));
+
+    try {
+        setPlainText(file2string(x));
+        connect(document(), SIGNAL(contentsChange(int,int,int)), this, SLOT(contentsChange(int,int,int)));
+    }
+    catch(std::exception &e) {
+        reportUser(tr("exception: %1").arg(e.what()));
+    }
+    catch(...) {
+        reportUser(tr("exception"));
+        return;
+    }
 
     setTitle();
     placeCursor(line, linepos);
 
     int lc = document()->lineCount();
-    const int MAX_LINES = 1000;
+    const int MAX_LINES = 5000;
     if (lc < MAX_LINES) {
-        emit reportInfo(tr("highlighting %1 lines").arg(lc));
+        reportUser(tr("highlighting %1 lines").arg(lc));
         startHighliter();
     }
     else
-        emit reportInfo(tr("file too big to highlight (%1, max. %2)").arg(lc).arg(MAX_LINES));
+        reportUser(tr("file too big to be highlighted (%1 lines, max. %2)").arg(thousandsDots(lc), thousandsDots(MAX_LINES)));
 }
 
 void pqSource::setTitle()
 {
     QString name = QFileInfo(file).fileName();
     parentWidget()->setWindowTitle(name + "[*]");
+}
+
+void pqSource::reportUser(QString info)
+{
+    emit reportInfo(info);
+    do_events();
 }
 
 // positioning in source point and bringing to user attention
@@ -269,7 +287,7 @@ void pqSource::cursorPositionChanged()
 {
     if (hl->sem_info_avail()) {
         auto c = textCursor();
-        emit reportInfo(hl->elementPath(c).join(" / "));
+        reportUser(hl->elementPath(c).join(" / "));
         toggle t(skip_changes);
         hl->cursorPositionChanged(c);
     }
@@ -434,7 +452,7 @@ void pqSource::onCompletion(QString completion) {
 
 void pqSource::completerInit(QTextCursor c) {
 
-    emit reportInfo(tr("starting completion, please wait..."));
+    reportUser(tr("starting completion, please wait..."));
 
     // issue setof(M,current_module(M),L)
     QSet<QString> syms;
@@ -469,7 +487,7 @@ void pqSource::completerInit(QTextCursor c) {
     cr.setWidth(300);
     autocomp->complete(cr);
 
-    emit reportInfo(tr("completion available, %1 items").arg(sorted.size()));
+    reportUser(tr("completion available, %1 items").arg(sorted.size()));
 }
 
 bool pqSource::is_modified() const

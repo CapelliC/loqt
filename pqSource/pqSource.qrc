@@ -35,5 +35,6 @@
         <file>prolog/pldoc/public.png</file>
         <file>prolog/pldoc/source.png</file>
         <file>prolog/pqSourceTemplate.pl</file>
+        <file>prolog/calledgraph.pl</file>
     </qresource>
 </RCC>

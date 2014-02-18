@@ -14,6 +14,7 @@
 
 :- module(calledgraph,
 	[calledgraph/0
+        ,calledgraph/1
 	,calledgraph/2
 	]).
 :- use_module(library(prolog_xref)).
@@ -23,10 +24,16 @@
 %  test calledgraph/2 with simple source
 %
 calledgraph :-
-	%Source = '/home/carlo/prolog/various/gulp/gulp4swi.pl',
-	Source = '/home/carlo/cpp/loqt/pqSource/prolog/calledgraph.pl',
-	xref_source(Source),
-	graph_window(calledgraph(Source), [node_defaults([shape=box])]).
+        %calledgraph('/home/carlo/prolog/various/gulp/gulp4swi.pl').
+        calledgraph('/home/carlo/cpp/loqt/pqSource/prolog/calledgraph.pl').
+
+%% calledgraph(Source) is det.
+%
+%  display graph of Caller/Callee of Source in free window
+%
+calledgraph(Source) :-
+        xref_source(Source),
+        graph_window(calledgraph(Source), [node_defaults([shape=box])]).
 
 %% calledgraph(Source, GraphWindow) is det.
 %

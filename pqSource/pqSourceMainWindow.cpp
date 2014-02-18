@@ -99,14 +99,16 @@ void pqSourceMainWindow::engine_ready() {
     // allocate at once an engine for GUI thread
     gui_thread_engine = new SwiPrologEngine::in_thread;
 
-    foreach (auto m, QString("syncol,trace_interception").split(',')) {
+    // calledgraph requires gv_uty: load first
+    pqGraphviz::setup();
+
+    foreach (auto m, QString("syncol,trace_interception,calledgraph").split(',')) {
         bool rc = gui_thread_engine->resource_module(m);
         qDebug() << m << rc;
     }
 
-    pqGraphviz::setup();
-    QTimer::singleShot(10, this, SLOT(fixGeometry()));
-    //fixGeometry();
+    //QTimer::singleShot(10, this, SLOT(fixGeometry()));
+    fixGeometry();
 }
 
 void pqSourceMainWindow::fixGeometry() {
@@ -669,14 +671,26 @@ PREDICATE(help_hook, 1) {
     return rc;
 }
 
+predicate1(calledgraph)
+predicate2(calledgraph)
+
 /** make a XREF report in graph shape for current source
  */
 void pqSourceMainWindow::viewGraph() {
     if (auto s = activeChild<pqSource>()) {
+        /*
         auto x = new lqXDotView;
         x->setWindowTitle(tr("Graph - ") + s->file);
         auto m = mdiArea()->addSubWindow(x);
         m->show();
+
+        SwiPrologEngine::in_thread e;
+        bool c = calledgraph(A(s->file), x);
+        qDebug() << "calledgraph" << c;
+        */
+        SwiPrologEngine::in_thread e;
+        bool c = calledgraph(A(s->file));
+        qDebug() << "calledgraph" << s->file << c;
     }
 }
 

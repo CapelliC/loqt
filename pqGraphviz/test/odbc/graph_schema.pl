@@ -98,6 +98,13 @@ show_foreignkey(G, T) :-
 		set_attrs(E, [headport:FkCol, tailport:PkCol])
 	)).
 
+%% show_namedkey(G, T) is det.
+%
+%  build a link between fields from PrimaryKey Table to Foreign Table fields
+%
+%  @arg G current Graph context
+%  @arg T Table descriptor
+%
 show_namedkey(G, T) :-
 	forall(dict_member(_{key:Col, targetTable:Tab}, T.namedKeys), (
 		find_node(G, T.name, PkTp),

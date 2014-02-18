@@ -121,7 +121,8 @@ OTHER_FILES += \
     prolog/pldoc/priv-bg.png \
     prolog/pldoc/private.png \
     prolog/pldoc/multi-bg.png \
-    prolog/pqSourceTemplate.pl
+    prolog/pqSourceTemplate.pl \
+    prolog/calledgraph.pl
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty

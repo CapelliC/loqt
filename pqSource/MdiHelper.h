@@ -27,11 +27,12 @@
 
 #include <QMenu>
 #include <QLabel>
+#include <QPointer>
 #include <QMdiArea>
+#include <QComboBox>
 #include <QMainWindow>
 #include <QTextCursor>
 #include <QMdiSubWindow>
-#include <QComboBox>
 
 #include "MruHelper.h"
 #include "RowColIndicators.h"
@@ -56,67 +57,72 @@ protected:
 
     QMdiSubWindow *findMdiChild(const QString &fileName);
 
-    QMenu *fileMenu;
-    QMenu *editMenu;
-    QMenu *prefMenu;
-    QMenu *debugMenu;
-    QMenu *windowMenu;
-    QMenu *helpMenu;
+    QPointer<QMenu>
+        fileMenu,
+        editMenu,
+        prefMenu,
+        debugMenu,
+        windowMenu,
+        helpMenu;
 
-    QToolBar *fileToolBar;
-    QToolBar *editToolBar;
-    QToolBar *debugToolBar;
-    QToolBar *helpBar;
+    QPointer<QToolBar>
+        fileToolBar,
+        editToolBar,
+        debugToolBar,
+        helpToolBar;
 
-    QComboBox *queriesBox;
+    QPointer<QComboBox>
+        queriesBox;
 
-    QAction *newAct;
-    QAction *openAct;
-    QAction *saveAct;
-    QAction *saveAsAct;
-    QAction *switchLayoutDirectionAct;
-    QAction *switchViewModeAct;
-    QAction *exitAct;
+    QPointer<QAction>
+        newAct,
+        openAct,
+        saveAct,
+        saveAsAct,
+        switchLayoutDirectionAct,
+        switchViewModeAct,
+        exitAct,
 
-    QAction *cutAct;
-    QAction *copyAct;
-    QAction *pasteAct;
+        cutAct,
+        copyAct,
+        pasteAct,
 
-    QAction *findAct;
-    QAction *findNextAct;
-    QAction *findPreviousAct;
-    QAction *replaceAct;
+        findAct,
+        findNextAct,
+        findPreviousAct,
+        replaceAct,
 
-    QAction *viewSWIPrologPrefAct;
-    QAction *selectColorsAct;
-    QAction *selectFontAct;
-    QAction *incFontAct;
-    QAction *decFontAct;
+        viewSWIPrologPrefAct,
+        selectColorsAct,
+        selectFontAct,
+        incFontAct,
+        decFontAct,
 
-    QAction *makeAct;
-    QAction *consultAct;
-    QAction *runAct;
-    QAction *stopAct;
-    QAction *stepInAct;
-    QAction *stepOutAct;
-    QAction *stepOverAct;
-    QAction *toggleBPAct;
-    QAction *watchBPAct;
+        makeAct,
+        consultAct,
+        runAct,
+        stopAct,
+        stepInAct,
+        stepOutAct,
+        stepOverAct,
+        toggleBPAct,
+        watchBPAct,
 
-    QAction *closeAct;
-    QAction *closeAllAct;
-    QAction *tileAct;
-    QAction *cascadeAct;
-    QAction *nextAct;
-    QAction *previousAct;
-    QAction *separatorAct;
+        closeAct,
+        closeAllAct,
+        tileAct,
+        cascadeAct,
+        nextAct,
+        previousAct,
+        separatorAct,
 
-    QAction *helpStartAct;
-    QAction *helpDocAct;
-    QAction *aboutAct;
-    QAction *aboutQtAct;
+        helpStartAct,
+        helpDocAct,
+        aboutAct,
+        aboutQtAct,
 
-    QAction *viewGraphAct;
+        viewGraphAct,
+        commentClauseAct;
 
     inline QMdiArea* mdiArea() const {
         return qobject_cast<QMdiArea*>(centralWidget());
@@ -150,14 +156,6 @@ protected:
             if (match(s))
                 l << s;
         return l;
-        /*
-        QList<T*> l;
-        foreach (auto w, mdiArea()->subWindowList())
-            if (auto s = qobject_cast<T*>(w->widget()))
-                if (match(s))
-                    l << s;
-        return l;
-        */
     }
 
     // associate a string key with a widget

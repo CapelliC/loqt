@@ -27,7 +27,8 @@ OTHER_FILES += \
     test/genealogy/familiari.pl \
     test/odbc/odbc_schema.pl \
     test/xref/paths_prefix.pl \
-    test/xref/file_xref.pl
+    test/xref/file_xref.pl \
+    test/odbc/graph_schema.pl
 
 # use some modern features
 QMAKE_CXXFLAGS += -std=c++0x

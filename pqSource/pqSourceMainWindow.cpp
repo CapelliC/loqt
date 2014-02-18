@@ -32,6 +32,7 @@
 #include "pqDocView.h"
 #include "MdiChildWithCheck.h"
 #include "FindReplace.h"
+#include "lqXDotView.h"
 
 #include <QDebug>
 #include <QStatusBar>
@@ -362,9 +363,8 @@ struct pldocBrowser : QTextBrowser {
 
 void pqSourceMainWindow::helpDoc()
 {
-    //if (auto s = qobject_cast<pqSource*>(activeMdiChild())) {
     if (auto s = activeChild<pqSource>()) {
-        //SwiPrologEngine::in_thread t;
+        /*
         T html, options, anvar;
         L options_(options); options_.append(::files(anvar)); options_.close();
 
@@ -384,6 +384,9 @@ void pqSourceMainWindow::helpDoc()
             b.setIcon(b.Critical);
             b.exec();
         }
+        */
+        pqDocView *dv = helpView();
+        dv->helpFile(s->file);
     }
 }
 
@@ -577,7 +580,7 @@ pqDocView *pqSourceMainWindow::helpView() {
 
     v = new pqDocView(this);
     v->startPlDoc();
-    v->addFeedback(helpBar, statusBar());
+    v->addFeedback(helpToolBar, statusBar());
 
     QMdiSubWindow *w = mdiArea()->addSubWindow(v);
     w->show();
@@ -669,24 +672,18 @@ PREDICATE(help_hook, 1) {
 /** make a XREF report in graph shape for current source
  */
 void pqSourceMainWindow::viewGraph() {
-    qDebug() << "viewGraph";
-    /*if (auto e = activeChild<pqSource>()) {
-        auto x = new pqXRef();
-        x->setWindowTitle(tr("Graph - ") + e->file);
+    if (auto s = activeChild<pqSource>()) {
+        auto x = new lqXDotView;
+        x->setWindowTitle(tr("Graph - ") + s->file);
         auto m = mdiArea()->addSubWindow(x);
         m->show();
     }
-    */
 }
 
-/** get a list of all sources matching bool inspect(pqSource)
-QList<pqSource*> pqSourceMainWindow::matching_sources(std::function<bool(pqSource*)> inspect)
+/** just forward request to source editor
+ */
+void pqSourceMainWindow::commentClause()
 {
-    QList<pqSource*> l;
-    foreach (auto w, mdiArea()->subWindowList())
-        if (auto s = qobject_cast<pqSource*>(w->widget()))
-            if (inspect(s))
-                l << s;
-    return l;
+    if (auto s = activeChild<pqSource>())
+        s->commentClause();
 }
-*/

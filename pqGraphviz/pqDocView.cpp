@@ -93,11 +93,16 @@ void pqDocView::linkHovered(QString link, QString title, QString)
         statusBar->showMessage(link);
 }
 
-bool pqDocView::helpTopic(QString topic)
+void pqDocView::helpTopic(QString topic)
 {
     requests << QString("http://localhost:%1/search?for=%2&in=all&match=summary").arg(helpDocPort).arg(topic);
     emit initUrl();
-    return true;
+}
+
+void pqDocView::helpFile(QString file)
+{
+    requests << QString("http://localhost:%1/doc%2").arg(helpDocPort).arg(file);
+    emit initUrl();
 }
 
 void pqDocView::addFeedback(QToolBar *tbar, QStatusBar *sbar)

@@ -144,3 +144,11 @@ else:unix:!symbian: LIBS += -L$$OUT_PWD/../pqGraphviz/ -lpqGraphviz
 
 INCLUDEPATH += $$PWD/../pqGraphviz
 DEPENDPATH += $$PWD/../pqGraphviz
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/release/ -llqXDot
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/debug/ -llqXDot
+else:symbian: LIBS += -llqXDot
+else:unix: LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
+
+INCLUDEPATH += $$PWD/../lqXDot
+DEPENDPATH += $$PWD/../lqXDot

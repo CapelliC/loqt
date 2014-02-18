@@ -250,10 +250,16 @@ void MdiHelper::createActions()
     helpDocAct->setStatusTip(tr("Show the PlDoc HTML for the script"));
     connect(helpDocAct, SIGNAL(triggered()), this, SLOT(helpDoc()));
 
+
     viewGraphAct = new QAction(tr("View G&raph"), this);
     viewGraphAct->setShortcut(QKeySequence("Ctrl+R"));
     viewGraphAct->setStatusTip(tr("Display the XREF graph of current source"));
     connect(viewGraphAct, SIGNAL(triggered()), this, SLOT(viewGraph()));
+
+    commentClauseAct = new QAction(tr("Comment &Predicate"), this);
+    commentClauseAct->setShortcut(QKeySequence("Ctrl+P"));
+    commentClauseAct->setStatusTip(tr("Write a structured plDoc comment for current predicate head"));
+    connect(commentClauseAct, SIGNAL(triggered()), this, SLOT(commentClause()));
 
     aboutAct = new QAction(tr("&About"), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
@@ -376,7 +382,9 @@ void MdiHelper::createMenus()
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(helpStartAct);
     helpMenu->addAction(helpDocAct);
+    helpMenu->addSeparator();
     helpMenu->addAction(viewGraphAct);
+    helpMenu->addAction(commentClauseAct);
     helpMenu->addSeparator();
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
@@ -415,7 +423,7 @@ void MdiHelper::createToolBars()
     queriesBox->setStatusTip(tr("Debugger will start with this query. <editor> refers to 'scriptname'."));
     debugToolBar->addWidget(queriesBox);
 
-    helpBar = addToolBar(tr("Help"));
+    helpToolBar = addToolBar(tr("Help"));
 }
 
 void MdiHelper::createStatusBar()

@@ -46,9 +46,10 @@
         ,graph_kind(+oneof(['Agdirected', 'Agstrictdirected', 'Agundirected', 'Agstrictundirected']))
         ,graph_layout(+oneof([dot, neato, fdp, sfdp, twopi, circo]))
         ,window_title(+atom)
+	,rankdir(+atom)
         ,node_defaults(+list)
         ,edge_defaults(+list)
-        % system low level control
+        % system low level control - allow to change reflected methods - will go away when system stabilize
         ,pq_class_view(+atom)
         ,pq_method_context_graph_layout(+atom)
         ,pq_instance_class(+atom)
@@ -64,22 +65,29 @@
 %       provides the graph context as argument to callback
 %
 graph_window(M:Pred1, Opts) :-
-    Pred =.. [Pred1, G],
-    graph_window(M:Pred, G, Opts).
+	Pred1 =.. [F1|A1s],
+	append(A1s, [G], As),
+	Pred =.. [F1|As],
+	graph_window(M:Pred, G, Opts).
 
-%%	graph_window(+Pred:callable, -G, +Opts)
+%%	graph_window(+Pred:callable, -GraphContext, +Opts)
 %
-%	make a Graphviz from library pqGraphviz
+%	make a Graphviz window from library pqGraphviz
+%
+%	@arg Pred(Graph) must populate the Graph context with subgraphs,nodes,edges
+%	@arg GraphContext
+%	Opts
 %
 graph_window(Pred, G, Opts) :-
-    debug(gv_uty, '~w', [graph_window(Pred, G, Opts)]),
+	debug(gv_uty, '~w', [graph_window(Pred, G, Opts)]),
 	pqGraphviz:gvContext(C),
 	term_to_atom(Pred, PredAtom),
 	option(graph_name(Name), Opts, PredAtom),	% default to qualified predicate
 	option(graph_kind(Kind), Opts, 'Agdirected'),
 	option(graph_layout(Layout), Opts, dot),
 	pqGraphviz:agopen(Name, Kind, 0, G),
-	set_attrs(G, rankdir:'TD'),
+	option(rankdir(Rankdir), Opts, 'TB'),
+	set_attrs(G, rankdir:Rankdir),
         option(node_defaults(Node_defaults), Opts, []),
         option(edge_defaults(Edge_defaults), Opts, []),
         default_attrs(G, 'AGNODE', Node_defaults),
@@ -87,7 +95,7 @@ graph_window(Pred, G, Opts) :-
         once(Pred),
 	option(pq_instance_class(IC), Opts, create),
 	option(pq_class_view(VC), Opts, lqXDotView), %'GraphvizView'),
-	XC =.. [IC,VC,V],
+	XC =.. [IC, VC, V],
 	option(pq_instance_module(XM), Opts, pqConsole),
 	XM:XC,
 	option(pq_method_context_graph_layout(MCGL), Opts, show_context_graph_layout),

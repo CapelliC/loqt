@@ -21,12 +21,16 @@
 */
 
 #include "CodeMirror.h"
+#include "file2string.h"
 #include <QWebFrame>
 #include <QDebug>
 
 void CodeMirror::initialize() {
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
     page()->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+
+    // initialize with a simple HTML template - a full textarea controlled by CodeMirror library
+    setHtml(file2string(":/CodeMirror.html"), QUrl("qrc:/"));
 }
 
 CodeMirror::CodeMirror(QWidget *parent) :

@@ -287,3 +287,45 @@ QStringList pqHighlighter::vars(QTextCursor p) const
         topdown_preorder(*pp[0], [&](const cat &c) { if (c.desc == "var")  vs << text(&c); });
     return vs.toList();
 }
+
+/** get info of predicate head under cursor
+ *  if succeed, place cursor at position where to insert structured comment
+ */
+bool pqHighlighter::getPredicateHead(pqHighlighter::predicateHead &ph, QTextCursor &p) const
+{
+    itcs pp = position_path(p.position());
+    if (pp.size() == 2 && pp[0]->desc == "clause" && pp[1]->desc.left(4) == "head") {
+
+        SwiPrologEngine::in_thread e;
+        try {
+            T V, E; L l(E); l.close();
+            if (read_term_from_atom(A(pp[1]->desc), V, E))
+                if (V.arity() == 2) {
+                    T F = V[2];
+                    ph.functor = F.name();
+                    ph.arity = F.arity();
+                    for (int c = 1; c < ph.arity; ++c)
+                        ph.vars << t2w(F[c]);
+                }
+        }
+        catch(PlException ex) {
+            qDebug() << t2w(ex);
+        }
+
+        for (int c = 1; c < pp[0]->nesting.size(); ++c) {
+            const cat &C = pp[0]->nesting[c];
+            if (C.desc == "neck")
+                break;
+            if (C.desc == "var") {
+                if (c - 1 < ph.vars.size())
+                    ph.vars[c - 1] = text(&C);
+                else
+                    ph.vars << text(&C);
+            }
+        }
+
+        p.setPosition(pp[0]->beg);
+        return true;
+    }
+    return false;
+}

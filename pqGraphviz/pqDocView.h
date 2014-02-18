@@ -44,7 +44,10 @@ public:
     bool startPlDoc();
 
     //! display help on context topic
-    bool helpTopic(QString topic);
+    void helpTopic(QString topic);
+
+    //! display help on prolog file
+    void helpFile(QString file);
 
     //! create commands in toolbar and connect messages to status bar
     void addFeedback(QToolBar *tbar, QStatusBar* sbar);

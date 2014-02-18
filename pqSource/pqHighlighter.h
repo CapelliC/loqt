@@ -84,6 +84,16 @@ public:
     //! get vars of current <p> clause
     QStringList vars(QTextCursor p) const;
 
+    //! get info of predicate head under cursor
+    struct predicateHead {
+        QString functor;
+        int arity;
+        QStringList vars;
+    };
+
+    //! if succeed, place cursor at position where to insert structured comment
+    bool getPredicateHead(predicateHead &ph, QTextCursor &c) const;
+
 protected:
 
     //! serialize access to UserBlockData formatting

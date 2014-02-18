@@ -41,6 +41,7 @@ CodeMirrorFile::CodeMirrorFile(const CodeMirrorFile &copy) : CodeMirror()
 bool CodeMirrorFile::loadFile(QString fileName) {
     try {
         path_ = fileName;
+        //setPlainText(file2string(fileName));  TBD put a tab at strat document - not good
         text = file2string(fileName);
         setHtml(file2string(":/CodeMirror.html"), QUrl("qrc:/"));
     }

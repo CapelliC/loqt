@@ -36,7 +36,7 @@
 %  note C is Qt callback argument: see PREDICATE(callback, 4) in pqSource.cpp
 %
 syncol(F, C) :-
-  user:load_files(F, [silent(true)]),
+  load_source(F),
   xref_source(F),
   open(F, read, S),
   prolog_colourise_stream(S, F, callback(C)),
@@ -69,7 +69,7 @@ syncolours :-
 :- thread_local frag/4.
 
 syncol_allfile(F, L) :-
-    user:load_files(F, [silent(true)]),
+    load_source(F),
     xref_source(F),
     open(F, read, S),
     prolog_colourise_stream(S, F, callback_allfile),
@@ -78,6 +78,11 @@ syncol_allfile(F, L) :-
 
 callback_allfile(U, V, Z) :-
     syntax_colour(U, Attributes) -> assertz(frag(V, Z, U, Attributes)) ; assertz(frag(V, Z, U, [])).
+
+%%  apply useful behaviour changes
+%
+load_source(F) :-
+    user:load_files(F, [silent(true),redefine_module(true)]).
 
 /*
 callback_allfile(U,V,Z) :-

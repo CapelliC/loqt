@@ -97,6 +97,7 @@ public slots:
     void reportInfo(QString msg);
 
     void viewGraph();
+    void commentClause();
     void requestHelp(QString cursorWord);
 
     void viewSWIPrologPref();

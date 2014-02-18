@@ -494,6 +494,28 @@ bool pqSource::is_modified() const
 {
     return  parentWidget()->isWindowModified();
 }
+
+void pqSource::commentClause()
+{
+    if (hl->sem_info_avail()) {
+        pqHighlighter::predicateHead ph;
+        QTextCursor c = textCursor();
+        if (hl->getPredicateHead(ph, c)) {
+            QStringList vars;
+            foreach(QString v, ph.vars)
+                vars << QString("%  @arg %1 describe %1").arg(v);
+            QStringList comment;
+            comment << QString("%% %1 is det.").arg(QString(ph.arity ? "%1(%2)" : "%1").arg(ph.functor, ph.vars.join(", ")))
+                    << "%"
+                    << QString("%  describe %1").arg(ph.functor)
+                    << "%"
+                    << vars
+                    << "%\n";
+            c.insertText(comment.join("\n"));
+        }
+    }
+}
+
 void pqSource::set_modified(bool yes)
 {
     parentWidget()->setWindowModified(yes);

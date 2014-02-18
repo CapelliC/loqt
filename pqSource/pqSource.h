@@ -87,6 +87,8 @@ public:
 
     pqHighlighter *semanticHighlighter() const { return hl; }
 
+    void commentClause();
+
 protected:
 
     QString editWhat;

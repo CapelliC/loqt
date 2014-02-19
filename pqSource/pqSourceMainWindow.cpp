@@ -673,23 +673,35 @@ PREDICATE(help_hook, 1) {
 
 predicate1(calledgraph)
 predicate2(calledgraph)
+mod_predicate4(pqGraphviz, agopen)
 
 /** make a XREF report in graph shape for current source
  */
 void pqSourceMainWindow::viewGraph() {
     if (auto s = activeChild<pqSource>()) {
-        /*
-        auto x = new lqXDotView;
-        x->setWindowTitle(tr("Graph - ") + s->file);
-        auto m = mdiArea()->addSubWindow(x);
-        m->show();
+#if 1
+        auto xdv = new lqXDotView;
+        xdv->setWindowTitle(tr("XREF - ") + s->file);
 
-        SwiPrologEngine::in_thread e;
-        bool c = calledgraph(A(s->file), x);
-        qDebug() << "calledgraph" << c;
-        */
+        bool c = false;
+        try {
+            T G;
+            if (agopen(A("viewGraph"), A("Agdirected"), long(0), G)) {
+                lqContextGraph *cg = new lqContextGraph(gvContext(), pq_cast<Agraph_t>(G));
+                c = calledgraph(A(s->file), pq_cast<Agraph_t>(G));
+                if (c)
+                    xdv->show_context_graph_layout(*cg, *cg, "dot");
+            }
+        } catch(PlException &e) {
+            QMessageBox::critical(this, "error", t2w(e));
+        }
+
+        auto m = mdiArea()->addSubWindow(xdv);
+        m->show();
+#else
         SwiPrologEngine::in_thread e;
         bool c = calledgraph(A(s->file));
+ #endif
         qDebug() << "calledgraph" << s->file << c;
     }
 }

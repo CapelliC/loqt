@@ -25,7 +25,7 @@ show_schema(Connection) :-
 %% connection_schema(+Connection, -Schema:dict) is det.
 %
 %	Get (and cache) a schema object, containing DB name and a list of tables.
-%	Each table{name,columns,primaryKeys,foreignKeys}
+%	Each table{name,columns,primaryKeys,foreignKeys} has
 %
 %	* a name
 %	* a not empty list of columns
@@ -40,10 +40,12 @@ connection_schema(Connection, Schema) :-
 	odbc_get_connection(Connection, database_name(Db)),
 	(	schema(Db, Schema)
 	->	true
-	;	findall(table{name:Table, columns:Fields, primaryKey:PrimaryKey, foreignKeys:ForeignKeys}, (
+	;	findall(table{name:Table, facets:Facets, columns:Columns, primaryKey:PrimaryKey, foreignKeys:ForeignKeys}, (
 			odbc_current_table(Connection, Table),
+			findall(Facet,
+				odbc_current_table(Connection, Table, Facet), Facets),
 			findall(column{name:Column, type:Type},
-				table_column(Connection, Table, Column, Type), Fields),
+				table_column(Connection, Table, Column, Type), Columns),
 			findall(Column,
 				odbc_table_primary_key(Connection, Table, Column), PrimaryKey),
 			findall(foreignKey{pkCol:PkCol, fkTable:FkTable, fkCol:FkCol},

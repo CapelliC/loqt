@@ -37,8 +37,9 @@ void pqGraphviz::setup() {
     lqXDot::registerMetaTypes();
 
     SwiPrologEngine::in_thread t;
-    if (!t.resource_module("gv_uty"))
-        QMessageBox::critical(0, "error", "cannot load gv_uty");
+    foreach (auto s, QString("gv_uty,termtree").split(','))
+        if (!t.resource_module(s))
+            QMessageBox::critical(0, "error", QString("cannot load %1").arg(s));
 }
 
 /** Include low level interface

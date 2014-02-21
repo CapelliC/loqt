@@ -20,13 +20,13 @@
 :- use_module(library(http/html_write)).
 :- use_module(library(option)).
 
-:-  predicate_options(graph_schema/2, 2,
+:- predicate_options(graph_schema/2, 2,
 	[pass_to(show_schema_db/3, 2)
 	]).
-:-  predicate_options(show_schema_db/3, 3,
+:- predicate_options(show_schema_db/3, 3,
 	[pass_to(show_table/3, 3)
 	]).
-:-  predicate_options(show_table/3, 3,
+:- predicate_options(show_table/3, 3,
         [tableHeaderStyle(+atom)
 	,primaryKeyStyle(+atom)
 	,namedKeyStyle(+atom)

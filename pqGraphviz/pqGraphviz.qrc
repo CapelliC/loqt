@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>prolog/gv_uty.pl</file>
+        <file>prolog/termtree.pl</file>
     </qresource>
 </RCC>

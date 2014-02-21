@@ -28,7 +28,8 @@ OTHER_FILES += \
     test/odbc/odbc_schema.pl \
     test/xref/paths_prefix.pl \
     test/xref/file_xref.pl \
-    test/odbc/graph_schema.pl
+    test/odbc/graph_schema.pl \
+    prolog/termtree.pl
 
 # use some modern features
 QMAKE_CXXFLAGS += -std=c++0x

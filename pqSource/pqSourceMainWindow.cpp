@@ -78,7 +78,7 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     MdiChildWithCheck *mcc = new MdiChildWithCheck;
     mcc->setWidget(e);
     mcc->setAttribute(Qt::WA_DeleteOnClose);
-    mdiArea()->addSubWindow(mcc);
+    mdiArea()->addSubWindow(mcc)->setWindowTitle("Console");
 
     /* doesn't work - why ?
     QComboBox *comboBox = new QComboBox(menuBar());

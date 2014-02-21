@@ -21,7 +21,6 @@
 */
 
 #include "pqSyntaxData.h"
-//#include "pqHighlighter.h"
 #include "PREDICATE.h"
 
 #include <QtAlgorithms>
@@ -320,10 +319,13 @@ void pqSyntaxData::insert_sorted(cat &c, t_nesting& nest)
                 return;
             }
 
-            Q_ASSERT(nest[p].overlap(c.end));
-            Q_ASSERT(inserted == -1);
-            // recurse inner nesting
-            insert_sorted(c, nest[p].nesting);
+            // doesn't work on comments nested in a list ??
+            // Q_ASSERT(nest[p].overlap(c.end));
+            if (nest[p].overlap(c.end)) {
+                Q_ASSERT(inserted == -1);
+                // recurse inner nesting
+                insert_sorted(c, nest[p].nesting);
+            }
             return;
         }
 

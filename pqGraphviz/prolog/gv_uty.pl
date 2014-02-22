@@ -26,6 +26,7 @@
         ,graph_window/3
         ,make_node/3
         ,make_node/4
+	,make_node_id/3
         ,find_node/3
         ,new_edge/3
         ,new_edge/4
@@ -74,9 +75,9 @@ graph_window(M:Pred1, Opts) :-
 %
 %	make a Graphviz window from library pqGraphviz
 %
-%	@arg Pred(Graph) must populate the Graph context with subgraphs,nodes,edges
-%	@arg GraphContext
-%	Opts
+%	@arg Pred must populate the Graph context with subgraphs,nodes,edges
+%	@arg G a Graph context
+%	@arg Opts option list
 %
 graph_window(Pred, G, Opts) :-
 	debug(gv_uty, '~w', [graph_window(Pred, G, Opts)]),
@@ -117,6 +118,19 @@ make_node(Graph, Name, NodePtr) :-
 %
 make_node(G, P, As, N) :-
         make_node(G, P, N), set_attrs(N, As).
+
+%% make_node_id(+G, +Attrs, -Nptr) is det.
+%
+%  build a node with integer identifier - global nodes counter
+%
+%  @arg G describe G
+%  @arg Attrs describe Attrs
+%  @arg Nptr describe Nptr
+%
+make_node_id(G, Attrs, Nptr) :-
+	pqGraphviz:agnnodes(G, C),
+	pqGraphviz:agnode(G, C, 1, Nptr),
+	set_attrs(Nptr, Attrs).
 
 %%  find_node(+G, +P, -N)
 %

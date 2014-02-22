@@ -17,8 +17,7 @@
 	,termtree/1
 	]).
 
-:- use_module(library(gvterm)).
-:-  use_module(library(debug)).
+:- use_module(library(debug)).
 
 termtree :-
 	termtree('[a,a,b,c]').
@@ -41,15 +40,15 @@ graph_term(T-Vars, G) :-
 graph_term(G, Vars, T, N) :-
 	(	compound(T)
 	->	compound_name_arguments(T, Funct, Args),
-		make_node(G, Funct, [shape:folder], N),
+		make_node_id(G, [label:Funct, shape:folder], N),
 		maplist(graph_term(G, Vars), Args, ArgPs),
 		maplist(new_edge(G, N), ArgPs)
 	;	var(T)
 	->	member(VName=V, Vars),
 		V == T,
-		make_node(G, VName, [shape:ellipse], N)
+		make_node_id(G, [label:VName, shape:ellipse], N)
 	;	term_to_atom(T, At),
-		make_node(G, At, [shape:box], N)
+		make_node_id(G, [label:At, shape:box], N)
 	).
 
 % link_arg(G, N, A) :- (G, N, A).

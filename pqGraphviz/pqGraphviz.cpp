@@ -46,6 +46,7 @@ void pqGraphviz::setup() {
  *  most of the following notes are drawn from documentation
  *  - [Cgraph library tutorial](http://www.graphviz.org/pdf/Agraph.pdf)
  *  - [Using Graphviz as a library](http://www.graphviz.org/doc/libguide/libguide.pdf)
+ *  - [LIBCGRAPH(3) Library Functions Manual] cgraph.3.pdf
  */
 
 #undef PROLOG_MODULE
@@ -151,6 +152,36 @@ PREDICATE(agnode, 4) {
     if (Agnode_t* N = agnode(graph(PL_A1), CP(PL_A2), PL_A3))
         return PL_A4 = N;
     return false;
+}
+
+/** Agnode_t *agidnode(Agraph_t *g, long id, int cflag);
+ *
+ *  - cgraph.3.pdf
+ *
+ *  A node is created by giving a unique string name or programmer defined integer ID, and is represented by a
+ *  unique internal object. (Node equality can checked by pointer comparison.)
+ *  agnode searches in a graph or subgraph for a node with the given name, and returns it if found. agidnode
+ *  allows a programmer to specify the node by a unique integer ID. agsubnode performs a similar operation
+ *  on an existing node and a subgraph.
+ */
+PREDICATE(agidnode, 4) {
+    long id = PL_A2;
+    qDebug() << id;
+    if (Agnode_t* N = agidnode(graph(PL_A1), id, PL_A3))
+        return PL_A4 = N;
+    return false;
+}
+
+/** agnnodes, agnedges, and agnsubg return the sizes of node, edge and subgraph sets of a graph.
+ */
+PREDICATE(agnnodes, 2) {
+    return PL_A2 = agnnodes(graph(PL_A1));
+}
+PREDICATE(agnedges, 2) {
+    return PL_A2 = agnedges(graph(PL_A1));
+}
+PREDICATE(agnsubg, 2) {
+    return PL_A2 = agnsubg(graph(PL_A1));
 }
 
 /** Agedge_t *agedge(Agraph_t*, Agnode_t*, Agnode_t*, char*, int);

@@ -62,7 +62,7 @@ void MdiHelper::updateMenus()
     saveAsAct->setEnabled(hasMdiChild);
     pasteAct->setEnabled(hasMdiChild);
     closeAct->setEnabled(hasMdiChild);
-    closeAllAct->setEnabled(hasMdiChild);
+    //closeAllAct->setEnabled(hasMdiChild);
     tileAct->setEnabled(hasMdiChild);
     cascadeAct->setEnabled(hasMdiChild);
     nextAct->setEnabled(hasMdiChild);
@@ -85,8 +85,8 @@ void MdiHelper::updateWindowMenu()
 {
     windowMenu->clear();
     windowMenu->addAction(closeAct);
-    windowMenu->addAction(closeAllAct);
-    windowMenu->addSeparator();
+    //windowMenu->addAction(closeAllAct);
+    //windowMenu->addSeparator();
     windowMenu->addAction(tileAct);
     windowMenu->addAction(cascadeAct);
     windowMenu->addSeparator();
@@ -208,9 +208,11 @@ void MdiHelper::createActions()
     closeAct->setStatusTip(tr("Close the active window"));
     connect(closeAct, SIGNAL(triggered()), mdiArea, SLOT(closeActiveSubWindow()));
 
+    /*
     closeAllAct = new QAction(tr("Close &All"), this);
     closeAllAct->setStatusTip(tr("Close all the windows"));
     connect(closeAllAct, SIGNAL(triggered()), mdiArea, SLOT(closeAllSubWindows()));
+    */
 
     tileAct = new QAction(tr("&Tile"), this);
     tileAct->setStatusTip(tr("Tile the windows"));

@@ -27,6 +27,7 @@
 
 #include <QSyntaxHighlighter>
 #include <QTextCursor>
+#include <QTextEdit>
 
 // very simple - token based - syntax highlighter for DOT format
 //

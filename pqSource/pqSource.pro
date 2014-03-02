@@ -18,8 +18,7 @@
 #    License along with this library; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-QT += webkit
+QT += webkit webkitwidgets widgets concurrent
 
 TARGET = pqSource
 TEMPLATE = lib

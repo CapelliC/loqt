@@ -6,12 +6,10 @@
 #--------------------------------------------------
 # Copyright (C) : 2013,2014 Carlo Capelli
 
-QT += svg
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += gui svg widgets
 
 TARGET = lqXDot_test
 TEMPLATE = app
-
 QMAKE_CXXFLAGS += -std=c++0x
 
 unix {

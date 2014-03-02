@@ -27,7 +27,7 @@
 #include "PREDICATE.h"
 #include <QFutureWatcher>
 #include <QMessageBox>
-#include <QtConcurrentRun>
+#include <QtConcurrent>
 #include <QTime>
 
 pqDocView::pqDocView(QWidget *parent) :

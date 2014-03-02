@@ -7,8 +7,7 @@
 
 QMAKE_CXXFLAGS += -std=c++0x
 
-QT += core gui webkit
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += core gui widgets webkit webkitwidgets
 
 TARGET = qPrologPad
 TEMPLATE = app

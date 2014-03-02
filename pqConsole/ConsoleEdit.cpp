@@ -201,6 +201,16 @@ void ConsoleEdit::keyPressEvent(QKeyEvent *event) {
 
     switch (k) {
 
+    case Key_Help:
+    case Key_F1: {
+        QString topic;
+        if (!c.hasSelection())
+            c.select(c.WordUnderCursor);
+        topic = c.selectedText();
+        emit request_help(topic);
+        return;
+    }
+
     case Key_Space:
         if (!on_completion && ctrl && editable) {
             compinit2(c);
@@ -614,7 +624,7 @@ void ConsoleEdit::user_prompt(int threadId, bool tty) {
 
     is_tty = tty;
 
-    Completion::helpidx();
+    //Completion::helpidx();
 
     QTextCursor c = textCursor();
     c.movePosition(QTextCursor::End);

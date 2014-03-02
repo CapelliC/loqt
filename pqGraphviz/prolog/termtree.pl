@@ -20,7 +20,7 @@
 :- use_module(library(debug)).
 
 termtree :-
-	termtree('[a,a,b,c]').
+	termtree('[a{a:1,b:[1,2,3],c:[]}]').
 
 %% termtree(+A:atom) is det.
 %

@@ -123,7 +123,7 @@ QColor lqXDotScene::parse_color(QString color, bool truecolor)
                     charv[c] = 10 + c - 'A';
             }
             auto chex = [&](int p) {
-                return charv[uchar(color[p].toAscii())] * 16 + charv[uchar(color[p+1].toAscii())];
+                return charv[uchar(color[p].toLatin1())] * 16 + charv[uchar(color[p+1].toLatin1())];
             };
             int R = chex(1),
                 G = chex(3),

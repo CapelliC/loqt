@@ -26,11 +26,13 @@
         ,graph_window/3
         ,make_node/3
         ,make_node/4
-	,make_node_id/3
+        ,make_node_id/3
         ,find_node/3
         ,new_edge/3
         ,new_edge/4
         ,new_edge/5
+        ,find_edge/4
+        ,find_edge/5
         ,make_edges/2
         ,nodes_chain/2
         ,new_subgraph/3
@@ -143,14 +145,14 @@ find_node(G, P, N) :-
 %   build an unnamed edge between NodeSource, NodeTarget
 %
 new_edge(Graph, NodeSource, NodeTarget) :-
-        pqGraphviz:agedge(Graph, NodeSource, NodeTarget, _, 1, _).
+        pqGraphviz:agedge(Graph, NodeSource, NodeTarget, '', 1, _).
 
 %%  new_edge(+Graph, +NodeSource, +NodeTarget, -EdgePtr)
 %
 %   build an unnamed EdgePtr between NodeSource, NodeTarget
 %
 new_edge(Graph, NodeSource, NodeTarget, EdgePtr) :-
-        pqGraphviz:agedge(Graph, NodeSource, NodeTarget, _, 1, EdgePtr).
+        pqGraphviz:agedge(Graph, NodeSource, NodeTarget, '', 1, EdgePtr).
 
 %%  new_edge(+Graph, +NodeSource, +NodeTarget, +Name, -EdgePtr)
 %
@@ -158,6 +160,31 @@ new_edge(Graph, NodeSource, NodeTarget, EdgePtr) :-
 %
 new_edge(G, NodeSource, NodeTarget, Name, EdgePtr) :-
         pqGraphviz:agedge(G, NodeSource, NodeTarget, Name, 1, EdgePtr).
+
+%% find_edge(+G, +NodeSource, +NodeTarget, +Name, -EdgePtr) is det.
+%
+%  find edge between NodeSource, NodeTarget in G
+%
+%  @arg G context graph
+%  @arg NodeSource edge tail
+%  @arg NodeTarget edge head
+%  @arg Name edge name
+%  @arg EdgePtr pointer to edge
+%
+find_edge(G, NodeSource, NodeTarget, Name, EdgePtr) :-
+        pqGraphviz:agedge(G, NodeSource, NodeTarget, Name, 0, EdgePtr).
+
+%% find_edge(+G, +NodeSource, +NodeTarget, -EdgePtr) is det.
+%
+%  find edge between NodeSource, NodeTarget in G
+%
+%  @arg G context graph
+%  @arg NodeSource edge tail
+%  @arg NodeTarget edge head
+%  @arg EdgePtr pointer to edge
+%
+find_edge(G, NodeSource, NodeTarget, EdgePtr) :-
+        pqGraphviz:agedge(G, NodeSource, NodeTarget, '', 0, EdgePtr).
 
 %%  make_edges(+Graph, +Arrows) is det.
 %%  make_edges(+Graph, +Arrow) is det.

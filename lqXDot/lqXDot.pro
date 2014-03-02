@@ -6,9 +6,10 @@
 #--------------------------------------------------
 # Copyright (C) : 2013,2014 Carlo Capelli
 
+QT += core gui widgets
+
 TARGET = lqXDot
 TEMPLATE = lib
-
 QMAKE_CXXFLAGS += -std=c++0x
 
 DEFINES += LQXDOT_LIBRARY

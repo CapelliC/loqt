@@ -38,7 +38,7 @@
 #include <QTextStream>
 #include <QMessageBox>
 #include <QCloseEvent>
-#include <QtConcurrentRun>
+#include <QtConcurrent>
 #include <QFutureWatcher>
 #include <QInputDialog>
 #include <QStringListModel>
@@ -164,27 +164,68 @@ PREDICATE(callback, 4)
     return TRUE;
 }
 
+/** open file in requested mode, throw exception on fail */
+QFile &open_file(QFile &f, QIODevice::OpenMode mode = QIODevice::ReadOnly) {
+    if (!f.open(mode))
+        throw std::runtime_error("cannot open " + f.fileName().toStdString());
+    return f;
+}
+
+/** check only *first* EOL character */
+bool file_DOS_eol(QFile& file) {
+    bool DOS = false;
+    char c;
+    while (file.getChar(&c))
+        if (c == '\r') {
+            if (file.getChar(&c))
+                if (c == '\n')
+                    return true;
+            break;
+        }
+        else if (c == '\n')
+            break;
+    file.seek(0);
+    return DOS;
+}
+
+/** check EOL mode of path file */
+bool file_DOS_eol(QString path) {
+    QFile f(path);
+    return file_DOS_eol(open_file(f));
+}
+
 // setup the proper interface to get SWI-Prolog syntax info
 //
 void pqSource::loadSource(int line, int linepos)
 {
     QFile x(file);
-    if (!x.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!x.open(QIODevice::ReadOnly)) { // | QIODevice::Text)) {
         reportUser("can't open " + file);
         return;
     }
 
-    Preferences pref;
-    setFont(pref.console_font);
-
     reportUser(tr("reading %1 file (size %2)").arg(file, thousandsDots(x.size())));
 
+    bool nl_conv = false;
     try {
+        if (file_DOS_eol(x)) {
+            if (QMessageBox::question(this, tr("Wrong NL"),
+                        tr("The file contains \\r\\n, need to saved to be correctly read"),
+                            QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok)
+                nl_conv = true;
+            else
+                return;
+        }
+
+        Preferences pref;
+        setFont(pref.console_font);
+
         setPlainText(file2string(x));
-        connect(document(), SIGNAL(contentsChange(int,int,int)), this, SLOT(contentsChange(int,int,int)));
+        connect(document(), SIGNAL(contentsChange(int,int,int)), /*this,*/ SLOT(contentsChange(int,int,int)));
     }
     catch(std::exception &e) {
         reportUser(tr("exception: %1").arg(e.what()));
+        return;
     }
     catch(...) {
         reportUser(tr("exception"));
@@ -202,6 +243,9 @@ void pqSource::loadSource(int line, int linepos)
     }
     else
         reportUser(tr("file too big to be highlighted (%1 lines, max. %2)").arg(thousandsDots(lc), thousandsDots(MAX_LINES)));
+
+    if (nl_conv)
+        set_modified(nl_conv);
 }
 
 void pqSource::setTitle()
@@ -478,14 +522,15 @@ void pqSource::completerInit(QTextCursor c) {
         model->setStringList(sorted);
     }
 
-    c.movePosition(c.StartOfWord, c.KeepAnchor);
+    if (!c.hasSelection())
+        c.movePosition(c.StartOfWord, c.KeepAnchor);
     QString prefix = c.selectedText();
     autocomp->setCompletionPrefix(prefix);
-    //autocomp->popup()->setCurrentIndex(autocomp->completionModel()->index(0, 0));
 
     QRect cr = cursorRect();
     cr.setWidth(300);
     autocomp->complete(cr);
+    autocomp->popup()->setCurrentIndex(autocomp->completionModel()->index(0, 0));
 
     reportUser(tr("completion available, %1 items").arg(sorted.size()));
 }

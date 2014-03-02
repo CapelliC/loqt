@@ -6,7 +6,8 @@
 #--------------------------------------------------
 # Copyright (C) : 2013,2014 Carlo Capelli
 
-QT += webkit
+QT += gui widgets webkit webkitwidgets
+
 TARGET = lqUty
 TEMPLATE = lib
 QMAKE_CXXFLAGS += -std=c++0x

@@ -71,6 +71,7 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     auto e = new ConsoleEdit(argc, argv);
     connect(e, SIGNAL(engine_ready()), this, SLOT(engine_ready()));
     connect(e, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
+    connect(e, SIGNAL(request_help(QString)), SLOT(requestHelp(QString)));
     e->setLineWrapMode(e->NoWrap);
 
     //mdiArea()->addSubWindow(e)->setWindowTitle("Console");
@@ -109,6 +110,8 @@ void pqSourceMainWindow::engine_ready() {
 
     //QTimer::singleShot(10, this, SLOT(fixGeometry()));
     fixGeometry();
+
+    Completion::helpidx();
 }
 
 void pqSourceMainWindow::fixGeometry() {

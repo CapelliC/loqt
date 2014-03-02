@@ -5,7 +5,7 @@
 #--------------------------------------------------
 # Copyright (C) : 2013,2014 Carlo Capelli
 
-QT += gui webkit
+QT += gui widgets webkit webkitwidgets concurrent
 
 TARGET = pqGraphviz
 TEMPLATE = lib

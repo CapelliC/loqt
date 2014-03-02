@@ -46,7 +46,7 @@ public:
 };
 
 //! enable QVariant exchange
-Q_DECLARE_METATYPE(GVC_t*)
+Q_DECLARE_OPAQUE_POINTER(GVC_t*)
 Q_DECLARE_METATYPE(Agraph_t*)
 Q_DECLARE_METATYPE(Agnode_t*)
 Q_DECLARE_METATYPE(Agedge_t*)

@@ -198,7 +198,7 @@ void lqXDotView::contextMenuEvent(QContextMenuEvent *event)
  */
 void lqXDotView::scale_view(qreal scaleFactor)
 {
-    qreal f = sqrt(matrix().det());
+    qreal f = sqrt(matrix().determinant());
 
     if (scaleFactor * f > 8.0)
         scaleFactor = 8.0 / f;

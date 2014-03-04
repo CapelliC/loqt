@@ -441,3 +441,210 @@ PREDICATE(agsubnode, 4) {
 PREDICATE(agsubedge, 4) {
     return PL_A4 = agsubedge(graph(PL_A1), edge(PL_A2), PL_A3);
 }
+
+/** assign default attributes values
+ */
+PREDICATE(gvSetAttributesDefault, 1) {
+    Agraph_t *G = graph(PL_A1);
+    typedef const char* cstr;
+    struct defAttr { cstr name, component, defval; };
+    static defAttr defAttrs[] = {
+        {"Damping", "G", "0.99"},
+        {"K", "GC", "0.3"},
+        {"URL", "ENGC", 0},
+        {"_background", "G", 0},
+        {"area", "NC", "1.0"},
+        {"arrowhead", "E", "normal"},
+        {"arrowsize", "E", "1.0"},
+        {"arrowtail", "E", "normal"},
+        {"bb", "G", ""},
+        {"bgcolor", "GC", 0},
+        {"center", "G", "false"},
+        {"charset", "G", "UTF-8"},
+        {"clusterrank", "G", "local"},
+        {"color", "ENC", "black"},
+        {"colorscheme", "ENCG", 0},
+        {"comment", "ENG", 0},
+        {"compound", "G", "false"},
+        {"concentrate", "G", "false"},
+        {"constraint", "E", "true"},
+        {"decorate", "E", "false"},
+        {"defaultdist", "G", 0},
+        {"dim", "G", "2"},
+        {"dimen", "G", "2"},
+        {"dir", "E", "forward"},
+        {"diredgeconstraints", "G", "false"},
+        {"distortion", "N", "0.0"},
+        {"dpi", "G", "96.00.0"},
+        {"edgeURL", "E", 0},
+        {"edgehref", "E", 0},
+        {"edgetarget", "E", 0},
+        {"edgetooltip", "E", 0},
+        {"epsilon", "G", ".0001"},
+        {"esep", "G", "+3"},
+        {"fillcolor", "NEC", "lightgrey"},
+        {"fixedsize", "N", "false"},
+        {"fontcolor", "ENGC", "black"},
+        {"fontname", "ENGC", "Times-Roman"},
+        {"fontnames", "G", 0},
+        {"fontpath", "G", 0},
+        {"fontsize", "ENGC", "14.0"},
+        {"forcelabels", "G", "true"},
+        {"gradientangle", "NCG", 0},
+        {"group", "N", 0},
+        {"headURL", "E", 0},
+        {"head_lp", "E", ""},
+        {"headclip", "E", "true"},
+        {"headhref", "E", 0},
+        {"headlabel", "E", 0},
+        {"headport", "E", "center"},
+        {"headtarget", "E", 0},
+        {"headtooltip", "E", 0},
+        {"height", "N", "0.5"},
+        {"href", "GCNE", 0},
+        {"id", "GCNE", 0},
+        {"image", "N", 0},
+        {"imagepath", "G", 0},
+        {"imagescale", "N", "false"},
+        {"inputscale", "G", 0},
+        {"label", "ENGC", ""},
+        {"labelURL", "E", 0},
+        {"label_scheme", "G", "0"},
+        {"labelangle", "E", "-25.0"},
+        {"labeldistance", "E", "1.0"},
+        {"labelfloat", "E", "false"},
+        {"labelfontcolor", "E", "black"},
+        {"labelfontname", "E", "Times-Roman"},
+        {"labelfontsize", "E", "14.0"},
+        {"labelhref", "E", 0},
+        {"labeljust", "GC", "c"},
+        {"labelloc", "NGC", 0},
+        {"labeltarget", "E", 0},
+        {"labeltooltip", "E", 0},
+        {"landscape", "G", "false"},
+        {"layer", "ENC", 0},
+        {"layerlistsep", "G", ","},
+        {"layers", "G", 0},
+        {"layerselect", "G", 0},
+        {"layersep", "G", " :\t"},
+        {"layout", "G", 0},
+        {"len", "E", 0},
+        {"levels", "G", 0},
+        {"levelsgap", "G", "0.0"},
+        {"lhead", "E", 0},
+        {"lheight", "GC", ""},
+        {"lp", "EGC", ""},
+        {"ltail", "E", 0},
+        {"lwidth", "GC", ""},
+        {"margin", "NCG", 0},
+        {"maxiter", "G", 0},
+        {"mclimit", "G", "1.0"},
+        {"mindist", "G", "1.0"},
+        {"minlen", "E", "1"},
+        {"mode", "G", "major"},
+        {"model", "G", "shortpath"},
+        {"mosek", "G", "false"},
+        {"nodesep", "G", "0.25"},
+        {"nojustify", "GCNE", "false"},
+        {"normalize", "G", "false"},
+        {"nslimit|nslimit1", "G", ""},
+        {"ordering", "GN", 0},
+        {"orientation", "N", "0.0"},
+        {"orientation", "G", 0},
+        {"outputorder", "G", "breadthfirst"},
+        {"overlap", "G", "true"},
+        {"overlap_scaling", "G", "-4"},
+        {"overlap_shrink", "G", "true"},
+        {"pack", "G", "false"},
+        {"packmode", "G", "node"},
+        {"pad", "G", "0.0555 "},
+        {"page", "G", ""},
+        {"pagedir", "G", "BL"},
+        {"pencolor", "C", "black"},
+        {"penwidth", "CNE", "1.0"},
+        {"peripheries", "NC", 0},
+        {"pin", "N", "false"},
+        {"pos", "EN", ""},
+        {"quadtree", "G", "normal"},
+        {"quantum", "G", "0.0"},
+        {"rank", "S", ""},
+        {"rankdir", "G", "TB"},
+        {"ranksep", "G", 0},
+        {"ratio", "G", ""},
+        {"rects", "N", ""},
+        {"regular", "N", "false"},
+        {"remincross", "G", "false"},
+        {"repulsiveforce", "G", "1.0"},
+        {"resolution", "G", "96.00.0"},
+        {"root", "GN", 0},
+        {"rotate", "G", "0"},
+        {"rotation", "G", "0"},
+        {"samehead", "E", 0},
+        {"sametail", "E", 0},
+        {"samplepoints", "N", 0},
+        {"scale", "G", ""},
+        {"searchsize", "G", "30"},
+        {"sep", "G", "+4"},
+        {"shape", "N", "ellipse"},
+        {"shapefile", "N", 0},
+        {"showboxes", "ENG", "0"},
+        {"sides", "N", "4"},
+        {"size", "G", ""},
+        {"skew", "N", "0.0"},
+        {"smoothing", "G", "none"},
+        {"sortv", "GCN", "0"},
+        {"splines", "G", ""},
+        {"start", "G", 0},
+        {"style", "ENCG", 0},
+        {"stylesheet", "G", 0},
+        {"tailURL", "E", 0},
+        {"tail_lp", "E", ""},
+        {"tailclip", "E", "true"},
+        {"tailhref", "E", 0},
+        {"taillabel", "E", 0},
+        {"tailport", "E", "center"},
+        {"tailtarget", "E", 0},
+        {"tailtooltip", "E", 0},
+        {"target", "ENGC", 0},
+        {"tooltip", "NEC", 0},
+        {"truecolor", "G", ""},
+        {"vertices", "N", ""},
+        {"viewport", "G", 0},
+        {"voro_margin", "G", "0.05"},
+        {"weight", "E", "1"},
+        {"width", "N", "0.75"},
+        {"xdotversion", "G", ""},
+        {"xlabel", "EN", 0},
+        {"xlp", "NE", ""},
+        {"z", "N", "0.0"}
+    };
+    for (int i = 0, n = sizeof(defAttrs)/sizeof(defAttrs[0]); i < n; ++i) {
+        const defAttr &a = defAttrs[i];
+        if (a.defval) {
+            for (int c = 0; a.component[c]; ++c) {
+                int kind = 0;
+                switch (a.component[c]) {
+                case 'N':
+                    kind = AGNODE;
+                    break;
+                case 'E':
+                    //kind = AGEDGE;
+                    break;
+                case 'C':
+                case 'G':
+                case 'S':
+                    kind = AGRAPH;
+                    break;
+                default:
+                    Q_ASSERT(false);
+                }
+                if (kind) {
+                    Agsym_t *A = agattr(G, kind, CP(a.name), CP(a.defval));
+                    if (!A)
+                        qDebug() << "miss " << a.name << " with default" << a.defval;
+                }
+            }
+        }
+    }
+    return TRUE;
+}

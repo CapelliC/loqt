@@ -89,6 +89,7 @@ graph_window(Pred, G, Opts) :-
 	option(graph_kind(Kind), Opts, 'Agdirected'),
 	option(graph_layout(Layout), Opts, dot),
 	pqGraphviz:agopen(Name, Kind, 0, G),
+        pqGraphviz:gvSetAttributesDefault(G),
 	option(rankdir(Rankdir), Opts, 'TB'),
 	set_attrs(G, rankdir:Rankdir),
         option(node_defaults(Node_defaults), Opts, []),

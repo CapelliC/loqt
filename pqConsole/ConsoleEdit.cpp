@@ -29,6 +29,7 @@
 #include "Preferences.h"
 #include "pqMainWindow.h"
 #include "pqConsole.h"
+#include "blockSig.h"
 
 #include <signal.h>
 
@@ -1038,6 +1039,8 @@ void ConsoleEdit::set_editable(bool allow) {
 
 void ConsoleEdit::selectionChanged()
 {
+    blockSig bs(this);
+
     foreach (ExtraSelection s, extraSelections())
         s.cursor.setCharFormat(s.format);
     extraSelections().clear();

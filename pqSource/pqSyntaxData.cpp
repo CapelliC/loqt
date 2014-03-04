@@ -65,7 +65,7 @@ void pqSyntaxData::insert_nested(cat &c, t_nesting& nest)
 
         // fits inside one already stored
         if (nest[p].contains(c.beg)) {
-            Q_ASSERT(nest[p].overlap(c.end));
+            Q_ASSERT(nest[p].overlap(c.end) || nest[p].desc == "comment");
             Q_ASSERT(inserted == -1);
             // recurse inner nesting
             insert_nested(c, nest[p].nesting);

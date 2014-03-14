@@ -33,6 +33,7 @@
 #include "MdiChildWithCheck.h"
 #include "FindReplace.h"
 #include "lqXDotView.h"
+#include "maplist.h"
 
 #include <QDebug>
 #include <QStatusBar>
@@ -207,7 +208,8 @@ void pqSourceMainWindow::customEvent(QEvent *event) {
     emit openFile(res->file, res->geometry, res->line, res->linepos);
 }
 
-inline QString prologFiles() { return QObject::tr("Prolog files (*.pl *.plt *.pro)" ";;All files (*.*)"); }
+inline QString stars() { return mapQStrings([](QString s){ return "*." + s; }, pqSource::extensionsProlog()).join(" "); }
+inline QString prologFiles() { return QObject::tr("Prolog files (%1)" ";;All files (*.*)").arg(stars()); }
 inline QString prologSuffix() { return "pl"; }
 
 void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, int linepos) {

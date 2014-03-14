@@ -235,14 +235,18 @@ void pqSource::loadSource(int line, int linepos)
     setTitle();
     placeCursor(line, linepos);
 
-    int lc = document()->lineCount();
-    const int MAX_LINES = 5000;
-    if (lc < MAX_LINES) {
-        reportUser(tr("highlighting %1 lines").arg(lc));
-        startHighliter();
+    if (!isProlog(file))
+        reportUser(tr("not a Prolog file, reading as text"));
+    else {
+        int lc = document()->lineCount();
+        const int MAX_LINES = 5000;
+        if (lc < MAX_LINES) {
+            reportUser(tr("highlighting %1 lines").arg(lc));
+            startHighliter();
+        }
+        else
+            reportUser(tr("file too big to be highlighted (%1 lines, max. %2)").arg(thousandsDots(lc), thousandsDots(MAX_LINES)));
     }
-    else
-        reportUser(tr("file too big to be highlighted (%1 lines, max. %2)").arg(thousandsDots(lc), thousandsDots(MAX_LINES)));
 
     if (nl_conv)
         set_modified(nl_conv);

@@ -33,6 +33,7 @@
 #include <QElapsedTimer>
 #include <QTimer>
 #include <QCompleter>
+#include <QFileInfo>
 
 #include "pqConsole.h"
 #include "ConsoleEdit.h"
@@ -88,6 +89,9 @@ public:
     pqHighlighter *semanticHighlighter() const { return hl; }
 
     void commentClause();
+
+    static QStringList extensionsProlog() { return QStringList() << "pl" << "plt" << "pro"; }
+    static bool isProlog(QString path) { return extensionsProlog().contains(QFileInfo(path).suffix().toLower()); }
 
 protected:
 

@@ -45,7 +45,8 @@ HEADERS += lqUty.h \
     CenterWidgets.h \
     XmlSyntaxHighlighter.h \
     EditInterface.h \
-    thousandsDots.h
+    thousandsDots.h \
+    maplist.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

@@ -25,7 +25,8 @@ SOURCES += lqUty.cpp \
     lqAniMachine.cpp \
     CodeMirrorFile.cpp \
     CodeMirror.cpp \
-    XmlSyntaxHighlighter.cpp
+    XmlSyntaxHighlighter.cpp \
+    KeyboardMacros.cpp
 
 HEADERS += lqUty.h \
     lqUty_global.h \
@@ -46,7 +47,8 @@ HEADERS += lqUty.h \
     XmlSyntaxHighlighter.h \
     EditInterface.h \
     thousandsDots.h \
-    maplist.h
+    maplist.h \
+    KeyboardMacros.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

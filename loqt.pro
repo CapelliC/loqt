@@ -21,6 +21,7 @@ SUBDIRS += \
     pqGraphviz \
     pqSource \
     pqSourceTest \
+    fdqueens \
     spqr \
     qPrologPad
 

@@ -1,6 +1,6 @@
 /** <module> gv_uty
 
-    pqGraphviz   : SWI-Prolog Qt Rendering
+    pqGraphviz   : SWI-Prolog+Graphviz+Qt Rendering
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
@@ -89,14 +89,14 @@ graph_window(Pred, G, Opts) :-
 	option(graph_kind(Kind), Opts, 'Agdirected'),
 	option(graph_layout(Layout), Opts, dot),
 	pqGraphviz:agopen(Name, Kind, 0, G),
-        pqGraphviz:gvSetAttributesDefault(G),
+	pqGraphviz:gvSetAttributesDefault(G),
 	option(rankdir(Rankdir), Opts, 'TB'),
 	set_attrs(G, rankdir:Rankdir),
-        option(node_defaults(Node_defaults), Opts, []),
-        option(edge_defaults(Edge_defaults), Opts, []),
-        default_attrs(G, 'AGNODE', Node_defaults),
-        default_attrs(G, 'AGEDGE', Edge_defaults),
-        once(Pred),
+	option(node_defaults(Node_defaults), Opts, []),
+	option(edge_defaults(Edge_defaults), Opts, []),
+	default_attrs(G, 'AGNODE', Node_defaults),
+	default_attrs(G, 'AGEDGE', Edge_defaults),
+	once(Pred),
 	option(pq_instance_class(IC), Opts, create),
 	option(pq_class_view(VC), Opts, lqXDotView), %'GraphvizView'),
 	XC =.. [IC, VC, V],
@@ -197,7 +197,7 @@ make_edges(G, X->(Y->Z)) :-
         new_edge(G, X, Y),
         make_edges(G, Y->Z).
 make_edges(G, X->Y) :-
-        new_edge(G,X,Y).
+        new_edge(G, X, Y).
 
 make_edges(G, X) :-
         is_list(X) -> maplist(make_edges(G), X).

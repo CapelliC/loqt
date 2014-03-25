@@ -25,4 +25,66 @@
 KeyboardMacros::KeyboardMacros(QObject *parent) :
     QObject(parent)
 {
+    lqPreferences p;
+    int n = p.beginReadArray("KeyboardMacros");
+    for (int i = 0; i < n; ++i) {
+        p.setArrayIndex(i);
+        QString name = p.value("name").toString();
+        QStringList strokes = p.value("strokes").toStringList();
+        macro m;
+        foreach(QString s, strokes)
+            m << s2e(s);
+        macros[name] = m;
+    }
+    p.endArray();
+}
+
+KeyboardMacros::~KeyboardMacros()
+{
+    lqPreferences p;
+
+    p.beginWriteArray("KeyboardMacros");
+    int i = 0;
+    foreach(QString name, macros.keys()) {
+        p.setArrayIndex(i);
+        p.setValue("name", name);
+        QStringList s;
+        foreach (QKeyEvent e, macros[name])
+            s << e2s(e);
+        p.setValue("strokes", s);
+    }
+    p.endArray();
+}
+
+void KeyboardMacros::startRecording(EditInterface *ei)
+{
+
+}
+
+void KeyboardMacros::doneRecording(EditInterface *ei)
+{
+
+}
+
+void KeyboardMacros::startPlayback(EditInterface *ei)
+{
+
+}
+
+void KeyboardMacros::startPlayback(QString name, EditInterface *ei)
+{
+
+}
+
+QStringList KeyboardMacros::e2l(const QKeyEvent &e)
+{
+    QStringList l;
+    l << QString::number(e.type()) << QString::number(e.key()) << QString::number(e.modifiers());
+    return l;
+}
+
+QKeyEvent KeyboardMacros::l2e(const QStringList &l)
+{
+    int type = l[0].toInt(), key = l[1].toInt(), modif = l[2].toInt();
+    return QKeyEvent(QEvent::Type(type), key, Qt::KeyboardModifier(modif));
 }

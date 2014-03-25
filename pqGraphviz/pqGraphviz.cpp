@@ -507,7 +507,7 @@ PREDICATE(gvSetAttributesDefault, 1) {
         {"imagepath", "G", 0},
         {"imagescale", "N", "false"},
         {"inputscale", "G", 0},
-        {"label", "ENGC", ""},
+//        {"label", "ENGC", ""},
         {"labelURL", "E", 0},
         {"label_scheme", "G", "0"},
         {"labelangle", "E", "-25.0"},

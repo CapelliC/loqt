@@ -25,23 +25,38 @@
 
 #include "EditInterface.h"
 #include "lqPreferences.h"
-#include <QEvent>
+#include <QKeyEvent>
 
-/** helper class to register and playback macros
+/** helper class to record and playback macros
  */
-class KeyboardMacros : public QObject
+class LQUTYSHARED_EXPORT KeyboardMacros : public QObject
 {
     Q_OBJECT
 public:
+
     explicit KeyboardMacros(QObject *parent = 0);
     ~KeyboardMacros();
+
+    void startRecording(EditInterface *ei);
+    void doneRecording(EditInterface *ei);
+    void startPlayback(EditInterface *ei);
+    void startPlayback(QString name, EditInterface *ei);
+
+    static QStringList e2l(const QKeyEvent &e);
+    static QKeyEvent l2e(const QStringList &l);
+    static QString e2s(const QKeyEvent &e) { return e2l(e).join(","); }
+    static QKeyEvent s2e(const QString &s) { return l2e(s.split(",")); }
 
 signals:
 
 public slots:
 
 private:
-    QMap<QString, QList<QEvent>> macros;
+
+    typedef QList<QKeyEvent> macro;
+    QMap<QString, macro> macros;
+
+    QString lastRecorded;
 };
 
 #endif // KEYBOARDMACROS_H

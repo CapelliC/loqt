@@ -63,19 +63,17 @@ bool pqDocView::startPlDoc()
         qDebug() << "msg:" << msg;
     };
 
-    //Q_ASSERT(msg.isEmpty());
-        requests << QString("http://localhost:%1").arg(helpDocPort);
-        auto w = new QFutureWatcher<void>;
-        connect(w, SIGNAL(finished()), this, SLOT(initUrl()));
 
-        // run the Prolog snippet in background
-        w->setFuture(QtConcurrent::run(f));
+    //requests << QString("http://localhost:%1").arg(helpDocPort);
+    requests << QString("http://localhost:%1/doc_for?object=root").arg(helpDocPort);
 
-        return true;
-    //}
+    auto w = new QFutureWatcher<void>;
+    connect(w, SIGNAL(finished()), this, SLOT(initUrl()));
 
-    //QMessageBox::critical(this, tr("error"), tr("error '%1' starting plDoc server").arg(msg));
-    //return false;
+    // run the Prolog snippet in background
+    w->setFuture(QtConcurrent::run(f));
+
+    return true;
 }
 
 void pqDocView::initUrl()

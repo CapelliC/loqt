@@ -724,6 +724,8 @@ void lqXDotScene::redo_objects(QList<void*> objects)
         }
 }
 
+/** WIP attempt to preserve layout and recomputing edges only
+ */
 void lqXDotScene::moveEdges(lqNode *nodeMoving, QPointF nodeOldpos)
 {
     QPointF newpos = nodeMoving->scenePos(),

@@ -75,7 +75,14 @@ public:
     //! perform translation from layout to graphics primitives
     void build();
 
+    //! parse the bounding rect attribute on <graph> to QRectF
     QRectF graph_bb(Gp graph);
+
+    //! after a partial layout, just redo changed objects
+    void redo_objects(QList<void*> objects);
+
+    //! handle layout rebuild
+    void moveEdges(lqNode *moving, QPointF nodeOldpos);
 
 signals:
 
@@ -83,7 +90,7 @@ signals:
 
 public slots:
 
-private:
+protected:
 
     //! context/graph for root object
     QPointer<lqContextGraph> cg;
@@ -114,7 +121,7 @@ public:
     };
     static void clear_XDotAttrs(void *obj, int ops);
 
-private:
+protected:
 
     l_items build_graphic(void *obj, int ops);
 
@@ -147,7 +154,7 @@ private:
         return QRectF(QPointF(r.x - r.w, cy(r.y + r.h)), QSize(r.w * 2, r.h * 2));
     }
 
-    static void perform_attrs(void* obj, int attrs, std::function<void(const xdot_op& op)> worker);
+    void perform_attrs(void* obj, int attrs, std::function<void(const xdot_op& op)> worker) const;
 
     //! map graphviz coordinates to scene
     QRectF bbscene;

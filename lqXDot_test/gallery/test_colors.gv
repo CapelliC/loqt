@@ -1,7 +1,8 @@
 /* script file test_colors.gv
    created at Tue Oct 1 01:23:50 2013 */
 
-graph {
- node [style=filled]
+digraph {
+ node [style=filled shape=box]
  A [fillcolor="#7fc97f"] B [fillcolor="#beaed4"] C [fillcolor="#fdc086"]
+ A -> C -> B -> A
 }

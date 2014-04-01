@@ -106,7 +106,7 @@ protected slots:
     void toggleFolding();
     void exportAs(QString fmt);
 
-private:
+protected:
 
     //! graphviz rendering context and data
     QPointer<lqContextGraph> cg;

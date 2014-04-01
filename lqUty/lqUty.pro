@@ -14,7 +14,8 @@ QMAKE_CXXFLAGS += -std=c++0x
 
 DEFINES += LQUTY_LIBRARY
 
-SOURCES += lqUty.cpp \
+SOURCES += \
+    lqUty.cpp \
     ParenMatching.cpp \
     MruHelper.cpp \
     RowColIndicators.cpp \
@@ -28,7 +29,8 @@ SOURCES += lqUty.cpp \
     XmlSyntaxHighlighter.cpp \
     KeyboardMacros.cpp
 
-HEADERS += lqUty.h \
+HEADERS += \
+    lqUty.h \
     lqUty_global.h \
     ParenMatching.h \
     do_events.h \

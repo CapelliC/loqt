@@ -30,3 +30,9 @@ lqItem::lqItem(QGraphicsScene *s, items l)
         addToGroup(i);
 }
 
+//! serve itemHasChanged() signal
+QVariant lqItem::itemChange(GraphicsItemChange change, const QVariant &value)
+{
+    emit itemHasChanged(change, value);
+    return value;
+}

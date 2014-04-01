@@ -1053,7 +1053,7 @@ void ConsoleEdit::selectionChanged()
 
         QTextCursor cfirst = cursorForPosition(QPoint(0, 0));
         if (!cfirst.isNull()) {
-            while (c.block() != cfirst.block())
+            while (c.block().position() > cfirst.block().position())
                 c.movePosition(c.Up);
             c.movePosition(c.Up);
             for ( ; ; ) {

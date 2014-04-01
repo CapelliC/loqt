@@ -32,14 +32,20 @@ inline void OK(int rc) { Q_ASSERT(rc == 0); }
 /** allocate empty
  */
 lqContextGraph::lqContextGraph(QObject *parent) :
-    QObject(parent), context(0), graph(0)
+    QObject(parent),
+    trace_control(0),
+    context(0),
+    graph(0)
 {
 }
 
 /** keep pointers allocated elsewhere (Prolog, in first use case)
  */
 lqContextGraph::lqContextGraph(GVC_t* context, Agraph_t *graph, QObject *parent) :
-    QObject(parent), context(context), graph(graph)
+    QObject(parent),
+    trace_control(0),
+    context(context),
+    graph(graph)
 {
 }
 
@@ -107,10 +113,18 @@ bool lqContextGraph::run_with_error_report(std::function<QString()> worker) {
 /** ensure context available for subsequent operations
  */
 bool lqContextGraph::in_context() {
+
+    if (oktrace(tf_in_context))
+        qDebug() << "in_context" << CVP(this);
+
     if (!context && (context = gvContext()) == 0) {
         critical(tr("gvContext() failed"));
         return false;
     }
+
+    if (oktrace(tf_version))
+        qDebug() << "gvcVersion" << gvcVersion(context);
+
     return true;
 }
 

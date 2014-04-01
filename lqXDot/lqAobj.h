@@ -53,10 +53,17 @@ public:
     QString name() const { return name_; }
     void setName(QString name) { name_ = name; }
 
+protected:
+
+    //! serve itemHasChanged() signal
+    QVariant itemChange(GraphicsItemChange change, const QVariant &value);
+
 private:
     QString name_;
 
 signals:
+
+    void itemHasChanged(QGraphicsItem::GraphicsItemChange change, const QVariant &value);
 
 public slots:
 

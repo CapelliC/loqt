@@ -139,7 +139,8 @@ QColor lqXDotScene::parse_color(QString color, bool truecolor)
 QGraphicsItem* lqXDotScene::add_node(Np n)
 {
     QString N = gvname(n);
-    qDebug() << "add_node" << CVP(n) << N << AGID(n);
+    if (cg->oktrace(tf_add_node))
+        qDebug() << "add_node" << CVP(n) << N << AGID(n);
 
     l_items l = build_graphic(n);
     if (!l.isEmpty()) {
@@ -147,14 +148,20 @@ QGraphicsItem* lqXDotScene::add_node(Np n)
         lqNode* g = new lqNode(this, l);
 
         //g->setData(agptr, QVariant::fromValue(n));
-        g->setFlag(g->ItemIsSelectable);
+        /*
+        g->setFlag(QGraphicsItem::ItemIsSelectable);
+        g->setFlag(QGraphicsItem::ItemIsMovable);
+        g->setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
+        */
 
         QString tooltip = QString::fromUtf8(attr_str(n, "tooltip"));
         if (!tooltip.isEmpty()) {
             tooltip.replace("\\n", "\n");
             g->setToolTip(tooltip);
         }
-        qDebug() << CVP(g) << g->type();
+
+        if (cg->oktrace(tf_show_node_type))
+            qDebug() << CVP(g) << g->type();
 
         if (cg->is_folded(n)) {
             QCheckBox *cb = new QCheckBox;
@@ -174,7 +181,8 @@ QGraphicsItem* lqXDotScene::add_node(Np n)
 
 QGraphicsItem* lqXDotScene::add_edge(Ep e)
 {
-    qDebug() << "add_edge" << CVP(e) << gvname(e) << AGID(e);
+     if (cg->oktrace(tf_add_edge))
+        qDebug() << "add_edge" << CVP(e) << gvname(e) << AGID(e);
 
     l_items l = build_graphic(e);
     if (!l.isEmpty()) {
@@ -191,6 +199,9 @@ QGraphicsItem* lqXDotScene::add_edge(Ep e)
 void lqXDotScene::subgraphs(Gp graph, qreal off_z)
 {
     QRectF bb = graph_bb(graph);
+
+    if (cg->oktrace(tf_add_graph))
+        qDebug() << "subgraph" << bb << off_z;
 
     l_items l;
     if (agparent(graph) == 0) {
@@ -217,13 +228,18 @@ static const char *ops[] = {"_draw_", "_ldraw_", "_hdraw_", "_tdraw_", "_hldraw_
 
 /** apply XDOT attributes <b_ops> rendering to required object <obj>
  */
-void lqXDotScene::perform_attrs(void* obj, int b_ops, std::function<void(const xdot_op& op)> worker)
+void lqXDotScene::perform_attrs(void* obj, int b_ops, std::function<void(const xdot_op& op)> worker) const
 {
+    if (cg->oktrace(tf_perform_attrs))
+        qDebug() << "perform_attrs" << b_ops;
+
     for (size_t i = 0; i < sizeof(ops)/sizeof(ops[0]); ++i)
         if (b_ops & (1 << i)) {
             cstr a = attr_str(obj, ops[i]);
             if (a && *a) {
                 if (xdot *v = parseXDot(ccstr(a))) {
+                    if (cg->oktrace(tf_parseXDot))
+                        qDebug() << "parseXDot" << v->cnt << ccstr(a);
                     for (int c = 0; c < v->cnt; ++c)
                         worker(v->ops[c]);
                     freeXDot(v);
@@ -371,6 +387,10 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
     int b_style = 0;
 
     perform_attrs(obj, b_ops, [&](const xdot_op &op) {
+
+        if(cg->oktrace(tf_perform_attrs_xdot_op))
+            qDebug() << "perform_attrs" << b_ops << op.kind;
+
         switch (op.kind) {
         case xd_filled_ellipse: {
             auto p = addEllipse(rect_spec(op.u.ellipse));
@@ -688,4 +708,67 @@ QRectF lqXDotScene::graph_bb(Gp graph)
             msg(tr("invalid bb on %1").arg(gvname(graph)));
     }
     return bb;
+}
+
+/** just redo changed objects
+ */
+void lqXDotScene::redo_objects(QList<void*> objects)
+{
+    if (cg->oktrace(tf_redo_objects))
+        qDebug() << "redo_objects" << objects.count();
+
+    foreach(CVP o, objects)
+        if (auto E = add_edge(Ep(o))) {
+            static qreal ez = 10;
+            E->setZValue(dz(ez));
+        }
+}
+
+void lqXDotScene::moveEdges(lqNode *nodeMoving, QPointF nodeOldpos)
+{
+    QPointF newpos = nodeMoving->scenePos(),
+            delta = newpos - nodeOldpos;
+    qDebug() << newpos << delta;
+
+    Np n = to_node(nodeMoving);
+    QString ss(agget(n, ccstr("pos")));
+    int ps = ss.indexOf(",");
+    Q_ASSERT(ps > 0);
+    qreal   x = ss.left(ps).toFloat(),
+            y = ss.mid(ps + 1).toFloat();
+    qDebug() << ss << x << y;
+
+    x += delta.x();
+    y += delta.y();
+
+    QMap<Ep, QPair<Np, Np> > l_changed;
+    gvFreeLayout(*cg, *cg);
+
+    agset(Gp(*cg), ccstr("splines"), ccstr("true"));
+    qDebug() << agget(n, ccstr("pos"));
+    agset(n, ccstr("pos"), QString("%1,%2").arg(x).arg(y).toUtf8().data());
+
+    auto etrace = [&](Ep e) {
+        if (!l_changed.contains(e))
+            l_changed[e] = qMakePair(agtail(e), aghead(e));
+    };
+    cg->for_edges_in(n, etrace);
+    cg->for_edges_out(n, etrace);
+
+    foreach(auto e, l_changed.keys())
+        agdeledge(*cg, e);
+
+    QList<void*> l_new;
+    foreach(auto e, l_changed.keys())
+        l_new << agedge(*cg, l_changed[e].first, l_changed[e].second, 0, 1);
+
+    gvLayout(*cg, *cg, "nop2");
+    gvRender(*cg, *cg, "xdot", 0);
+    if (cg->oktrace(tf_layout))
+        gvRenderFilename(*cg, *cg, "xdot", "/tmp/x.nop2");
+
+    redo_objects(l_new);
+
+    qDebug() << agget(n, ccstr("pos"));
+
 }

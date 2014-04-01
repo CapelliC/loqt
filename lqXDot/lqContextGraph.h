@@ -78,7 +78,7 @@ inline QString gvname(void* o) {
 }
 
 //! make types cleaner - simpler
-struct GV_ptr_types {
+struct LQXDOTSHARED_EXPORT GV_ptr_types {
 
     //! context pointer
     typedef GVC_t* Cp;
@@ -106,6 +106,24 @@ struct GV_ptr_types {
 
     //! utility to make a pointer
     typedef const void* CVP;
+
+    //! enable selecting debug output
+    enum trace_flags {
+        tf_in_context,
+        tf_version,
+        tf_create,
+        tf_delete,
+        tf_add_graph,
+        tf_add_node,
+        tf_add_edge,
+        tf_layout,
+        tf_render,
+        tf_parseXDot,
+        tf_perform_attrs,
+        tf_perform_attrs_xdot_op,
+        tf_show_node_type,
+        tf_redo_objects
+    };
 };
 
 /** a container for paired Graphviz pointers
@@ -205,6 +223,10 @@ public:
 
     //! attempt to remove all attrs created by XDOT rendering
     void clearXDotAttrs();
+
+    //! enable selective tracing from scene setup
+    int trace_control;
+    bool oktrace(trace_flags t) { return (trace_control & (1 << t)) == (1 << t); }
 
 signals:
     

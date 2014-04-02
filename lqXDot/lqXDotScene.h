@@ -84,6 +84,9 @@ public:
     //! handle layout rebuild
     void moveEdges(lqNode *moving, QPointF nodeOldpos);
 
+    //! change at runtime as required
+    static int configure_behaviour;
+
 signals:
 
     void setup_completed();

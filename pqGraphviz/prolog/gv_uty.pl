@@ -22,24 +22,25 @@
 */
 
 :-  module(gv_uty,
-        [graph_window/2
-        ,graph_window/3
-        ,make_node/3
-        ,make_node/4
-        ,make_node_id/3
-        ,find_node/3
-        ,new_edge/3
-        ,new_edge/4
-        ,new_edge/5
-        ,find_edge/4
-        ,find_edge/5
-        ,make_edges/2
-        ,nodes_chain/2
-        ,new_subgraph/3
-        ,make_cluster/4
-        ,find_cluster/3
-        ,set_attrs/2
-        ]).
+	[graph_window/2
+	,graph_window/3
+	,make_node/3
+	,make_node/4
+	,make_node_id/3
+	,find_node/3
+	,new_edge/3
+	,new_edge/4
+	,new_edge/5
+	,find_edge/4
+	,find_edge/5
+	,make_edges/2
+	,nodes_chain/2
+	,new_subgraph/3
+	,find_subgraph/3
+	,make_cluster/4
+	,find_cluster/3
+	,set_attrs/2
+	]).
 
 :-  use_module(library(option)).
 :-  use_module(library(debug)).
@@ -215,6 +216,13 @@ nodes_chain([A,B], A->B).
 %
 new_subgraph(G, Name, Subg) :-
         pqGraphviz:agsubg(G, Name, 1, Subg).
+
+%%  find_subgraph(+Graph, +Name, -Subg) is det
+%
+%   search a subgraph by name
+%
+find_subgraph(G, Name, Subg) :-
+        pqGraphviz:agsubg(G, Name, 0, Subg).
 
 %%  make_cluster(+Graph, +Name, +Attrs, -C) is det
 %

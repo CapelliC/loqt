@@ -60,7 +60,8 @@ void lqXDotView::setup()
     setTruecolor(false);
     setFoldNodes(true);
 
-    cg = new lqContextGraph(this);
+    //cg = new lqContextGraph(this);
+    cg = factory_cg(this);
 
     setRenderHint(QPainter::Antialiasing);
     setRenderHint(QPainter::TextAntialiasing);
@@ -125,7 +126,8 @@ void lqXDotView::render_graph()
             QDir::setCurrent(cd.path());
     }
 
-    setScene(new lqXDotScene(cg));
+    //setScene(new lqXDotScene(cg));
+    setScene(factory_scene(cg));
 }
 
 /** very simple keyboard interaction
@@ -161,36 +163,49 @@ void lqXDotView::wheelEvent(QWheelEvent* event)
     event->accept();
 }
 
+/** bind item menu to Fold/Unfold
+ */
+void lqXDotView::addActionsItem(QMenu *menu, QGraphicsItem *item)
+{
+    if (Np n = scene()->it_node(item)) {
+        QString s;
+        if (cg->is_folded(n))
+            s = tr("&Unfold");
+        else
+            s = tr("&Fold");
+        QAction *a = menu->addAction(s, this, SLOT(toggleFolding()));
+        lqNode *N = ancestor<lqNode>(item);
+        a->setData(QVariant::fromValue(N));
+    }
+}
+
+/** bind scene menu to 'Export As...'
+ */
+void lqXDotView::addActionsScene(QMenu *menu)
+{
+    delete exportFmt;
+    exportFmt = new QSignalMapper;
+    connect(exportFmt, SIGNAL(mapped(QString)), SLOT(exportAs(QString)));
+
+    QMenu *e = menu->addMenu(tr("&Export As..."));
+    foreach (auto fmt, QString("dot svg pdf png").split(' ')) {
+        QAction *a = e->addAction(fmt);
+        connect(a, SIGNAL(triggered()), exportFmt, SLOT(map()));
+        exportFmt->setMapping(a, fmt);
+    }
+}
+
 /** create a menu of commands on selected node
  */
 void lqXDotView::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu(this);
     if (QGraphicsItem *item = itemAt(event->pos())) {
-        qDebug() << CVP(item) << item->type();
-        if (Np n = scene()->it_node(item)) {
-            QString s;
-            if (cg->is_folded(n))
-                s = tr("&Unfold");
-            else
-                s = tr("&Fold");
-            QAction *a = menu.addAction(s, this, SLOT(toggleFolding()));
-            lqNode *N = ancestor<lqNode>(item);
-            a->setData(QVariant::fromValue(N));
-        }
+        addActionsItem(&menu, item);
+        if (!menu.isEmpty())
+            menu.addSeparator();
     }
-
-    delete exportFmt;
-    exportFmt = new QSignalMapper;
-    connect(exportFmt, SIGNAL(mapped(QString)), SLOT(exportAs(QString)));
-
-    QMenu *e = menu.addMenu(tr("&Export As..."));
-    foreach (auto fmt, QString("dot svg pdf png").split(' ')) {
-        QAction *a = e->addAction(fmt);
-        connect(a, SIGNAL(triggered()), exportFmt, SLOT(map()));
-        exportFmt->setMapping(a, fmt);
-    }
-
+    addActionsScene(&menu);
     menu.exec(event->globalPos());
 }
 
@@ -226,7 +241,8 @@ bool lqXDotView::render_layout(QString &err)
  */
 void lqXDotView::show_context_graph_layout(GVC_t* context, Agraph_t *graph, QString layout)
 {
-    cg = new lqContextGraph(context, graph, this);
+    //cg = new lqContextGraph(context, graph, this);
+    cg = factory_cg(context, graph, this);
 
     QGraphicsView::show();
 
@@ -294,4 +310,14 @@ void lqXDotView::setFoldedScene(lqXDotScene* s, QPointF p)
     //clear();
     setScene(s);
     //translate(p.x(), p.y());
+}
+
+lqContextGraph* lqXDotView::factory_cg(GVC_t* context, Agraph_t *graph, lqXDotView* view) {
+    return new lqContextGraph(context, graph, view);
+}
+lqContextGraph* lqXDotView::factory_cg(lqXDotView* view) {
+    return new lqContextGraph(view);
+}
+lqXDotScene* lqXDotView::factory_scene(lqContextGraph* cg) {
+    return new lqXDotScene(cg);
 }

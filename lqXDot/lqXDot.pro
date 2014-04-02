@@ -39,7 +39,8 @@ HEADERS += \
     lqXDot.h \
     lqXDotView.h \
     lqXDotScene.h \
-    lqGvSynCol.h
+    lqGvSynCol.h \
+    configure_behaviour.h
 
 unix:!symbian {
     maemo5 {

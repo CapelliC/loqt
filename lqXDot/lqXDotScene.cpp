@@ -25,6 +25,9 @@
 #include "lqAniMachine.h"
 #include "lqXDotView.h"
 
+#include "configure_behaviour.h"
+int lqXDotScene::configure_behaviour;
+
 #include <QTime>
 #include <QDebug>
 #include <QCheckBox>
@@ -251,10 +254,17 @@ void lqXDotScene::perform_attrs(void* obj, int b_ops, std::function<void(const x
 /** remove XDOT computed rendering attributes from object
  */
 void lqXDotScene::clear_XDotAttrs(void *obj, int b_ops) {
+    qDebug() << "clear_XDotAttrs" << CVP(obj) << gvname(obj);
+    auto cf = [](void *obj, const char *n) {
+        //int rc = agset(obj, ccstr(n), ccstr(""));
+        int rc = agsafeset(obj, ccstr(n), ccstr(""), ccstr(""));
+        qDebug() << n << rc;
+    };
     for (size_t i = 0; i < sizeof(ops)/sizeof(ops[0]); ++i)
         if (b_ops & (1 << i))
-            agset(obj, ccstr(ops[i]), ccstr(""));
-    agset(obj, ccstr("pos"), ccstr(""));
+            cf(obj, ops[i]);
+    cf(obj, "pos");
+
     /* these don't work...
     agset(obj, ccstr("pos"), ccstr(""));
     agset(obj, ccstr("width"), ccstr(""));
@@ -728,6 +738,16 @@ void lqXDotScene::redo_objects(QList<void*> objects)
  */
 void lqXDotScene::moveEdges(lqNode *nodeMoving, QPointF nodeOldpos)
 {
+    /*int rf = gvRenderFilename(*cg, *cg, ccstr("plain"), ccstr("/tmp/x.plain"));
+    qDebug() << rf;
+
+    rf = gvRenderFilename(*cg, *cg, ccstr("xdot"), ccstr("/tmp/x.xdot"));
+    qDebug() << rf;
+    */
+    gvRenderFilename(*cg, *cg, "dot", "/tmp/x.dot");
+cg->clearXDotAttrs();
+    gvRenderFilename(*cg, *cg, "dot", "/tmp/x1.dot");
+
     QPointF newpos = nodeMoving->scenePos(),
             delta = newpos - nodeOldpos;
     qDebug() << newpos << delta;
@@ -740,15 +760,15 @@ void lqXDotScene::moveEdges(lqNode *nodeMoving, QPointF nodeOldpos)
             y = ss.mid(ps + 1).toFloat();
     qDebug() << ss << x << y;
 
-    x += delta.x();
-    y += delta.y();
+    //x -= delta.x();
+    y -= delta.y();
 
     QMap<Ep, QPair<Np, Np> > l_changed;
     gvFreeLayout(*cg, *cg);
 
-    agset(Gp(*cg), ccstr("splines"), ccstr("true"));
+    agsafeset(Gp(*cg), ccstr("splines"), ccstr("true"), ccstr(""));
     qDebug() << agget(n, ccstr("pos"));
-    agset(n, ccstr("pos"), QString("%1,%2").arg(x).arg(y).toUtf8().data());
+    agset(n, ccstr("pos"), QString("%1,%2!").arg(x).arg(y).toUtf8().data());
 
     auto etrace = [&](Ep e) {
         if (!l_changed.contains(e))
@@ -769,7 +789,9 @@ void lqXDotScene::moveEdges(lqNode *nodeMoving, QPointF nodeOldpos)
     if (cg->oktrace(tf_layout))
         gvRenderFilename(*cg, *cg, "xdot", "/tmp/x.nop2");
 
-    redo_objects(l_new);
+    //redo_objects(l_new);
+    clear();
+    build();
 
     qDebug() << agget(n, ccstr("pos"));
 

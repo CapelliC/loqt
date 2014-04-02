@@ -90,6 +90,15 @@ signals:
 
 protected:
 
+    // allocation factories
+    virtual lqContextGraph* factory_cg(GVC_t* context, Agraph_t *graph, lqXDotView* view);
+    virtual lqContextGraph* factory_cg(lqXDotView* view);
+    virtual lqXDotScene* factory_scene(lqContextGraph* cg);
+
+    // context menu handlers
+    virtual void addActionsItem(QMenu *menu, QGraphicsItem *item);
+    virtual void addActionsScene(QMenu *menu);
+
     void keyPressEvent(QKeyEvent* event);
     void wheelEvent(QWheelEvent* event);
 

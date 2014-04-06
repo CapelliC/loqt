@@ -101,6 +101,7 @@ protected:
 
     void keyPressEvent(QKeyEvent* event);
     void wheelEvent(QWheelEvent* event);
+    void mousePressEvent(QMouseEvent *event);
 
     void contextMenuEvent(QContextMenuEvent *event);
 

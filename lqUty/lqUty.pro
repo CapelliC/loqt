@@ -50,7 +50,8 @@ HEADERS += \
     EditInterface.h \
     thousandsDots.h \
     maplist.h \
-    KeyboardMacros.h
+    KeyboardMacros.h \
+    Tabbler.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

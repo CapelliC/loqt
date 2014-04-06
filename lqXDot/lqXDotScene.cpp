@@ -25,7 +25,7 @@
 #include "lqAniMachine.h"
 #include "lqXDotView.h"
 
-#include "configure_behaviour.h"
+#include "lqXDot_configure.h"
 int lqXDotScene::configure_behaviour;
 
 #include <QTime>
@@ -148,7 +148,7 @@ QGraphicsItem* lqXDotScene::add_node(Np n)
     l_items l = build_graphic(n);
     if (!l.isEmpty()) {
 
-        lqNode* g = new lqNode(this, l);
+        lqNode* g = build_node(n, l); //new lqNode(this, l);
 
         //g->setData(agptr, QVariant::fromValue(n));
         /*
@@ -189,8 +189,11 @@ QGraphicsItem* lqXDotScene::add_edge(Ep e)
 
     l_items l = build_graphic(e);
     if (!l.isEmpty()) {
-        QGraphicsItemGroup* g = createItemGroup(l);
-        //g->setData(agptr, QVariant::fromValue(e));
+        //QGraphicsItemGroup* g = createItemGroup(l);
+        lqEdge *g = build_edge(e, l);
+        using namespace configure_behaviour;
+        if (option_is_on(associate_Edges_items))
+            g->setData(Edges_Items, QVariant::fromValue(e));
         return g;
     }
     return 0;
@@ -209,9 +212,12 @@ void lqXDotScene::subgraphs(Gp graph, qreal off_z)
     l_items l;
     if (agparent(graph) == 0) {
         bbscene = bb;
-        // add a fake frame around scene, like SvgView does
-        bb.adjust(-5,-5,+5,+5);
-        addRect(bb, QPen(Qt::DashLine));
+        using namespace configure_behaviour;
+        if (!option_is_on(no_draw_Graph_bounding_box)) {
+            // add a fake frame around scene, like SvgView does
+            bb.adjust(-5,-5,+5,+5);
+            addRect(bb, QPen(Qt::DashLine));
+        }
         /*/ workaround multiple boxes on root graph (gvFreeLayout doesn't clear them ?)
         l = build_graphic(graph, _ldraw_); */
     }
@@ -219,7 +225,8 @@ void lqXDotScene::subgraphs(Gp graph, qreal off_z)
         l = build_graphic(graph);
 
     if (!l.isEmpty()) {
-        QGraphicsItem *ig = createItemGroup(l);
+        //QGraphicsItem *ig = createItemGroup(l);
+        lqGraph *ig = build_subgraph(graph, l);
         //ig->setData(agptr, QVariant::fromValue(graph));
         ig->setZValue(dz(off_z));
     }
@@ -795,4 +802,19 @@ cg->clearXDotAttrs();
 
     qDebug() << agget(n, ccstr("pos"));
 
+}
+
+lqNode* lqXDotScene::build_node(Np n, l_items items) {
+    Q_UNUSED(n)
+    return new lqNode(this, items);
+}
+
+lqEdge* lqXDotScene::build_edge(Ep e, l_items items) {
+    Q_UNUSED(e)
+    return createItemGroup(items);
+}
+
+lqGraph* lqXDotScene::build_subgraph(Gp g, l_items items) {
+    Q_UNUSED(g)
+    return createItemGroup(items);
 }

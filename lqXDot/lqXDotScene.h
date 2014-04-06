@@ -105,9 +105,14 @@ protected:
     QString imagepath_;
 
     //! constructing visual objects
-    QGraphicsItem* add_node(Np n);
-    QGraphicsItem* add_edge(Ep e);
+    virtual QGraphicsItem* add_node(Np n);
+    virtual QGraphicsItem* add_edge(Ep e);
     void subgraphs(Gp graph, qreal off_z);
+
+    //! factories
+    virtual lqNode* build_node(Np n, l_items items);
+    virtual lqEdge* build_edge(Ep e, l_items items);
+    virtual lqGraph* build_subgraph(Gp g, l_items items);
 
 public:
     enum x_attrs {

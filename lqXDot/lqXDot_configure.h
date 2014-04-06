@@ -20,10 +20,28 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef CONFIGURE_BEHAVIOUR_H
-#define CONFIGURE_BEHAVIOUR_H
+#ifndef LQXDOT_CONFIGURE_H
+#define LQXDOT_CONFIGURE_H
 
 #include "lqXDotScene.h"
-#define moveEdges_ok 1
+
+namespace configure_behaviour {
+
+    enum configure_options {
+        move_Edges,
+        associate_Edges_items,
+        no_draw_Graph_bounding_box
+    };
+
+    inline int bit(configure_options o)  { return 1 << o; }
+
+    inline bool option_is_on(configure_options N) { return (lqXDotScene::configure_behaviour & bit(N)) == bit(N); }
+    inline void option_enable(configure_options N) { lqXDotScene::configure_behaviour |= bit(N); }
+
+    enum element_association_keys {
+        Edges_Items
+    };
+
+}
 
 #endif // CONFIGURE_BEHAVIOUR_H

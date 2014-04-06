@@ -77,7 +77,7 @@ lqXDotView::~lqXDotView()
 }
 
 /** parse the .gv source, render in default view
-  */
+ */
 bool lqXDotView::render_file(QString source, QString algo)
 {
     return cg->run_with_error_report([&]() {
@@ -98,7 +98,7 @@ bool lqXDotView::render_file(QString source, QString algo)
 }
 
 /** render the script with given layout
-  */
+ */
 bool lqXDotView::render_script(QString script, QString algo)
 {
     return cg->run_with_error_report([&]() {
@@ -114,7 +114,7 @@ bool lqXDotView::render_script(QString script, QString algo)
 }
 
 /** apply scene translation to a built GV graph
-  */
+ */
 void lqXDotView::render_graph()
 {
     truecolor_ = attr_bool(Gp(*cg), "truecolor");
@@ -161,6 +161,24 @@ void lqXDotView::wheelEvent(QWheelEvent* event)
     qreal factor = qPow(1.2, event->delta() / 240.0);
     scale(factor, factor);
     event->accept();
+}
+
+void lqXDotView::mousePressEvent(QMouseEvent *event)
+{
+    qDebug() << event->pos() << event->globalPos();
+
+    lqNode *lqit = ancestor<lqNode>(itemAt(event->pos()));
+    if (lqit)
+        qDebug() << lqit->boundingRect();
+
+    foreach(auto item, items(event->pos()))
+        if (QGraphicsTextItem *it = qgraphicsitem_cast<QGraphicsTextItem*>(item)) {
+            Np np = scene()->it_node(item);
+            qDebug() << attr_qstr(np, "pos");
+            break;
+        }
+
+    QGraphicsView::mousePressEvent(event);
 }
 
 /** bind item menu to Fold/Unfold

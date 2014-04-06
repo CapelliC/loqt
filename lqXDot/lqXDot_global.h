@@ -27,6 +27,8 @@
 
 #if defined(LQXDOT_LIBRARY)
 #  define LQXDOTSHARED_EXPORT Q_DECL_EXPORT
+#elif defined(LQXDOT_STATIC)
+#  define LQXDOTSHARED_EXPORT
 #else
 #  define LQXDOTSHARED_EXPORT Q_DECL_IMPORT
 #endif

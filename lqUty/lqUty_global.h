@@ -27,6 +27,8 @@
 
 #if defined(LQUTY_LIBRARY)
 #  define LQUTYSHARED_EXPORT Q_DECL_EXPORT
+#elif defined(LQUTY_STATIC)
+#  define LQUTYSHARED_EXPORT
 #else
 #  define LQUTYSHARED_EXPORT Q_DECL_IMPORT
 #endif

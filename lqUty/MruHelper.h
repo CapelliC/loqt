@@ -56,6 +56,15 @@ public:
     /** strip path from menu, if available, and update it */
     bool removePath(QObject *parent, QString path);
 
+    /** when more that a MRU menu required, need access to files' list */
+    QString fileAt(int p) const { return files[p]; }
+
+    /** same as above for menu item */
+    void setMenu(QMenu* menu) {
+        Q_ASSERT(mruMenu == 0);
+        mruMenu = menu;
+    }
+
 protected:
 
     /** keep entries at runtime */

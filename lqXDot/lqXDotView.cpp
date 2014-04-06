@@ -174,7 +174,7 @@ void lqXDotView::mousePressEvent(QMouseEvent *event)
     foreach(auto item, items(event->pos()))
         if (QGraphicsTextItem *it = qgraphicsitem_cast<QGraphicsTextItem*>(item)) {
             Np np = scene()->it_node(item);
-            qDebug() << attr_qstr(np, "pos");
+            qDebug() << it->toPlainText() << attr_qstr(np, "pos");
             break;
         }
 

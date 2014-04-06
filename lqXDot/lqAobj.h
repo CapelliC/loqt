@@ -88,9 +88,47 @@ signals:
 public slots:
 
 };
+
 Q_DECLARE_METATYPE(lqNode*)
 
-typedef QGraphicsItemGroup lqEdge;
-typedef QGraphicsItemGroup lqGraph;
+/** a recognizable edge
+ */
+class lqEdge : public lqItem {
+    Q_OBJECT
+public:
+
+    //! construct with graphics primitives
+    lqEdge(QGraphicsScene *s, items l) : lqItem(s, l) {}
+
+    //! fullfill qgraphics_cast requirements
+    enum { Type = UserType + 2 };
+    int type() const { return Type; }
+
+signals:
+
+public slots:
+
+};
+Q_DECLARE_METATYPE(lqEdge*)
+
+/** a recognizable subgraph
+ */
+class lqGraph : public lqItem {
+    Q_OBJECT
+public:
+
+    //! construct with graphics primitives
+    lqGraph(QGraphicsScene *s, items l) : lqItem(s, l) {}
+
+    //! fullfill qgraphics_cast requirements
+    enum { Type = UserType + 3 };
+    int type() const { return Type; }
+
+signals:
+
+public slots:
+
+};
+Q_DECLARE_METATYPE(lqGraph*)
 
 #endif // LQAOBJ

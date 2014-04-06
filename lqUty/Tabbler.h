@@ -37,7 +37,7 @@ namespace Tabbler {
 
     struct TblBuild {
 
-        TblBuild(QTextEdit *te) {
+        TblBuild(QTextEdit *te) : count(0) {
             cursor = te->textCursor();
             topFrame = cursor.currentFrame();
         }
@@ -46,7 +46,8 @@ namespace Tabbler {
 
         void addTable(const Tbl &t) {
             cursor.setPosition(topFrame->lastPosition());
-            cursor.insertBlock();
+            if (count++)
+                cursor.insertBlock();
 
             QTextTable *tab = cursor.insertTable(t.count(), t[0].count());
             for (int r = 0; r < t.count(); ++r)
@@ -56,6 +57,7 @@ namespace Tabbler {
 
         QTextCursor cursor;
         QPointer<QTextFrame> topFrame;
+        int count;
     };
 }
 

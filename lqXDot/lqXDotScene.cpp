@@ -52,7 +52,8 @@ inline qreal dz(qreal &v) { v += .0001; return v; }
 lqXDotScene::lqXDotScene(lqContextGraph *cg) : cg(cg),
     truecolor_()
 {
-    build();
+    if (Cp(*cg))
+        build();
 }
 
 void lqXDotScene::build()
@@ -811,10 +812,10 @@ lqNode* lqXDotScene::build_node(Np n, l_items items) {
 
 lqEdge* lqXDotScene::build_edge(Ep e, l_items items) {
     Q_UNUSED(e)
-    return createItemGroup(items);
+    return new lqEdge(this, items); //createItemGroup(items);
 }
 
 lqGraph* lqXDotScene::build_subgraph(Gp g, l_items items) {
     Q_UNUSED(g)
-    return createItemGroup(items);
+    return new lqGraph(this, items); //createItemGroup(items);
 }

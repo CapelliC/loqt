@@ -25,9 +25,11 @@
 
 lqItem::lqItem(QGraphicsScene *s, items l)
 {
-    s->addItem(this);
-    foreach(auto i, l)
-        addToGroup(i);
+    if (!l.isEmpty()) {
+        s->addItem(this);
+        foreach(auto i, l)
+            addToGroup(i);
+    }
 }
 
 //! serve itemHasChanged() signal

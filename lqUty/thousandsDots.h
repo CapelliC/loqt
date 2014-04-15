@@ -26,7 +26,7 @@
 #include <QString>
 
 //! insert dots to group thousands
-QString thousandsDots(QString s) {
+inline QString thousandsDots(QString s) {
     int l = s.length();
     if (l > 3)
         return thousandsDots(s.left(l - 3)) + '.' + s.right(3);
@@ -34,7 +34,7 @@ QString thousandsDots(QString s) {
 }
 
 //! insert dots to group thousands
-QString thousandsDots(ulong n) {
+inline QString thousandsDots(ulong n) {
     return thousandsDots(QString::number(n));
 }
 

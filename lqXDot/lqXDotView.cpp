@@ -128,6 +128,7 @@ void lqXDotView::render_graph()
 
     //setScene(new lqXDotScene(cg));
     setScene(factory_scene(cg));
+    scene()->build();
 }
 
 /** very simple keyboard interaction
@@ -173,8 +174,8 @@ void lqXDotView::mousePressEvent(QMouseEvent *event)
 
     foreach(auto item, items(event->pos()))
         if (QGraphicsTextItem *it = qgraphicsitem_cast<QGraphicsTextItem*>(item)) {
-            Np np = scene()->it_node(item);
-            qDebug() << it->toPlainText() << attr_qstr(np, "pos");
+            if (Np np = scene()->it_node(item))
+                qDebug() << it->toPlainText() << attr_qstr(np, "pos");
             break;
         }
 
@@ -327,6 +328,7 @@ void lqXDotView::setFoldedScene(lqXDotScene* s, QPointF p)
     setRenderHint(QPainter::TextAntialiasing);
     //clear();
     setScene(s);
+    s->build();
     //translate(p.x(), p.y());
 }
 

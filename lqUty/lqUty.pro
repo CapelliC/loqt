@@ -27,7 +27,8 @@ SOURCES += \
     CodeMirrorFile.cpp \
     CodeMirror.cpp \
     XmlSyntaxHighlighter.cpp \
-    KeyboardMacros.cpp
+    KeyboardMacros.cpp \
+    JSSyntax.cpp
 
 HEADERS += \
     lqUty.h \
@@ -51,7 +52,8 @@ HEADERS += \
     thousandsDots.h \
     maplist.h \
     KeyboardMacros.h \
-    Tabbler.h
+    Tabbler.h \
+    JSSyntax.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

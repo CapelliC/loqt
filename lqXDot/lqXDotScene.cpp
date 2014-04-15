@@ -52,8 +52,6 @@ inline qreal dz(qreal &v) { v += .0001; return v; }
 lqXDotScene::lqXDotScene(lqContextGraph *cg) : cg(cg),
     truecolor_()
 {
-    if (Cp(*cg))
-        build();
 }
 
 void lqXDotScene::build()
@@ -149,14 +147,7 @@ QGraphicsItem* lqXDotScene::add_node(Np n)
     l_items l = build_graphic(n);
     if (!l.isEmpty()) {
 
-        lqNode* g = build_node(n, l); //new lqNode(this, l);
-
-        //g->setData(agptr, QVariant::fromValue(n));
-        /*
-        g->setFlag(QGraphicsItem::ItemIsSelectable);
-        g->setFlag(QGraphicsItem::ItemIsMovable);
-        g->setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
-        */
+        lqNode* g = build_node(n, l);
 
         QString tooltip = QString::fromUtf8(attr_str(n, "tooltip"));
         if (!tooltip.isEmpty()) {
@@ -190,7 +181,6 @@ QGraphicsItem* lqXDotScene::add_edge(Ep e)
 
     l_items l = build_graphic(e);
     if (!l.isEmpty()) {
-        //QGraphicsItemGroup* g = createItemGroup(l);
         lqEdge *g = build_edge(e, l);
         using namespace configure_behaviour;
         if (option_is_on(associate_Edges_items))
@@ -226,7 +216,6 @@ void lqXDotScene::subgraphs(Gp graph, qreal off_z)
         l = build_graphic(graph);
 
     if (!l.isEmpty()) {
-        //QGraphicsItem *ig = createItemGroup(l);
         lqGraph *ig = build_subgraph(graph, l);
         //ig->setData(agptr, QVariant::fromValue(graph));
         ig->setZValue(dz(off_z));
@@ -812,10 +801,11 @@ lqNode* lqXDotScene::build_node(Np n, l_items items) {
 
 lqEdge* lqXDotScene::build_edge(Ep e, l_items items) {
     Q_UNUSED(e)
-    return new lqEdge(this, items); //createItemGroup(items);
+    return new lqEdge(this, items);
+    //return createItemGroup(items);
 }
 
 lqGraph* lqXDotScene::build_subgraph(Gp g, l_items items) {
-    Q_UNUSED(g)
-    return new lqGraph(this, items); //createItemGroup(items);
+    Q_UNUSED(g);
+    return new lqGraph(this, items);
 }

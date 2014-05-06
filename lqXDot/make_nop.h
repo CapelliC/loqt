@@ -20,29 +20,26 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef LQXDOT_CONFIGURE_H
-#define LQXDOT_CONFIGURE_H
+#ifndef MAKE_NOP_H
+#define MAKE_NOP_H
 
-#include "lqXDotScene.h"
+#include <QObject>
+#include "lqXDot_global.h"
 
-namespace configure_behaviour {
+/** a dirty hack to get file in neato accepted format
+ */
+class LQXDOTSHARED_EXPORT make_nop : public QObject
+{
+    Q_OBJECT
+public:
 
-    enum configure_options {
-        move_Edges,
-        associate_Edges_items,
-        no_draw_Graph_bounding_box,
-        no_box_on_render_errors
-    };
+    explicit make_nop(QObject *parent = 0);
+    QString transform(QString src);
 
-    inline int bit(configure_options o)  { return 1 << o; }
+signals:
 
-    inline bool option_is_on(configure_options N) { return (lqXDotScene::configure_behaviour & bit(N)) == bit(N); }
-    inline void option_enable(configure_options N) { lqXDotScene::configure_behaviour |= bit(N); }
+public slots:
 
-    enum element_association_keys {
-        Edges_Items
-    };
+};
 
-}
-
-#endif // CONFIGURE_BEHAVIOUR_H
+#endif // MAKE_NOP_H

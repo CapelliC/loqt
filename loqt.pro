@@ -23,7 +23,8 @@ SUBDIRS += \
     pqSourceTest \
     fdqueens \
     spqr \
-    qPrologPad
+    qPrologPad \
+    testKeyboardMacros
 
 OTHER_FILES += \
     README.md \

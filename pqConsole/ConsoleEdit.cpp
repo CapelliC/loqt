@@ -158,7 +158,10 @@ void ConsoleEdit::setup() {
     input_text_fmt.setForeground(ANSI2col(p.console_inp_fore));
     input_text_fmt.setBackground(ANSI2col(p.console_inp_back));
 
-    setLineWrapMode(p.wrapMode);
+    //setLineWrapMode(p.wrapMode);
+    //setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    //setLineWrapMode(WidgetWidth);
+
     setFont(p.console_font);
 
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(onCursorPositionChanged()));

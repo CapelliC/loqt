@@ -81,17 +81,15 @@ public:
     //! after a partial layout, just redo changed objects
     void redo_objects(QList<void*> objects);
 
-    //! handle layout rebuild
-    void moveEdges(lqNode *moving, QPointF nodeOldpos);
-
-    //! change at runtime as required
-    static int configure_behaviour;
-
 signals:
 
     void setup_completed();
+    void reload_layout(QString newLayout);
 
 public slots:
+
+    void msg(QString);
+    void itemHasChanged(QGraphicsItem::GraphicsItemChange,QVariant);
 
 protected:
 
@@ -129,6 +127,9 @@ public:
     };
     static void clear_XDotAttrs(void *obj, int ops);
 
+    //! change using values from lqXDot_configure.h
+    static int configure_behaviour;
+
 protected:
 
     l_items build_graphic(void *obj, int ops);
@@ -150,13 +151,7 @@ protected:
     }
 
     //! parse font spec specifier
-    static QString font_spec(cstr fontname) {
-        QString family(fontname);
-        int sep = family.indexOf('-');
-        if (sep > 0)
-            family = QString("%1 [%2]").arg(family.left(sep), family.mid(sep + 1));
-        return family;
-    }
+    static QString font_spec(cstr fontname);
 
     QRectF rect_spec(const xdot_rect& r) const {
         return QRectF(QPointF(r.x - r.w, cy(r.y + r.h)), QSize(r.w * 2, r.h * 2));
@@ -176,8 +171,17 @@ protected:
         return v;
     }
 
-public slots:
-    void msg(QString);
+    //! handle layout rebuild
+    virtual void moveEdges(lqNode *moving, QPointF nodeOldpos);
+
+    QPointer<lqNode> nodeMoving;
+    QPointF nodeOldPos, nodeNewPos;
+
+    // QGraphicsScene interface
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 };
 
 #endif // LQXDOTSCENE_H

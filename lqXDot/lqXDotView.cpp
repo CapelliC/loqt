@@ -127,7 +127,9 @@ void lqXDotView::render_graph()
     }
 
     //setScene(new lqXDotScene(cg));
-    setScene(factory_scene(cg));
+    auto s = factory_scene(cg);
+    connect(s, SIGNAL(reload_layout(QString)), SLOT(reloadLayout(QString)));
+    setScene(s);
     scene()->build();
 }
 
@@ -319,6 +321,11 @@ void lqXDotView::exportAs(QString fmt)
             return err;
         });
     }
+}
+
+void lqXDotView::reloadLayout(QString newLayout)
+{
+    render_file(newLayout, "nop2");
 }
 
 void lqXDotView::setFoldedScene(lqXDotScene* s, QPointF p)

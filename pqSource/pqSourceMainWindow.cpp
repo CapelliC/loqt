@@ -73,7 +73,7 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     connect(e, SIGNAL(engine_ready()), this, SLOT(engine_ready()));
     connect(e, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
     connect(e, SIGNAL(request_help(QString)), SLOT(requestHelp(QString)));
-    e->setLineWrapMode(e->NoWrap);
+    //e->setLineWrapMode(e->NoWrap);
 
     //mdiArea()->addSubWindow(e)->setWindowTitle("Console");
     //! added a class as required to veto closing a console

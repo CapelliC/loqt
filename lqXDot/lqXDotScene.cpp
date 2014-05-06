@@ -24,6 +24,7 @@
 #include "lqLogger.h"
 #include "lqAniMachine.h"
 #include "lqXDotView.h"
+#include "make_nop.h"
 
 #include "lqXDot_configure.h"
 int lqXDotScene::configure_behaviour;
@@ -39,6 +40,7 @@ int lqXDotScene::configure_behaviour;
 #include <QAbstractTransition>
 #include <QGraphicsProxyWidget>
 #include <QParallelAnimationGroup>
+#include <QGraphicsSceneMouseEvent>
 
 /** need some plane height offset because nodes and edges overlap
  *  place nodes on top
@@ -52,6 +54,22 @@ inline qreal dz(qreal &v) { v += .0001; return v; }
 lqXDotScene::lqXDotScene(lqContextGraph *cg) : cg(cg),
     truecolor_()
 {
+}
+
+/** factory interface
+ */
+lqNode* lqXDotScene::build_node(Np n, l_items items) {
+    Q_UNUSED(n)
+    return new lqNode(this, items);
+}
+lqEdge* lqXDotScene::build_edge(Ep e, l_items items) {
+    Q_UNUSED(e)
+    return new lqEdge(this, items);
+    //return createItemGroup(items);
+}
+lqGraph* lqXDotScene::build_subgraph(Gp g, l_items items) {
+    Q_UNUSED(g);
+    return new lqGraph(this, items);
 }
 
 void lqXDotScene::build()
@@ -148,6 +166,18 @@ QGraphicsItem* lqXDotScene::add_node(Np n)
     if (!l.isEmpty()) {
 
         lqNode* g = build_node(n, l);
+
+        if (cg->oktrace(tf_add_node))
+            qDebug() << "build_node" << N << g->boundingRect();
+
+        using namespace configure_behaviour;
+        if (option_is_on(move_Edges)) {
+            g->setFlags(QGraphicsItem::ItemIsSelectable|
+                        QGraphicsItem::ItemIsMovable|
+                        QGraphicsItem::ItemSendsGeometryChanges);
+            connect(g,  SIGNAL  (itemHasChanged(QGraphicsItem::GraphicsItemChange,QVariant)),
+                        SLOT    (itemHasChanged(QGraphicsItem::GraphicsItemChange,QVariant)));
+        }
 
         QString tooltip = QString::fromUtf8(attr_str(n, "tooltip"));
         if (!tooltip.isEmpty()) {
@@ -251,11 +281,12 @@ void lqXDotScene::perform_attrs(void* obj, int b_ops, std::function<void(const x
 /** remove XDOT computed rendering attributes from object
  */
 void lqXDotScene::clear_XDotAttrs(void *obj, int b_ops) {
-    qDebug() << "clear_XDotAttrs" << CVP(obj) << gvname(obj);
+    //qDebug() << "clear_XDotAttrs" << CVP(obj) << gvname(obj);
     auto cf = [](void *obj, const char *n) {
         //int rc = agset(obj, ccstr(n), ccstr(""));
-        int rc = agsafeset(obj, ccstr(n), ccstr(""), ccstr(""));
-        qDebug() << n << rc;
+        /*int rc = */agsafeset(obj, ccstr(n), ccstr(""), ccstr(""));
+        /*if (cg->oktrace(tf_parseXDot))
+            qDebug() << n << rc;*/
     };
     for (size_t i = 0; i < sizeof(ops)/sizeof(ops[0]); ++i)
         if (b_ops & (1 << i))
@@ -395,7 +426,7 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
 
     perform_attrs(obj, b_ops, [&](const xdot_op &op) {
 
-        if(cg->oktrace(tf_perform_attrs_xdot_op))
+        if (cg->oktrace(tf_perform_attrs_xdot_op))
             qDebug() << "perform_attrs" << b_ops << op.kind;
 
         switch (op.kind) {
@@ -450,10 +481,17 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
             QString text(QString::fromUtf8(xt.text));
             QString family(font_spec(fontname));
 
+            /* can't solve font properties
+             * there could be a bug in xdot...
             font.setFamily(family);
 
             // set the pixel size of the font.
             font.setPixelSize(fontsize);
+            */
+            font.setFamily("FreeSerif");
+            font.setPixelSize(fontsize-1);
+            //font.setStyleHint(QFont::Serif);
+            //font.setPixelSize(14);
 
             QGraphicsTextItem *t = addText(text = text.replace("\\n", "\n"), font);
             t->setDefaultTextColor(parse_color(currcolor, truecolor()));
@@ -512,7 +550,10 @@ lqXDotScene::l_items lqXDotScene::build_graphic(void *obj, int b_ops)
                 if (s == "dashed")  b_style |= dashed; else
                 if (s == "dotted")  b_style |= dotted; else
                 if (s == "bold")    b_style |= bold; else
-                if (s != "solid")   qDebug() << "unhandled style" << op.u.style;
+                if (s != "solid")   {
+                    if (cg->oktrace(tf_perform_attrs_xdot_op))
+                        qDebug() << "unhandled style" << op.u.style;
+                }
             }
             break;
 
@@ -733,21 +774,76 @@ void lqXDotScene::redo_objects(QList<void*> objects)
 
 /** WIP attempt to preserve layout and recomputing edges only
  */
-void lqXDotScene::moveEdges(lqNode *nodeMoving, QPointF nodeOldpos)
+void lqXDotScene::moveEdges(lqNode *nodeMoving, QPointF deltaPos)
 {
+    qDebug() << "moveEdges" << nodeMoving->name() << deltaPos;
+
+    cg->clearXDotAttrs();
+    QString n = nodeMoving->name();
+
+    Np N = to_node(nodeMoving);
+    if (N) {
+        qDebug() << gvname(N);
+        if (agsafeset(N, ccstr("pos"), qcstr(QString("%1,%2").arg(deltaPos.x(), deltaPos.y())), ccstr("0,0")))
+            qDebug() << "failed";
+    }
+
+    #define F else qDebug() << __LINE__;
+
+    QString fdot = "/tmp/x1.dot", fneato = "/tmp/x1.neato";
+    if (gvRenderFilename(*cg, *cg, "dot", qcstr(fdot)) == 0) {
+        QFile src(fdot);
+        if (src.open(src.ReadOnly)) {
+            QString d = make_nop().transform(QTextStream(&src).readAll());
+            if (!d.isEmpty()) {
+                QString pn = "\t\"" + n + "\"\t";
+                int q = d.indexOf(pn);
+                if (q == -1)
+                    pn = "\t" + n + "\t";
+                q = d.indexOf(pn);
+                if (q > 0) {
+                    int y = d.indexOf("pos=\"", q + pn.length());
+                    if (y > 0) {
+                        int z = d.indexOf("\",\n", y + 5);
+                        if (z > 0) {
+                            QString cp = d.mid(y + 5, z - y - 5);
+                            QStringList l = cp.split(",");
+                            if (l.count() == 2) {
+                                bool ok = false;
+                                float XP = l[0].toFloat(&ok);   qDebug() << cp << l[0] << l[1] << ok;
+                                if (ok) {
+                                    float YP = l[1].toFloat(&ok);
+                                    if (ok) {
+                                        QString g = QString("%1,%2").arg(XP + deltaPos.x()).arg(YP - deltaPos.y());
+                                        QString D = d.left(y+5) + g + d.mid(z);
+                                        QFile dst(fneato);
+                                        if (dst.open(dst.WriteOnly)) {
+                                            {QTextStream(&dst) << D;}
+                                            emit reload_layout(fneato);
+                                        } F
+                                    } F
+                                } F
+                            } F
+                        } F
+                    } F
+                } F
+            } F
+        } F
+    } F
+
+    #undef F
+
+#if 0
     /*int rf = gvRenderFilename(*cg, *cg, ccstr("plain"), ccstr("/tmp/x.plain"));
     qDebug() << rf;
 
     rf = gvRenderFilename(*cg, *cg, ccstr("xdot"), ccstr("/tmp/x.xdot"));
     qDebug() << rf;
     */
-    gvRenderFilename(*cg, *cg, "dot", "/tmp/x.dot");
-cg->clearXDotAttrs();
-    gvRenderFilename(*cg, *cg, "dot", "/tmp/x1.dot");
 
-    QPointF newpos = nodeMoving->scenePos(),
-            delta = newpos - nodeOldpos;
-    qDebug() << newpos << delta;
+    gvRenderFilename(*cg, *cg, "dot", "/tmp/x.dot");
+    cg->clearXDotAttrs();
+    gvRenderFilename(*cg, *cg, "dot", "/tmp/x1.dot");
 
     Np n = to_node(nodeMoving);
     QString ss(agget(n, ccstr("pos")));
@@ -758,7 +854,7 @@ cg->clearXDotAttrs();
     qDebug() << ss << x << y;
 
     //x -= delta.x();
-    y -= delta.y();
+    y -= deltaPos.y();
 
     QMap<Ep, QPair<Np, Np> > l_changed;
     gvFreeLayout(*cg, *cg);
@@ -791,21 +887,58 @@ cg->clearXDotAttrs();
     build();
 
     qDebug() << agget(n, ccstr("pos"));
-
+#endif
 }
 
-lqNode* lqXDotScene::build_node(Np n, l_items items) {
-    Q_UNUSED(n)
-    return new lqNode(this, items);
+void lqXDotScene::itemHasChanged(QGraphicsItem::GraphicsItemChange c, QVariant v)
+{
+    if (c == QGraphicsItem::ItemPositionChange) {
+        if (nodeMoving && nodeMoving == qobject_cast<lqNode*>(sender())) {
+            if (nodeOldPos == nodeNewPos)
+                nodeOldPos = v.toPointF();
+            else
+                nodeNewPos = v.toPointF();
+        }
+    }
+
+    if (c == QGraphicsItem::ItemSelectedChange) {
+        qDebug() << "ItemSelectedChange";
+        if (auto n = qobject_cast<lqNode*>(sender())) {
+            if (v.toBool()) {
+                nodeMoving = n;
+                nodeOldPos = nodeNewPos = QPointF();// = v.toPointF();
+            }
+            else
+                nodeMoving = 0;
+        }
+    }
 }
 
-lqEdge* lqXDotScene::build_edge(Ep e, l_items items) {
-    Q_UNUSED(e)
-    return new lqEdge(this, items);
-    //return createItemGroup(items);
+/** this doesn't work, family defaulted to FreeSerif */
+QString lqXDotScene::font_spec(cstr fontname) {
+    QString family(fontname);
+    int sep = family.indexOf('-');
+    if (sep > 0)
+        family = QString("%1 [%2]").arg(family.left(sep), family.mid(sep + 1));
+    return family;
 }
 
-lqGraph* lqXDotScene::build_subgraph(Gp g, l_items items) {
-    Q_UNUSED(g);
-    return new lqGraph(this, items);
+void lqXDotScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    QGraphicsScene::mousePressEvent(event);
+}
+
+void lqXDotScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    QGraphicsScene::mouseMoveEvent(event);
+}
+
+void lqXDotScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (nodeMoving) {
+        if (nodeNewPos != nodeOldPos)
+            moveEdges(nodeMoving, nodeNewPos - nodeOldPos);
+        nodeMoving = 0;
+    }
+    QGraphicsScene::mouseReleaseEvent(event);
 }

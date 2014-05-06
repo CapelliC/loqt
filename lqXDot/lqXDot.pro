@@ -30,7 +30,8 @@ SOURCES += \
     lqXDot.cpp \
     lqXDotView.cpp \
     lqXDotScene.cpp \
-    lqGvSynCol.cpp
+    lqGvSynCol.cpp \
+    make_nop.cpp
 
 HEADERS += \
     lqXDot_global.h \
@@ -40,7 +41,8 @@ HEADERS += \
     lqXDotView.h \
     lqXDotScene.h \
     lqGvSynCol.h \
-    lqXDot_configure.h
+    lqXDot_configure.h \
+    make_nop.h
 
 unix:!symbian {
     maemo5 {

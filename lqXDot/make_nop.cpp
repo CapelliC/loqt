@@ -20,29 +20,26 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef LQXDOT_CONFIGURE_H
-#define LQXDOT_CONFIGURE_H
+#include "make_nop.h"
 
-#include "lqXDotScene.h"
-
-namespace configure_behaviour {
-
-    enum configure_options {
-        move_Edges,
-        associate_Edges_items,
-        no_draw_Graph_bounding_box,
-        no_box_on_render_errors
-    };
-
-    inline int bit(configure_options o)  { return 1 << o; }
-
-    inline bool option_is_on(configure_options N) { return (lqXDotScene::configure_behaviour & bit(N)) == bit(N); }
-    inline void option_enable(configure_options N) { lqXDotScene::configure_behaviour |= bit(N); }
-
-    enum element_association_keys {
-        Edges_Items
-    };
-
+make_nop::make_nop(QObject *parent) :
+    QObject(parent)
+{
 }
+QString make_nop::transform(QString src)
+{
+    QString h = "digraph mlxgraph {\n";
+    if (!src.startsWith(h)) return "";
 
-#endif // CONFIGURE_BEHAVIOUR_H
+    QString dst;
+    dst = "digraph mlxgraph { splines=true;\n";
+    int p = h.length(), q;
+    while ((q = src.indexOf(" -> ", p + 1)) > 0) {
+        dst += src.mid(p, q - p); p = q;
+        if ((q = src.indexOf("pos=\"", p)) == -1) return "";
+        dst += src.mid(p, q - p); p = q;
+        if ((q = src.indexOf("\"];", p)) == -1) return "";
+        p = q + 1;
+    }
+    return dst + src.mid(p);
+}

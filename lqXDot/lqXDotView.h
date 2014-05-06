@@ -115,6 +115,7 @@ protected slots:
 
     void toggleFolding();
     void exportAs(QString fmt);
+    void reloadLayout(QString newLayout);
 
 protected:
 

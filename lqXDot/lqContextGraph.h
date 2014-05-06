@@ -67,11 +67,6 @@ inline QString attr_qstr(void* obj, cstr name) {
     return QString::fromUtf8(agget(obj, ccstr(name)));
 }
 
-//! display a box -- TBD log to file
-inline void critical(QString msg) {
-    QMessageBox::critical(0, QObject::tr("Critical Error"), msg);
-}
-
 //! utility to get readable name string
 inline QString gvname(void* o) {
     return QString::fromUtf8(agnameof(o));
@@ -124,6 +119,9 @@ struct LQXDOTSHARED_EXPORT GV_ptr_types {
         tf_show_node_type,
         tf_redo_objects
     };
+
+    //! display a box -- TBD log to file
+    static void critical(QString msg);
 };
 
 /** a container for paired Graphviz pointers

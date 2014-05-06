@@ -22,6 +22,7 @@
 
 #include "lqContextGraph.h"
 #include "lqXDotScene.h"
+#include "lqXDot_configure.h"
 
 #include <QStack>
 #include <QDebug>
@@ -402,4 +403,13 @@ void lqContextGraph::clearXDotAttrs() {
             S::clear_XDotAttrs(e, S::x_attrs_edge);
         });
     });
+}
+
+/** display a messagebox, if not disabled
+ */
+void GV_ptr_types::critical(QString msg) {
+    qDebug() << msg;
+    using namespace configure_behaviour;
+    if (!option_is_on(no_box_on_render_errors))
+        QMessageBox::critical(0, QObject::tr("Critical Error"), msg);
 }

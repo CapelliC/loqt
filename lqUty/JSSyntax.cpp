@@ -38,7 +38,7 @@ void JSSyntax::setup() {
     QString charcode("0'.|0'\\t|0'\\n|0'\\r|0'\\u[0-9][0-9][0-9][0-9]");
     QString oper("[\\+\\-\\*\\/\\=\\^<>~:\\.,;\\?@#$\\\\&{}`]+");
 
-    tokens = QRegExp(QString("(%1)|(%2)|(%3)|(%4)|(%5)|(%6)|(%7)|(%8)|%").arg(number, symbol, var, quoted, atomq, atombackq, charcode, oper));
+    tokens = QRegExp(QString("(%1)|(%2)|(%3)|(%4)|(%5)|(%6)|(%7)|(%8)").arg(number, symbol, var, quoted, atomq, atombackq, charcode, oper));
 
     fmt[Comment].setForeground(Qt::darkGreen);
     fmt[Number].setForeground(QColor("blueviolet"));
@@ -101,11 +101,11 @@ void JSSyntax::highlightBlock(const QString &text)
                 if (l >= 2 && ml[8].left(2) == "/*") {
                     setFormat(j, l = 2, fmt[Comment]);
                     setCurrentBlockState(1);
+                } else if (l >= 2 && ml[8].left(2) == "//") {
+                    setFormat(j, text.length() - i, fmt[Comment]);
+                    break;
                 } else
-                    setFormat(j, l, fmt[Operator]); } else
-            {   // single line comment
-                setFormat(j, text.length() - i, fmt[Comment]);
-                break;
+                    setFormat(j, l, fmt[Operator]);
             }
         }
 

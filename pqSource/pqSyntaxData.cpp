@@ -135,7 +135,7 @@ QString pqSyntaxData::cat::structure(QString indent) const
 //
 int pqSyntaxData::cat::check() const
 {
-    if (beg > end)
+    if (beg > end || beg < 0)
         return 0;
     if (nesting.isEmpty())
         return 1;
@@ -166,8 +166,11 @@ void pqSyntaxData::apply_delta(t_nesting &c, int position, int delta)
         --p;
     t_nesting::iterator q = p;
     while (p != c.end()) {
-        if (p->beg >= position)
+        if (p->beg >= position) {
             p->beg += delta;
+            if (p->beg < 0)
+                p->beg = 0;
+        }
         if (p->end > position) {
             p->end += delta;
             if (p->end < p->beg)

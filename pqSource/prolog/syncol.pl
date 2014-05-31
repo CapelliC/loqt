@@ -69,6 +69,7 @@ syncolours :-
 :- thread_local frag/4.
 
 syncol_allfile(F, L) :-
+    retractall(frag(_,_,_,_)),
     load_source(F),
     xref_source(F),
     open(F, read, S),

@@ -43,19 +43,19 @@
 #include <QInputDialog>
 #include <QStringListModel>
 
-/** from :/prolog/syncol.pl */
+// from :/prolog/syncol.pl
 predicate2(syncol)
 
-/** from :/prolog/syncol.pl */
+// from :/prolog/syncol.pl
 predicate4(recolor)
 
-/** from :/prolog/syntax_colours.pl */
+// from :/prolog/syntax_colours.pl
 predicate2(syntax_colour)
 
-/** from :/prolog/syncol.pl */
+// from :/prolog/syncol.pl
 predicate2(syncol_allfile)
 
-/** frag(term,int,int,list) */
+// frag(term,int,int,list)
 structure4(frag)
 
 // assume pqConsole has already initialized PlEngine
@@ -164,14 +164,16 @@ PREDICATE(callback, 4)
     return TRUE;
 }
 
-/** open file in requested mode, throw exception on fail */
+// open file in requested mode, throw exception on fail
+//
 QFile &open_file(QFile &f, QIODevice::OpenMode mode = QIODevice::ReadOnly) {
     if (!f.open(mode))
         throw std::runtime_error("cannot open " + f.fileName().toStdString());
     return f;
 }
 
-/** check only *first* EOL character */
+// check only *first* EOL character
+//
 bool file_DOS_eol(QFile& file) {
     bool DOS = false;
     char c;
@@ -188,7 +190,8 @@ bool file_DOS_eol(QFile& file) {
     return DOS;
 }
 
-/** check EOL mode of path file */
+// check EOL mode of path file
+//
 bool file_DOS_eol(QString path) {
     QFile f(path);
     return file_DOS_eol(open_file(f));
@@ -289,12 +292,12 @@ void pqSource::startHighliter()
         QElapsedTimer tm;
         tm.start();
         SwiPrologEngine::in_thread _it;
-        qDebug() << file << "engine in " << tm.restart();
+        //qDebug() << file << "engine in " << tm.restart();
 
         try {
             T results, f;
             int rc = syncol_allfile(A(file), results);
-            qDebug() << file << "syncol_allfile" << rc << "in" << tm.restart();
+            //qDebug() << file << "syncol_allfile" << rc << "in" << tm.restart();
 
             pqTextAttributes ta;
 
@@ -302,19 +305,23 @@ void pqSource::startHighliter()
                 psd->add_element_sorted(t2w(f[3]), f[1], f[2], ta[f[4]]);
             }
 
-            qDebug() << file << "done add_element_attr" << "in" << tm.elapsed();
+            //qDebug() << file << "done add_element_attr" << "in" << tm.elapsed();
         }
         catch(PlException e) {
-            qDebug() << t2w(e);
+            //emit reportError(t2w(e));
         }
     };
-
     hl->scan_start();
+#ifdef ASYNC_SYNCOL_HIGHLIGHT
     auto w = new QFutureWatcher<void>;
     connect(w, SIGNAL(finished()), this, SLOT(runHighliter()));
 
     // run the Prolog snippet in background (hl pointer)
     w->setFuture(QtConcurrent::run(f, file, hl));
+#else
+    f(file, hl);
+    runHighliter();
+#endif
 }
 
 void pqSource::runHighliter()
@@ -326,6 +333,7 @@ void pqSource::runHighliter()
 
 void pqSource::highlightComplete()
 {
+    qDebug() << "highlight_complete" << file;
     //qDebug() << "highlight_complete" << file << "done in" << sd->timing.elapsed();
     //set_modified(false);
     //delete sd->pgb;
@@ -361,9 +369,8 @@ void pqSource::contentsChange(int position, int charsRemoved, int charsAdded)
 
     skip_changes = true;
     try {
-        QString cap = hl->get_clause_at(position);
-        if (!cap.isEmpty()) {
-            if (recolor(A(cap), A(file), &pqsd, errorPos)) {
+        auto colorize = [&](QString frag) {
+            if (recolor(A(frag), A(file), &pqsd, errorPos)) {
                 if (errorPos.type() == PL_VARIABLE) {
                     hl->reconcile(position, pqsd);
                     hl->rehighlightBlock(document()->findBlock(position));
@@ -371,27 +378,23 @@ void pqSource::contentsChange(int position, int charsRemoved, int charsAdded)
                     emit cursorPositionChanged();
                 }
                 else
-                    qDebug() << long(errorPos);
+                    emit reportError(tr("recolor: error at %1").arg(long(errorPos)));
             }
+        };
+
+        QString cap = hl->get_clause_at(position);
+        if (!cap.isEmpty()) {
+            colorize(cap);
         }
         else if (mr.size() > 0) {
             QString cr = mr.linesText(document());
             if (!cr.trimmed().isEmpty()) {
-                if (recolor(A(cr), A(file), &pqsd, errorPos)) {
-                    if (errorPos.type() == PL_VARIABLE) {
-                        hl->reconcile(document()->findBlock(mr.beg).position(), pqsd);
-                        hl->rehighlightLines(mr);
-                        // inform user about symbol change
-                        emit cursorPositionChanged();
-                    }
-                    else
-                        qDebug() << long(errorPos);
-                }
+                colorize(cr);
             }
         }
     }
     catch(PlException e) {
-        qDebug() << "exception" << t2w(e);
+        //qDebug() << "exception" << t2w(e);
     }
 
     skip_changes = false;

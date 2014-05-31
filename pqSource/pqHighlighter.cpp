@@ -40,7 +40,11 @@ pqHighlighter::pqHighlighter(QPlainTextEdit *host) :
 
 // coords are offsets in file
 //
-void pqHighlighter::highlightBlock(const QString &text) {
+void pqHighlighter::highlightBlock(const QString &text)
+{
+    if (status == idle)
+        return;
+
     if (!marker.isNull() && currentBlock() == marker.block()) {
         QTextCharFormat f;
         f.setBackground(Qt::yellow);
@@ -58,7 +62,8 @@ void pqHighlighter::highlightBlock(const QString &text) {
         pqMiniSyntax::highlightBlock(text);
 }
 
-void pqHighlighter::set_sem_attrs(int p, int c, const t_nesting &nest) {
+void pqHighlighter::set_sem_attrs(int p, int c, const t_nesting &nest)
+{
     foreach(const cat& x, nest) {
         // f,q cat coords
         int f = x.beg;
@@ -76,8 +81,8 @@ void pqHighlighter::set_sem_attrs(int p, int c, const t_nesting &nest) {
     }
 }
 
-void pqHighlighter::highlightBlock(const QTextBlock &b) {
-
+void pqHighlighter::highlightBlock(const QTextBlock &b)
+{
     set_sem_attrs(b.position(), b.position() + b.length(), cats);
 }
 
@@ -176,25 +181,29 @@ void pqHighlighter::clear_hvars()
     hvars.clear();
 }
 
-void pqHighlighter::clear_highlighting() {
+void pqHighlighter::clear_highlighting()
+{
     if (paren.size()) {
         pairchf(paren, QTextCharFormat());
         paren = range();
     }
 }
 
-void pqHighlighter::test_highlighting(QTextCursor c) {
+void pqHighlighter::test_highlighting(QTextCursor c)
+{
     ParenMatching m(c);
     if (m)
         (paren = m.positions).format_both(c, paren.bold());
 }
 
-void pqHighlighter::scan_start() {
+void pqHighlighter::scan_start()
+{
     cats.clear();
     status = scanning;
 }
 
-void pqHighlighter::scan_done() {
+void pqHighlighter::scan_done()
+{
     status = completed;
 }
 

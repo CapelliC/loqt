@@ -297,7 +297,7 @@ void pqSource::startHighliter()
         try {
             T results, f;
             int rc = syncol_allfile(A(file), results);
-            //qDebug() << file << "syncol_allfile" << rc << "in" << tm.restart();
+            qDebug() << file << "syncol_allfile" << rc << "in" << tm.restart();
 
             pqTextAttributes ta;
 

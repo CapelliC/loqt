@@ -1,14 +1,11 @@
 /** <module> calledgraph
  *
- *  Describe your module.
- *  --------
- *
- *  source file /home/carlo/cpp/loqt/pqSource/prolog/calledgraph.pl
- *  created at Tue Feb 18 17:38:58 2014
+ *  display a DOT graph of call, as reported by library(xref)
  *
  *  @author carlo
+ *  @created Tue Feb 18 17:38:58 2014
  *  @version 0.9.9
- *  @copyright carlo
+ *  @copyright 2014 Carlo Capelli
  *  @license LGPL v2.1
  */
 

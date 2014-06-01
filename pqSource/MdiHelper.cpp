@@ -258,6 +258,11 @@ void MdiHelper::createActions()
     viewGraphAct->setStatusTip(tr("Display the XREF graph of current source"));
     connect(viewGraphAct, SIGNAL(triggered()), this, SLOT(viewGraph()));
 
+    viewGraphIncl = new QAction(tr("View &Inclusions"), this);
+    viewGraphIncl->setShortcut(QKeySequence("Ctrl+I"));
+    viewGraphIncl->setStatusTip(tr("Display the XREF inclusions graph of current source"));
+    connect(viewGraphIncl, SIGNAL(triggered()), this, SLOT(viewInclusions()));
+
     commentClauseAct = new QAction(tr("Comment &Predicate"), this);
     commentClauseAct->setShortcut(QKeySequence("Ctrl+P"));
     commentClauseAct->setStatusTip(tr("Write a structured plDoc comment for current predicate head"));
@@ -390,6 +395,7 @@ void MdiHelper::createMenus()
     helpMenu->addAction(helpDocAct);
     helpMenu->addSeparator();
     helpMenu->addAction(viewGraphAct);
+    helpMenu->addAction(viewGraphIncl);
     helpMenu->addAction(commentClauseAct);
     helpMenu->addSeparator();
     helpMenu->addAction(aboutAct);

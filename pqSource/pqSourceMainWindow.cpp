@@ -104,7 +104,7 @@ void pqSourceMainWindow::engine_ready() {
     // calledgraph requires gv_uty: load first
     pqGraphviz::setup();
 
-    foreach (auto m, QString("syncol,trace_interception,calledgraph").split(',')) {
+    foreach (auto m, QString("syncol,trace_interception,calledgraph,pqSourceFileXref").split(',')) {
         bool rc = gui_thread_engine->resource_module(m);
         qDebug() << m << rc;
     }
@@ -717,4 +717,38 @@ void pqSourceMainWindow::commentClause()
 {
     if (auto s = activeChild<pqSource>())
         s->commentClause();
+}
+
+// from :/prolog/pqSourceFileXref.pl
+predicate2(file_inclusions_graph)
+
+/** make a XREF report in graph shape for current source
+ */
+void pqSourceMainWindow::viewInclusions() {
+    if (auto s = activeChild<pqSource>()) {
+#if 1
+        auto xdv = new lqXDotView;
+        xdv->setWindowTitle(tr("XREF inclusion - %1").arg(s->file));
+
+        bool c = false;
+        try {
+            T G;
+            if (agopen(A("viewInclusions"), A("Agdirected"), long(0), G)) {
+                lqContextGraph *cg = new lqContextGraph(gvContext(), pq_cast<Agraph_t>(G));
+                c = file_inclusions_graph(A(s->file), pq_cast<Agraph_t>(G));
+                if (c)
+                    xdv->show_context_graph_layout(*cg, *cg, "dot");
+            }
+        } catch(PlException &e) {
+            QMessageBox::critical(this, "error", t2w(e));
+        }
+
+        auto m = mdiArea()->addSubWindow(xdv);
+        m->show();
+#else
+        SwiPrologEngine::in_thread e;
+        bool c = calledgraph(A(s->file));
+ #endif
+        qDebug() << "calledgraph" << s->file << c;
+    }
 }

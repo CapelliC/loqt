@@ -97,6 +97,8 @@ public slots:
     void reportInfo(QString msg);
 
     void viewGraph();
+    void viewInclusions();
+
     void commentClause();
     void requestHelp(QString cursorWord);
 

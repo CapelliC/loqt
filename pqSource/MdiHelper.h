@@ -122,6 +122,7 @@ protected:
         aboutQtAct,
 
         viewGraphAct,
+        viewGraphIncl,
         commentClauseAct;
 
     inline QMdiArea* mdiArea() const {

@@ -1,16 +1,22 @@
-/** <module> testbed for preliminary library(prolog_xref) usage
+/** <module> pqSourceFileXref
  *
- *  file /home/carlo/prolog/pqSourceFileXref.pl, created at Fri Nov 8 10:35:36 2013
- *  user carlo
+ *  testbed for preliminary library(prolog_xref) usage.
  *
- *  library xref does a great job analyzing call graph and inclusions,
- *  here I'm just trying to get that represented by means
+ *  Library xref does a great job analyzing call graph and inclusions,
+ *  Here I'm just trying to get that represented by means
  *  of graphviz + html, showcasing integration pqConsole/meta Qt.
+ *
+ *  @author carlo
+ *  @created Fri Nov 8 10:35:36 2013
+ *  @version 0.9.9
+ *  @copyright 2014 Carlo Capelli 
+ *  @license LGPL v2.1
  */
 
 :- module(pqSourceFileXref,
 	[pqSourceFileXref/0
 	,file_inclusions_graph/1
+	,file_inclusions_graph/2
 	]).
 
 :- use_module(library(prolog_xref)).
@@ -23,13 +29,21 @@
 pqSourceFileXref :-
 	file_inclusions_graph('/home/carlo/prolog/pqSourceFileXref.pl').
 
-%%	file_inclusions_graph(+File) is det
+%%	file_inclusions_graph(+File,) is det
 %
 %	display some graphs as built from library(prolog_xref)
 %	make a cluster for each common path
 %
 file_inclusions_graph(File) :-
 	graph_window(clustered_inclusions(File), [layout(sfdp),window_title(File)]).
+
+%%	file_inclusions_graph(+File) is det
+%
+%	display some graphs as built from library(prolog_xref)
+%	make a cluster for each common path
+%
+file_inclusions_graph(File, GraphWindow) :-
+	clustered_inclusions(File, GraphWindow).
 
 %%	clustered_inclusions(File, G) is det.
 %

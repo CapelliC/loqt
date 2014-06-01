@@ -192,12 +192,12 @@ void MdiHelper::createActions()
     selectFontAct->setStatusTip(tr("Choose the font used to display text"));
     connect(selectFontAct, SIGNAL(triggered()), SLOT(selectFont()));
 
-    incFontAct = new QAction(tr("&Increase Font Size (Ctrl++)"), this);
+    incFontAct = new QAction(tr("&Increase Font Size"), this);
     incFontAct->setShortcut(QKeySequence("Ctrl++"));
     incFontAct->setStatusTip(tr("Make characters bigger (Increase Font size)"));
     connect(incFontAct, SIGNAL(triggered()), SLOT(incFont()));
 
-    decFontAct = new QAction(tr("&Decrease Font Size (Ctrl+-)"), this);
+    decFontAct = new QAction(tr("&Decrease Font Size"), this);
     decFontAct->setShortcut(QKeySequence("Ctrl+-"));
     decFontAct->setStatusTip(tr("Make characters smaller (Decrease Font Size)"));
     connect(decFontAct, SIGNAL(triggered()), SLOT(decFont()));
@@ -339,9 +339,9 @@ void MdiHelper::createMenus()
     fileMenu->addSeparator();
     mruMenu = fileMenu->addMenu("Recent &Files...");
 
-    fileMenu->addSeparator();
-    fileMenu->addAction(switchLayoutDirectionAct);
-    fileMenu->addAction(switchViewModeAct);
+    //fileMenu->addSeparator();
+    //fileMenu->addAction(switchLayoutDirectionAct);
+    //fileMenu->addAction(switchViewModeAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
@@ -357,10 +357,14 @@ void MdiHelper::createMenus()
 
     prefMenu = menuBar()->addMenu(tr("&Preferences"));
     prefMenu->addAction(viewSWIPrologPrefAct);
+    prefMenu->addSeparator();
     prefMenu->addAction(selectColorsAct);
     prefMenu->addAction(selectFontAct);
     prefMenu->addAction(incFontAct);
     prefMenu->addAction(decFontAct);
+    prefMenu->addSeparator();
+    prefMenu->addAction(switchLayoutDirectionAct);
+    prefMenu->addAction(switchViewModeAct);
 
     debugMenu = menuBar()->addMenu(tr("&Debug"));
     debugMenu->addAction(makeAct);

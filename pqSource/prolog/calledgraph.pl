@@ -14,7 +14,7 @@
 
 :- module(calledgraph,
 	[calledgraph/0
-        ,calledgraph/1
+	,calledgraph/1
 	,calledgraph/2
 	]).
 :- use_module(library(prolog_xref)).

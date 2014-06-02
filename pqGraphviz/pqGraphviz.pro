@@ -30,7 +30,6 @@ OTHER_FILES += \
     test/xref/file_xref.pl \
     test/odbc/graph_schema.pl \
     prolog/termtree.pl \
-    test/genealogy/familiari.png \
     test/genealogy/familiari.pdf
 
 # use some modern features

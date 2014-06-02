@@ -29,7 +29,8 @@ OTHER_FILES += \
     test/xref/paths_prefix.pl \
     test/xref/file_xref.pl \
     test/odbc/graph_schema.pl \
-    prolog/termtree.pl
+    prolog/termtree.pl \
+    test/genealogy/familiari.png
 
 # use some modern features
 QMAKE_CXXFLAGS += -std=c++0x

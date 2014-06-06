@@ -31,7 +31,8 @@ OTHER_FILES += \
     test/odbc/graph_schema.pl \
     prolog/termtree.pl \
     test/genealogy/familiari.pdf \
-    test/genealogy/pqGraphviz_emu.pl
+    test/genealogy/pqGraphviz_emu.pl \
+    test/genealogy/allocator.pl
 
 # use some modern features
 QMAKE_CXXFLAGS += -std=c++0x

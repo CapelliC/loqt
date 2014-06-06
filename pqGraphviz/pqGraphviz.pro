@@ -30,7 +30,8 @@ OTHER_FILES += \
     test/xref/file_xref.pl \
     test/odbc/graph_schema.pl \
     prolog/termtree.pl \
-    test/genealogy/familiari.pdf
+    test/genealogy/familiari.pdf \
+    test/genealogy/pqGraphviz_emu.pl
 
 # use some modern features
 QMAKE_CXXFLAGS += -std=c++0x

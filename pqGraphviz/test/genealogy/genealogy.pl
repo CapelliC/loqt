@@ -8,6 +8,10 @@
 :- module(genealogy, [genealogy/1]).
 :- use_module(library(clpfd)).
 
+:- if(\+ current_predicate(graph_window/2)).
+:-   use_module(pqGraphviz_emu).
+:- endif.
+
 % required relations
 :- multifile parent_child/2.
 :- multifile female/1.
@@ -97,7 +101,7 @@ one_parent(G, P, X) :-
 
 %%	make_rank(+RankPersons, -RankPersons)
 %
-%	compute generation based ranking via CLP(FD) 
+%	compute generation based ranking via CLP(FD)
 %
 make_rank(RPs, Rp-P) :-
 	findall(G, parent_child(P, G), Gs),

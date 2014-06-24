@@ -93,6 +93,9 @@ public:
     static QStringList extensionsProlog() { return QStringList() << "pl" << "plt" << "pro"; }
     static bool isProlog(QString path) { return extensionsProlog().contains(QFileInfo(path).suffix().toLower()); }
 
+    QString moduleName() const;
+    QStringList startWebScript();
+
 protected:
 
     QString editWhat;

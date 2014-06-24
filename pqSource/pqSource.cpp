@@ -568,6 +568,58 @@ void pqSource::commentClause()
     }
 }
 
+structure1(file)
+predicate2(module_property)
+
+/**
+ * @brief pqSource::moduleName
+ *
+ * My convention states that a module file must host a module named as the file itself.
+ * This schema isn't the same used by SWI-Prolog library, that often changes
+ * module name to best fit intended logic.
+ *
+ * @return the module name
+ */
+QString pqSource::moduleName() const
+{
+    QString s;
+    T Module;
+    if (module_property(Module, ::file(A(file)))) {
+        s = t2w(Module);
+    }
+    else
+        qDebug() << "moduleName on" << file << "failed";
+
+    return s;
+}
+
+/**
+ * @brief pqSource::startWebScript
+ *
+ * The script must be a module exposing 'module_name(start_server)' method.
+ * Issue the call required to start the server.
+ *
+ * @return the list of available HTTP handlers
+ */
+QStringList pqSource::startWebScript()
+{
+    QStringList l;
+    QString m = moduleName();
+    if (!m.isEmpty()) {
+        try {
+            if (!PlCall(m.toStdString().c_str()))
+                qDebug() << "startWebScript failed on " << m;
+            else {
+                l << "http://localhost:3456";
+            }
+        }
+        catch(PlException e) {
+            QMessageBox::critical(this, tr("Exception"), tr("calling '%1' thrown '%2'").arg(m, t2w(e)));
+        }
+    }
+    return l;
+}
+
 void pqSource::set_modified(bool yes)
 {
     parentWidget()->setWindowModified(yes);

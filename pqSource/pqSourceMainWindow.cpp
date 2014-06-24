@@ -34,6 +34,7 @@
 #include "FindReplace.h"
 #include "lqXDotView.h"
 #include "maplist.h"
+#include "pqWebScript.h"
 
 #include <QDebug>
 #include <QStatusBar>
@@ -59,12 +60,28 @@ structure2(doc_for_file)    // not a predicate
 predicate2(message_to_string)
 predicate2(with_output_to)
 
+/**
+ * @brief pqSourceMainWindow::pqSourceMainWindow
+ *
+ * MDI application window
+ * orchestrate multiple sources workspace - save/reload
+ *
+ * @param argc
+ *  needed by SWI-Prolog
+ * @param argv
+ *  needed by SWI-Prolog
+ * @param parent
+ *  needed by Qt widgets hierarchy
+ */
 pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     : MdiHelper(parent), gui_thread_engine(0)
 {
     qDebug() << "pqSourceMainWindow" << CT;
 
     //pqGraphviz::registerMetaTypes();
+
+    connect(this, SIGNAL(reportInfoSig(QString)), SLOT(reportInfo(QString)));
+    connect(this, SIGNAL(reportInfoSig(QString)), statusBar(), SLOT(showMessage(QString)));
 
     setCentralWidget(new QMdiArea(this));
     setupMdi();
@@ -93,8 +110,19 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     connect(findReplace, SIGNAL(outcome(QString)), statusBar(), SLOT(showMessage(QString)));
 
     //QTimer::singleShot(0, this, SLOT(fixGeometry()));
+    debugMenu->addSeparator();
+    pqWebScriptAct = new QAction("&Web Script", this);
+    pqWebScriptAct->setShortcut(QKeySequence("Ctrl+Shift+W"));
+    connect(pqWebScriptAct, SIGNAL(triggered()), this, SLOT(onWebScript()));
+    debugMenu->addAction(pqWebScriptAct);
 }
 
+/**
+ * @brief pqSourceMainWindow::engine_ready
+ *  allocate at once an engine for GUI thread
+ *  initialize Prolog modules from resource script
+ *  as required for basic source tasks
+ */
 void pqSourceMainWindow::engine_ready() {
     qDebug() << "engine_ready" << CT;
 
@@ -115,6 +143,11 @@ void pqSourceMainWindow::engine_ready() {
     Completion::helpidx();
 }
 
+/**
+ * @brief pqSourceMainWindow::fixGeometry
+ *  I found a problem, restoring geometry of a MDI child subwindow
+ *  offsets it by a constant under some condition
+ */
 void pqSourceMainWindow::fixGeometry() {
     Preferences p;
     loadMru(p, this);
@@ -150,6 +183,12 @@ void pqSourceMainWindow::fixGeometry() {
     queriesBox->setEditable(true);
 }
 
+/**
+ * @brief pqSourceMainWindow::closeEvent
+ *  query user to save all modified sources before close
+ * @param e
+ *  the close event
+ */
 void pqSourceMainWindow::closeEvent(QCloseEvent *e) {
     Q_UNUSED(e)
 
@@ -315,9 +354,21 @@ void pqSourceMainWindow::make() {
     PlCall("make");
 }
 
+/**
+ * @brief pqSourceMainWindow::saveFile
+ *
+ * Handle saving a script or console.
+ *  When a script is connected to a Web interface
+ *  start the state machine required to handle seamless reload
+ *  of actual web content display
+ *
+ * If save is requested on console, issue a dialog to allow user to save
+ *  current 'user_output' as HTML
+ */
 void pqSourceMainWindow::saveFile() {
-    if (auto s = activeChild<pqSource>())
+    if (auto s = activeChild<pqSource>()) {
         s->saveSource();
+    }
 
     if (auto c = activeChild<ConsoleEdit>()) {
         QFileDialog dia(this, tr("Save Console as HTML"), QString(), tr("HTML Files (*.html)"));
@@ -397,6 +448,12 @@ void pqSourceMainWindow::helpDoc()
     }
 }
 
+/**
+ * @brief pqSourceMainWindow::about
+ *  A nicely (?) formatted 'About...' dialog.
+ *  Display info from SWI-prolog runtime and
+ *  some link to my contributions.
+ */
 void pqSourceMainWindow::about() {
     QMessageBox info(this);
     PlTerm S;
@@ -443,6 +500,10 @@ pqSourceMainWindow* pqSourceMainWindow::hostEngines() {
 #undef PROLOG_MODULE
 #define PROLOG_MODULE "prolog_edit"
 
+/**
+ * @brief PREDICATE edit_source
+ * Hooks SWI-Prolog library prolog_edit:edit_source/1
+ */
 PREDICATE(edit_source, 1) {
     qDebug() << "edit_source" << t2w(PL_A1);
     bool rc = false;
@@ -654,7 +715,7 @@ void pqSourceMainWindow::markCursor(QTextCursor c)
 
 void pqSourceMainWindow::helpStart() {
     if (helpView())
-        reportInfo(tr("doc_server started at port %1").arg(pqDocView::helpDocPort));
+        emit reportInfoSig(tr("doc_server started at port %1").arg(pqDocView::helpDocPort));
 }
 
 #undef PROLOG_MODULE
@@ -750,5 +811,27 @@ void pqSourceMainWindow::viewInclusions() {
         bool c = calledgraph(A(s->file));
  #endif
         qDebug() << "calledgraph" << s->file << c;
+    }
+}
+
+/**
+ * @brief pqSourceMainWindow::onWebScript
+ *  Attach a WebView to current script, if none yet attached.
+ *  Script must be a module, exposing start/stop HTTP server
+ */
+void pqSourceMainWindow::onWebScript()
+{
+    qDebug() << "onWebScript";
+    if (auto s = activeChild<pqSource>()) {
+        for (auto ws: typedSubWindows<pqWebScript>()) {
+            if (ws->server == s) {
+                emit reportInfoSig(tr("this script already has a server"));
+                return;
+            }
+        }
+        auto ws = new pqWebScript();
+        mdiArea()->addSubWindow(ws);
+        ws->server = s;
+        ws->show();
     }
 }

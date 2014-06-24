@@ -61,7 +61,9 @@ public:
     static pqSourceMainWindow* hostEngines();
 
 signals:
-    
+    void reportErrorSig(QString msg);
+    void reportInfoSig(QString msg);
+
 protected:
 
     virtual void customEvent(QEvent *event);
@@ -69,6 +71,8 @@ protected:
     virtual QString symbol(QWidget *w);
 
     QPointer<FindReplace> findReplace;
+
+    QPointer<QAction> pqWebScriptAct;
 
     QFile reportFile;
     void reportToFile(QString msg);
@@ -126,6 +130,8 @@ protected slots:
     void watchVar();
 
     void engine_ready();
+
+    void onWebScript();
 };
 
 #endif // PQSOURCEMAINWINDOW_H

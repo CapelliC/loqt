@@ -38,7 +38,8 @@ SOURCES += \
     pqSyntaxData.cpp \
     symclass.cpp \
     pqSourceMainWindow.cpp \
-    MdiChildWithCheck.cpp
+    MdiChildWithCheck.cpp \
+    pqWebScript.cpp
 
 HEADERS += \
     pqSource.h \
@@ -50,7 +51,8 @@ HEADERS += \
     pqTextAttributes.h \
     pqSyntaxData.h \
     symclass.h \
-    MdiChildWithCheck.h
+    MdiChildWithCheck.h \
+    pqWebScript.h
 
 unix {
 

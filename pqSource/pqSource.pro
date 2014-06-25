@@ -65,8 +65,8 @@ unix {
     PKGCONFIG += libcgraph libgvc
 
     # qwt installed from source
-    QWT_ROOT = /usr/local/qwt-6.1.0
-    include ( $$QWT_ROOT/features/qwt.prf )
+#    QWT_ROOT = /usr/local/qwt-6.1.0
+#    include ( $$QWT_ROOT/features/qwt.prf )
 
     maemo5 {
         target.path = /opt/usr/lib

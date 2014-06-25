@@ -30,3 +30,10 @@ OTHER_FILES += \
     README.md \
     img/cluster.png \
     img/cluster-dot.png
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/pqSource/release/ -lpqSource
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/pqSource/debug/ -lpqSource
+else:unix: LIBS += -L$$OUT_PWD/pqSource/ -lpqSource
+
+INCLUDEPATH += $$PWD/lqUty
+DEPENDPATH += $$PWD/lqUty

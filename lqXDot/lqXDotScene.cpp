@@ -630,7 +630,7 @@ lqXDotScene* lqXDotScene::fold(lqNode* i, lqXDotView *qv)
     QString N = gvname(n);
 
     // mandatory to recompute...
-    { bool rc = cg->freeLayout(); Q_ASSERT(rc); }
+    { bool rc = cg->freeLayout(); Q_ASSERT(rc); Q_UNUSED(rc); }
 
     bool is_folded = cg->is_folded(n);
     if (is_folded)

@@ -220,9 +220,9 @@ void pqSyntaxData::reconcile(int position, const pqSyntaxData &updated)
         range cb = clause_boundary(position);
         if (cb.size() > 0 && cb.beg < cats.size()) {
             int p = cats[cb.beg].beg;
+            Q_UNUSED(p);
             Q_ASSERT(p <= position);
             Q_ASSERT(cb.size() + 1 == updated.cats.size());
-
             int delta = cats[cb.beg].beg - uc.beg;
 
             for (int i = 0; i < uns; ++i) {

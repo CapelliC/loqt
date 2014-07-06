@@ -23,14 +23,31 @@
 #include "pqWebScript.h"
 #include <QDebug>
 
+/**
+ * @brief pqWebScript::pqWebScript
+ *  Setup a WebScript window.
+ * @param parent
+ *  This is the QWidget parent, if any
+ *  In a MDI environment, a view is usually attached to a QMdiChildWindow...
+ */
 pqWebScript::pqWebScript(QWidget *parent) :
     QWebView(parent)
 {
+    // this will issue a developer environment creation
     page()->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+
+    // simpler browser events...
     connect(this, &QWebView::titleChanged, [=](const QString &t) { setWindowTitle(t); });
+
+    // server creation must be delayed after display
     QTimer::singleShot(1, this, SLOT(startWebScript()));
 }
 
+/**
+ * @brief pqWebScript::startWebScript
+ *  Request the source window to start a server.
+ *  Then load first HTTP entry point
+ */
 void pqWebScript::startWebScript()
 {
     auto l = server->startWebScript();

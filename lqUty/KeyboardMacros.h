@@ -25,7 +25,9 @@
 
 #include "EditInterface.h"
 #include "lqPreferences.h"
+
 #include <QKeyEvent>
+#include <QShortcut>
 
 /** helper class to record and playback macros
  */
@@ -37,10 +39,16 @@ public:
     explicit KeyboardMacros(QObject *parent = 0);
     ~KeyboardMacros();
 
-    void startRecording(EditInterface *ei);
-    void doneRecording(EditInterface *ei);
-    void startPlayback(EditInterface *ei);
-    void startPlayback(QString name, EditInterface *ei);
+    typedef const EditInterface& editor;
+
+    void startRecording(editor);
+    void doneRecording(editor);
+    void startPlayback(editor e) { startPlayback(defaultName(), e); }
+    void startPlayback(QString name, editor);
+
+    void storeEvent(QKeyEvent *e);
+    static QString defaultName() { return "<macro>"; }
+    void setLastRecordedName(QString name);
 
     static QStringList e2l(const QKeyEvent &e);
     static QKeyEvent l2e(const QStringList &l);

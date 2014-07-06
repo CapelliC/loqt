@@ -28,7 +28,7 @@
 #include <QDebug>
 
 /** shortcuts */
-inline void OK(int rc) { Q_ASSERT(rc == 0); }
+inline void OK(int rc) { Q_ASSERT(rc == 0); Q_UNUSED(rc); }
 
 /** allocate empty
  */
@@ -361,6 +361,7 @@ GV_ptr_types::Ep lqContextGraph::copy(Ep e, Gp g, bool nodes) {
     Q_ASSERT(g);
     Q_ASSERT(agraphof(e) != g);
     Q_ASSERT(nodes);
+    Q_UNUSED(nodes);
     Ep t = agedge(g, copy(agtail(e), g), copy(aghead(e), g), agnameof(e), 1);
     OK(agcopyattr(e, t));
     return t;

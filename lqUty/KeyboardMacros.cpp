@@ -21,16 +21,22 @@
 */
 
 #include "KeyboardMacros.h"
+#include <QCoreApplication>
+#include <QDebug>
+
+static const char* k_macros = "KeyboardMacros";
+static const char* k_name = "name";
+static const char* k_strokes = "strokes";
 
 KeyboardMacros::KeyboardMacros(QObject *parent) :
     QObject(parent)
 {
     lqPreferences p;
-    int n = p.beginReadArray("KeyboardMacros");
+    int n = p.beginReadArray(k_macros);
     for (int i = 0; i < n; ++i) {
         p.setArrayIndex(i);
-        QString name = p.value("name").toString();
-        QStringList strokes = p.value("strokes").toStringList();
+        QString name = p.value(k_name).toString();
+        QStringList strokes = p.value(k_strokes).toStringList();
         macro m;
         foreach(QString s, strokes)
             m << s2e(s);
@@ -43,37 +49,49 @@ KeyboardMacros::~KeyboardMacros()
 {
     lqPreferences p;
 
-    p.beginWriteArray("KeyboardMacros");
+    p.beginWriteArray(k_macros);
     int i = 0;
-    foreach(QString name, macros.keys()) {
-        p.setArrayIndex(i);
-        p.setValue("name", name);
-        QStringList s;
-        foreach (QKeyEvent e, macros[name])
-            s << e2s(e);
-        p.setValue("strokes", s);
-    }
+    foreach(QString name, macros.keys())
+        if (name != defaultName()) {
+            p.setArrayIndex(i);
+            p.setValue(k_name, name);
+            QStringList s;
+            foreach (QKeyEvent e, macros[name])
+                s << e2s(e);
+            p.setValue(k_strokes, s);
+        }
     p.endArray();
 }
 
-void KeyboardMacros::startRecording(EditInterface *ei)
+void KeyboardMacros::startRecording(editor)
 {
-
+    lastRecorded = defaultName();
 }
 
-void KeyboardMacros::doneRecording(EditInterface *ei)
+void KeyboardMacros::doneRecording(editor)
 {
-
+    lastRecorded.clear();
 }
 
-void KeyboardMacros::startPlayback(EditInterface *ei)
+void KeyboardMacros::startPlayback(QString name, editor t)
 {
-
+    for (auto e: macros[name]) {
+        qDebug() << "playback" << &e;
+        QCoreApplication::postEvent(t.widget(), new QKeyEvent(e.type(), e.key(), e.modifiers(), e.text()));
+    }
 }
-
-void KeyboardMacros::startPlayback(QString name, EditInterface *ei)
+void KeyboardMacros::storeEvent(QKeyEvent *e)
 {
-
+    if (!lastRecorded.isEmpty()) {
+        qDebug() << "storeEvent" << e;
+        macros[lastRecorded].append(*e);
+    }
+}
+void KeyboardMacros::setLastRecordedName(QString name)
+{
+    macros[name] = macros[lastRecorded];
+    macros.remove(lastRecorded);
+    lastRecorded = name;
 }
 
 QStringList KeyboardMacros::e2l(const QKeyEvent &e)

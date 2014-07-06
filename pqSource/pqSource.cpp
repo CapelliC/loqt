@@ -30,6 +30,7 @@
 #include "do_events.h"
 #include "file2string.h"
 #include "thousandsDots.h"
+#include "blockSig.h"
 
 #include <QFile>
 #include <QMenu>
@@ -58,8 +59,14 @@ predicate2(syncol_allfile)
 // frag(term,int,int,list)
 structure4(frag)
 
-// assume pqConsole has already initialized PlEngine
-//
+/**
+ * @brief pqSource::pqSource
+ *  constructor of an empty source document
+ *  assumes pqConsole has already initialized PlEngine
+ *  initialize a context menu to handle semantic contextual editing
+ *  initialize the highlighter
+ * @param file
+ */
 pqSource::pqSource(QString file) :
     state_curr(idle), state_next(idle),
     file(file),
@@ -79,13 +86,21 @@ pqSource::pqSource(QString file) :
     hl = new pqHighlighter(this);
 }
 
+/**
+ * @brief pqSource::~pqSource
+ *  destructor: releases the highlighter
+ */
 pqSource::~pqSource()
 {
     delete hl;
 }
 
-// setup context menu to invoke Prolog edit facility
-//
+/**
+ * @brief pqSource::showContextMenu
+ *  this slot setup context menu to invoke Prolog edit facility
+ * @param pt
+ *  window point where to show the menu
+ */
 void pqSource::showContextMenu(const QPoint &pt)
 {
     QMenu *menu = createStandardContextMenu();
@@ -98,8 +113,10 @@ void pqSource::showContextMenu(const QPoint &pt)
     delete menu;
 }
 
-// relies on edit/1 to invoke proper file editing
-//
+/**
+ * @brief pqSource::editInvoke
+ *  relies on edit/1 to invoke proper file editing
+ */
 void pqSource::editInvoke()
 {
     QString msg;
@@ -213,7 +230,7 @@ void pqSource::loadSource(int line, int linepos)
     try {
         if (file_DOS_eol(x)) {
             if (QMessageBox::question(this, tr("Wrong NL"),
-                        tr("The file contains \\r\\n, need to saved to be correctly read"),
+                        tr("The file contains \\r\\n, need to be saved to be correctly read"),
                             QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok)
                 nl_conv = true;
             else
@@ -349,8 +366,16 @@ void pqSource::cursorPositionChanged()
     }
 }
 
-// attempt to incrementally colour modified syntax
-//
+/**
+ * @brief pqSource::contentsChange
+ *  this slot attempts to incrementally colour modified syntax
+ * @param position
+ *  text position index where change occurs
+ * @param charsRemoved
+ *  number of characters removed
+ * @param charsAdded
+ *  number of characters added
+ */
 void pqSource::contentsChange(int position, int charsRemoved, int charsAdded)
 {
     if (position == 0 && charsRemoved == charsAdded)
@@ -368,6 +393,7 @@ void pqSource::contentsChange(int position, int charsRemoved, int charsAdded)
     T errorPos;
 
     skip_changes = true;
+
     try {
         auto colorize = [&](QString frag) {
             if (recolor(A(frag), A(file), &pqsd, errorPos)) {
@@ -399,6 +425,8 @@ void pqSource::contentsChange(int position, int charsRemoved, int charsAdded)
 
     skip_changes = false;
 
+    if (charsRemoved != charsAdded) // try to avoid undue signal...
+
     set_modified(true);
 }
 
@@ -408,6 +436,15 @@ void pqSource::closeEvent(QCloseEvent *e)
         e->ignore();
 }
 
+/**
+ * @brief pqSource::keyPressEvent
+ *  virtual event handler for keyboard events
+ *  if currently displaying a Completion interface, handle specific keys
+ *  else if completion requested, display the Completion interface
+ *  else handle block indentation/deindentation of tabs at start of each selected line
+ * @param e
+ *  the keyboard event data
+ */
 void pqSource::keyPressEvent(QKeyEvent *e)
 {
     using namespace Qt;
@@ -425,14 +462,13 @@ void pqSource::keyPressEvent(QKeyEvent *e)
             e->ignore();
             return; // let the completer do default behavior
         default:
-            //completerInit(c);
             break;
         }
 
         pqSourceBaseClass::keyPressEvent(e);
         c.movePosition(c.StartOfWord, c.KeepAnchor);
         autocomp->setCompletionPrefix(c.selectedText());
-        //autocomp->popup()->setCurrentIndex(autocomp->completionModel()->index(0, 0));
+        autocomp->popup()->setCurrentIndex(autocomp->currentIndex());
         return;
     }
 
@@ -446,6 +482,7 @@ void pqSource::keyPressEvent(QKeyEvent *e)
             QTextBlock  x = document()->findBlock(c.selectionStart()),
                         y = document()->findBlock(c.selectionEnd());
             if (x.firstLineNumber() < y.firstLineNumber()) {
+                blockSig ds(document());
                 int tab2chars = -1;
                 while (x < y) {
                     c.setPosition(x.position());
@@ -472,6 +509,7 @@ void pqSource::keyPressEvent(QKeyEvent *e)
                         c.insertText("\t");
                     x = x.next();
                 }
+                set_modified(true);
                 e->ignore();
                 return;
             }
@@ -493,19 +531,33 @@ void pqSource::keyPressEvent(QKeyEvent *e)
     pqSourceBaseClass::keyPressEvent(e);
 }
 
+/**
+ * @brief pqSource::onCompletion
+ *  this slot gets called after a positive selection of a completion
+ * @param completion
+ *  the selected completion string
+ */
 void pqSource::onCompletion(QString completion) {
-    int extra = completion.length() - autocomp->completionPrefix().length();
-    textCursor().insertText(completion.right(extra));
+    int slash = completion.indexOf('/');
+    int len = completion.length();
+    if (slash == -1)
+        slash = len;
+    QString rep = completion.mid(0, slash);
+    auto c = textCursor();
+    c.select(c.WordUnderCursor);
+    c.insertText(rep);
 }
 
-//predicate3(setof)
-//structure1(current_module)
-
+/**
+ * @brief pqSource::completerInit
+ *  create or initialize the autocompletion interface, based on current cursor context
+ * @param c
+ *  the cursor to handle
+ */
 void pqSource::completerInit(QTextCursor c) {
 
     reportUser(tr("starting completion, please wait..."));
 
-    // issue setof(M,current_module(M),L)
     QSet<QString> syms;
     Completion::initialize(syms);
 
@@ -520,8 +572,7 @@ void pqSource::completerInit(QTextCursor c) {
     if (!autocomp) {
         autocomp = new QCompleter(new QStringListModel(sorted));
         autocomp->setWidget(this);
-        //autocomp->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
-        //autocomp->setCompletionMode(QCompleter::InlineCompletion);
+        autocomp->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
         connect(autocomp, SIGNAL(activated(QString)), SLOT(onCompletion(QString)));
     }
     else {
@@ -530,21 +581,16 @@ void pqSource::completerInit(QTextCursor c) {
     }
 
     if (!c.hasSelection())
-        c.movePosition(c.StartOfWord, c.KeepAnchor);
+        c.select(c.WordUnderCursor);
     QString prefix = c.selectedText();
     autocomp->setCompletionPrefix(prefix);
 
     QRect cr = cursorRect();
     cr.setWidth(300);
     autocomp->complete(cr);
-    autocomp->popup()->setCurrentIndex(autocomp->completionModel()->index(0, 0));
+    autocomp->popup()->setCurrentIndex(autocomp->currentIndex());
 
     reportUser(tr("completion available, %1 items").arg(sorted.size()));
-}
-
-bool pqSource::is_modified() const
-{
-    return  parentWidget()->isWindowModified();
 }
 
 void pqSource::commentClause()
@@ -620,8 +666,14 @@ QStringList pqSource::startWebScript()
     return l;
 }
 
+bool pqSource::is_modified() const
+{
+    return  parentWidget()->isWindowModified();
+}
+
 void pqSource::set_modified(bool yes)
 {
+    qDebug() << "set_modified" << yes;
     parentWidget()->setWindowModified(yes);
 }
 

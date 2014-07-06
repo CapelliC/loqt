@@ -49,6 +49,11 @@ struct LQUTYSHARED_EXPORT EditInterface {
         if (plain) return plain->document();
         return 0;
     }
+    QWidget* widget() const {
+        if (edit) return edit;
+        if (plain) return plain;
+        return 0;
+    }
 
     void setTextCursor(QTextCursor c) {
         if (edit) edit->setTextCursor(c); else

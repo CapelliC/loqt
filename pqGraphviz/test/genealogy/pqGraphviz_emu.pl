@@ -39,18 +39,29 @@ graph_window(Worker, Options) :-
 	call(Worker, Gp),
 
 	% generate a temporary DOT script
-	TempDot = 'temp.dot',
-	open(TempDot, write, Dot),
-
+	tmp_file_stream(text, DotFileName, Dot),
+	debug(pqGraphviz_emu, 'DotFileName:~w', [DotFileName]),
 	graph2dot(Dot, Gp),
 	close(Dot),
 
 	alloc_clear,
 
-	% generate PDF
-	TempPdf = 'temp.pdf',
-	process_create(path(dot), ['-Tpdf', '-o', file(TempPdf), file(TempDot)], []).
+	ImageKind = svg, % was PDF, not always readily available
 
+	% generate image file
+	atom_concat('temp.', ImageKind, TargetImageFile),
+	atom_concat('-T', ImageKind, Format),
+
+	process_create(path(dot),
+		       [Format, '-o', file(TargetImageFile), file(DotFileName)],
+		       [stdout(pipe(Stdout)), stderr(pipe(Stderr))]),
+	copy_stream_data(Stdout, user_output), close(Stdout),
+	copy_stream_data(Stderr, user_output), close(Stderr),
+
+	%delete_file(DotFileName),
+
+	absolute_file_name(TargetImageFile, ATargetImageFile),
+	debug(pqGraphviz_emu, 'image saved in ~w', [ATargetImageFile]), !.
 
 new_subgraph(ParG, Id, NewGp) :-
 	empty(graph, NewG),

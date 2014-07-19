@@ -29,11 +29,8 @@
 %   see http://www.swi-prolog.org/pldoc/doc_for?object=prolog_trace_interception/4
 %
 user:prolog_trace_interception(Port, Frame, Choice, Action) :-
-        current_prolog_flag(pq_tracer, true), !,
-        writeln(prolog_trace_interception(Port, Frame, Choice, Action)),
-    %writeln(pq_tracer),
-        pq_trace_interception(Port, Frame, Choice, Action), writeln(why).
-    %writeln(pq_trace_interception(Port, Frame, Choice, Action)).
+    current_prolog_flag(pq_tracer, true), !,
+    pq_trace_interception(Port, Frame, Choice, Action).
 
 %%  goal_source_position(+Port, +Frame, -Clause, -File, -Position) is det
 %
@@ -41,26 +38,36 @@ user:prolog_trace_interception(Port, Frame, Choice, Action) :-
 %   source characters position
 %
 goal_source_position(_Port, Frame, Clause, File, A-Z) :-
-        prolog_frame_attribute(Frame, hidden, false),
-        prolog_frame_attribute(Frame, parent, Parent),
-        prolog_frame_attribute(Frame, pc, Pc),
-        prolog_frame_attribute(Parent, clause, Clause),
-        clause_info(Clause, File, TermPos, _VarOffsets),
-        locate_vm(Clause, 0, Pc, Pc1, VM),
-        '$clause_term_position'(Clause, Pc1, TermPos1),
-        ( VM = i_depart(_) -> append(TermPos2, [_], TermPos1) ; TermPos2 = TermPos1 ),
-        range(TermPos2, TermPos, A, Z).
+    %pq_trace(1:Port),
+    prolog_frame_attribute(Frame, hidden, false),
+    %pq_trace(2:Frame),
+    prolog_frame_attribute(Frame, parent, Parent),
+    %pq_trace(3:Clause),
+    prolog_frame_attribute(Frame, pc, Pc),
+    %pq_trace(4:File),
+    prolog_frame_attribute(Parent, clause, Clause),
+    %pq_trace(5:(A-Z)),
+    clause_info(Clause, File, TermPos, _VarOffsets),
+    %pq_trace(6),
+    locate_vm(Clause, 0, Pc, Pc1, VM),
+    %pq_trace(7:locate_vm(Clause, 0, Pc, Pc1, VM)),
+    '$clause_term_position'(Clause, Pc1, TermPos1),
+    %pq_trace(8:'$clause_term_position'(Clause, Pc1, TermPos1)),
+    ( VM = i_depart(_) -> append(TermPos2, [_], TermPos1) ; TermPos2 = TermPos1 ),
+    %pq_trace(9:(TermPos2, TermPos)),
+    range(TermPos2, TermPos, A, Z).
+    %pq_trace(10:(range(TermPos2, TermPos, A, Z))).
 
 locate_vm(Clause, X, Pc, Pc1, VM) :-
-	'$fetch_vm'(Clause, X, Y, T),
-	(   X < Pc
-	->  locate_vm(Clause, Y, Pc, Pc1, VM)
-        ;   Pc1 = X, VM = T
-	).
+    '$fetch_vm'(Clause, X, Y, T),
+    (   X < Pc
+    ->  locate_vm(Clause, Y, Pc, Pc1, VM)
+    ;   Pc1 = X, VM = T
+    ).
 
 range([], Pos, A, Z) :-
-	arg(1, Pos, A),
-	arg(2, Pos, Z).
+    arg(1, Pos, A),
+    arg(2, Pos, Z).
 range([H|T], term_position(_, _, _, _, PosL), A, Z) :-
-	nth1(H, PosL, Pos),
-	range(T, Pos, A, Z).
+    nth1(H, PosL, Pos),
+    range(T, Pos, A, Z).

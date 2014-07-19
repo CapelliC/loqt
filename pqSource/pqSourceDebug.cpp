@@ -53,15 +53,16 @@ void pqSource::entry_debug_mode(QString query, DebugCommand mode)
         if (query.isEmpty() || query == pqSourceMainWindow::emptyQuery())
             query = QFileInfo(file).baseName();
 
-        sendCommand("set_prolog_flag(pq_tracer, true).\n");
-        sendCommand(QString("trace,'%1'.\n").arg(query));
-
+        sendCommand("set_prolog_flag(pq_tracer, true)");
+        sendCommand(QString("trace,'%1'").arg(query));
+qDebug() << "entry_debug_mode1";
         level_curr = 0; // not yet seen
         level_top = 0;
         debugCommand = mode;
         debugStatus = Running;
 
         emit reportInfo(query);
+qDebug() << "entry_debug_mode2";
     }
 }
 
@@ -135,16 +136,18 @@ bool pqSource::Trace_(const T &Port, const T &Frame, const T &Choice, T &Action)
             }
         if (check_top_level(port)) {
             Action = A("continue");
-            return true;
+            return wait_cmd(Action);
         }
-        return wait_cmd(Action);
+        return false;
 
     case StepIn:
         if (check_top_level(port)) {
             Action = A("continue");
             setCall(from, stop);
+            return wait_cmd(Action);
         }
-        return wait_cmd(Action);
+        emit reportInfo("trace complete");
+        return false;
 
     case StepOver:
         if (source == file) {
@@ -193,12 +196,14 @@ void pqSource::sendCommand(QString cmd)
 
 void pqSource::query_result(QString q, int n)
 {
-    qDebug() << "query_result" << sent_commands << q << n;
+    //qDebug() << "query_result" << sent_commands << q << n;
+    qDebug() << "pqSource::query_result" << q << n;
 }
 
 void pqSource::query_complete(QString q, int n)
 {
-    qDebug() << "query_complete" << sent_commands << q << n;
+    //qDebug() << "query_complete" << sent_commands << q << n << state_curr << state_next;
+    qDebug() << "pqSource::query_complete" << q << n << state_curr << state_next;
     if (sent_commands.count() && sent_commands.takeFirst() == q) {
         emit reportInfo(QString("query_complete %1").arg(q));
         state_curr = state_next;
@@ -324,16 +329,13 @@ void pqSource::stepOver()
 
 void pqSource::toggleBP()
 {
-    //sendCommand();
-
-    /*
-    if (sd) {
+    if (hl && hl->sem_info_avail()) {
         QTextCursor c = textCursor();
         int p = c.position();
-        pqSyntaxData::itcs l = sd->position_path(p);
+        pqSyntaxData::itcs l = hl->position_path(p);
         if (!l.isEmpty()) {
             const pqSyntaxData::cat &r = *l.back();
-            if (QRegExp("goal\\(\\w+\\)").exactMatch(r.desc)) {
+            if (QRegExp("goal\\(\\.+\\)").exactMatch(r.desc)) {
                 toggle t(skip_changes);
                 int q = bkps.indexOf(r);
                 if (q >= 0) {
@@ -349,7 +351,6 @@ void pqSource::toggleBP()
             }
         }
     }
-    */
 }
 
 void pqSource::watchVar()

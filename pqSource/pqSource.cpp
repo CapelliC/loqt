@@ -75,6 +75,8 @@ pqSource::pqSource(QString file) :
     skip_changes(),
     last_change_position(-1)
 {
+    qDebug() << "pqSource::pqSource" << file;
+
     editContext = new QAction(tr("Edit..."), this);
     connect(editContext, SIGNAL(triggered()), SLOT(editInvoke()));
 
@@ -82,6 +84,8 @@ pqSource::pqSource(QString file) :
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(showContextMenu(const QPoint&)));
 
     connect(this, SIGNAL(cursorPositionChanged()), SLOT(cursorPositionChanged()));
+
+    connect(this, &pqSource::setCallSig, &pqSource::showCall);
 
     hl = new pqHighlighter(this);
 }
@@ -92,6 +96,7 @@ pqSource::pqSource(QString file) :
  */
 pqSource::~pqSource()
 {
+    qDebug() << "pqSource::~pqSource" << file;
     delete hl;
 }
 
@@ -241,7 +246,13 @@ void pqSource::loadSource(int line, int linepos)
         setFont(pref.console_font);
 
         setPlainText(file2string(x));
-        connect(document(), SIGNAL(contentsChange(int,int,int)), /*this,*/ SLOT(contentsChange(int,int,int)));
+        /* disable because I can't still figure out
+         * why it's called with equals charsRemoved,charsAdded
+         * at unpredictable times - I guess it's because of formatting,
+         * but seems it's impossible to overcome the problem, given that QAbstractTextDocumentLayout
+         * it's useless, and QTextDocumentLayout it's not accessible
+        */
+        //connect(document(), SIGNAL(contentsChange(int,int,int)), /*this,*/ SLOT(contentsChange(int,int,int)));
     }
     catch(std::exception &e) {
         reportUser(tr("exception: %1").arg(e.what()));
@@ -378,8 +389,13 @@ void pqSource::cursorPositionChanged()
  */
 void pqSource::contentsChange(int position, int charsRemoved, int charsAdded)
 {
-    if (position == 0 && charsRemoved == charsAdded)
+    //QTextDocumentLayout *pl = document()->documentLayout();
+    //qDebug() << pl->metaObject()->className();
+
+    qDebug() << "contentsChange" << position << charsRemoved << charsAdded;
+    /*if (position == 0 && charsRemoved == charsAdded)
         return;
+        */
     if (skip_changes)
         return;
     if (!hl->sem_info_avail())
@@ -430,8 +446,30 @@ void pqSource::contentsChange(int position, int charsRemoved, int charsAdded)
     set_modified(true);
 }
 
+/**
+ * @brief pqSource::closeEvent
+ *  standard Qt interface handler: check status before close
+ *  if source modified, inquiry user about change/continue, then act on <e>
+ * @param e
+ *  if user wawnt to continue, force ignore processing
+ */
 void pqSource::closeEvent(QCloseEvent *e)
 {
+    if (debugStatus == Breaked) {
+        QMessageBox b(this);
+        b.setText(tr("Currently in break"));
+        b.setInformativeText(tr("%1: Ok to quit ?").arg(file));
+        b.setStandardButtons(b.Ok | b.Cancel);
+        b.setDefaultButton(b.Ok);
+        switch (b.exec()) {
+        case b.Cancel:
+            e->ignore();
+            return;
+        default:
+            throw new PlException;  // abort the query
+        }
+    }
+
     if (!canClose())
         e->ignore();
 }

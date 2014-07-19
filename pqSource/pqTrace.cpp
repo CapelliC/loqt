@@ -22,6 +22,7 @@
 #include <QPair>
 #include <QList>
 #include <QHash>
+#include <QTime>
 #include <QDebug>
 #include <QFileInfo>
 
@@ -48,10 +49,11 @@ PREDICATE(pq_trace_interception, 4) {
     foreach(t_callback c, debug_callbacks)
         if (c.second(c.first, Port, Frame, Choice, Action)) {
             qDebug() << "action:" << t2w(Action);
-            break;
+            return TRUE;
+            //break;
         }
     //qDebug() << "false";
-    return TRUE;
+    return FALSE;
 }
 
 QString pqTrace::newFileHeader(QString path) {
@@ -66,4 +68,9 @@ void pqTrace::add_debug_callback(QObject* target, callback func) {
         if (c.first == target && c.second == func)
             return;
     debug_callbacks.append(t_callback(target, func));
+}
+
+PREDICATE(pq_trace, 1) {
+    qDebug() << QTime::currentTime() << t2w(PL_A1);
+    return TRUE;
 }

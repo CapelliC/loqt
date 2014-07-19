@@ -9,6 +9,7 @@ QT += widgets testlib
 TARGET = tst_testkeyboardmacrostest
 CONFIG += console
 CONFIG -= app_bundle
+CONFIG += C++11
 
 TEMPLATE = app
 

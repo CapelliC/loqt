@@ -31,6 +31,9 @@
   * that proved to be a much harder task than I foreseen
   */
 void pqMiniSyntax::setup() {
+
+    qDebug() << "setup" << (const void*)this;
+
     QString number("\\d+(?:\\.\\d+)?");
     QString symbol("[a-z][A-Za-z0-9_]*");
     QString var("[A-Z_][A-Za-z0-9_]*");
@@ -40,7 +43,8 @@ void pqMiniSyntax::setup() {
     QString charcode("0'.|0'\\t|0'\\n|0'\\r|0'\\u[0-9][0-9][0-9][0-9]");
     QString oper("[\\+\\-\\*\\/\\=\\^<>~:\\.,;\\?@#$\\\\&{}`]+");
 
-    tokens = QRegExp(QString("(%1)|(%2)|(%3)|(%4)|(%5)|(%6)|(%7)|(%8)|%").arg(number, symbol, var, quoted, atomq, atombackq, charcode, oper));
+    tokens = QRegExp(QString("(%1)|(%2)|(%3)|(%4)|(%5)|(%6)|(%7)|(%8)|%")
+                     .arg(number, symbol, var, quoted, atomq, atombackq, charcode, oper));
 
     fmt[Comment].setForeground(Qt::darkGreen);
     fmt[Number].setForeground(QColor("blueviolet"));

@@ -1,29 +1,29 @@
 #include <QString>
 #include <QtTest>
 #include <QCoreApplication>
-#include <QTextEdit>
 #include <QDebug>
+#include <QStateMachine>
 
-//#include <QStateMachine>
 #include "KeyboardMacros.h"
+#include "file2string.h"
 
 class myeditor : public QTextEdit
 {
     Q_OBJECT
 public:
-    myeditor(QWidget *p = 0) : QTextEdit(p) {}
 
-signals:
-    void quit();
+    myeditor(QWidget *p = 0) : QTextEdit(p) {
+    }
+    QPointer<KeyboardMacros> km;
 
 protected:
-    KeyboardMacros km;
+
+    //KeyboardMacros km;
 
     virtual void keyPressEvent(QKeyEvent *e)
     {
         qDebug() << "keyPressEvent" << e;
-        if (e->matches(QKeySequence::Quit))
-            emit quit();
+        /*
         if (e->modifiers() == Qt::CTRL) {
             if (e->key() == 'R') {
                 qDebug() << "km.startRecording(this)";
@@ -43,6 +43,7 @@ protected:
         else {
             km.storeEvent(e);
         }
+        */
         QTextEdit::keyPressEvent(e);
     }
 };
@@ -64,15 +65,24 @@ TestKeyboardMacrosTest::TestKeyboardMacrosTest()
 
 void TestKeyboardMacrosTest::testCase1()
 {
-    myeditor ed;
-    ed.setText("aljsdla\nacz\n");
-    ed.show();
+    myeditor ed[2];
+    KeyboardMacros km;
+    QEventLoop elp;
 
-    QEventLoop lp;
-    connect(&ed, &myeditor::quit, &lp, &QEventLoop::quit);
-    lp.exec();
+    auto init = [&](myeditor *ed, QString path) {
+        ed->setWindowTitle(path);
+        ed->setText(file2string(path));
+        QShortcut *sc = new QShortcut(QKeySequence::Quit, ed);
+        connect(sc, &QShortcut::activated, &elp, &QEventLoop::quit);
+        ed->km = &km;
+        ed->show();
+    };
+    init(ed+0, "/home/carlo/.bashrc");
+    init(ed+1, "/home/carlo/.profile");
 
-    QVERIFY2(false, "Failure");
+    elp.exec();
+
+    QVERIFY2(true, "Success");
 }
 
 QTEST_MAIN(TestKeyboardMacrosTest)

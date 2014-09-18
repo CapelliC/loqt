@@ -340,7 +340,7 @@ void pqSource::startHighliter()
         }
     };
     hl->scan_start();
-#define ASYNC_SYNCOL_HIGHLIGHT
+//#define ASYNC_SYNCOL_HIGHLIGHT
 #ifdef ASYNC_SYNCOL_HIGHLIGHT
     auto w = new QFutureWatcher<void>;
     connect(w, SIGNAL(finished()), this, SLOT(runHighliter()));

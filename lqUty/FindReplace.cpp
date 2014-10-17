@@ -158,6 +158,7 @@ void FindReplace::do_find(EditInterface i)
 void FindReplace::do_findNext(EditInterface i)
 {
     ei = i;
+    backward.setChecked(false);
     emit onFindNext();
 }
 void FindReplace::do_findAll(EditInterface i)

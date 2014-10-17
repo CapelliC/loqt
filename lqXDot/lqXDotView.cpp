@@ -209,7 +209,7 @@ void lqXDotView::addActionsScene(QMenu *menu)
     connect(exportFmt, SIGNAL(mapped(QString)), SLOT(exportAs(QString)));
 
     QMenu *e = menu->addMenu(tr("&Export As..."));
-    foreach (auto fmt, QString("dot svg pdf png").split(' ')) {
+    foreach (auto fmt, QString("dot svg pdf png jpg").split(' ')) {
         QAction *a = e->addAction(fmt);
         connect(a, SIGNAL(triggered()), exportFmt, SLOT(map()));
         exportFmt->setMapping(a, fmt);

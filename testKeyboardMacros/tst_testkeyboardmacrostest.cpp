@@ -12,17 +12,25 @@ class myeditor : public QTextEdit
     Q_OBJECT
 public:
 
-    myeditor(QWidget *p = 0) : QTextEdit(p) {
+    myeditor(QWidget *p = 0) : QTextEdit(p), capture(false) {
     }
     QPointer<KeyboardMacros> km;
 
+public slots:
+
+    void startRecording();
+    void stopRecording();
+    void Playback();
+
 protected:
 
-    //KeyboardMacros km;
+    bool capture;
 
     virtual void keyPressEvent(QKeyEvent *e)
     {
         qDebug() << "keyPressEvent" << e;
+        if (capture)
+            km->storeEvent(e);
         /*
         if (e->modifiers() == Qt::CTRL) {
             if (e->key() == 'R') {
@@ -47,6 +55,21 @@ protected:
         QTextEdit::keyPressEvent(e);
     }
 };
+
+void myeditor::startRecording() {
+    km->startRecording(EditInterface(this));
+    capture = true;
+}
+void myeditor::stopRecording() {
+    if (capture) {
+        km->doneRecording(EditInterface(this));
+        capture= false;
+    }
+}
+void myeditor::Playback() {
+    if (!capture)
+        km->startPlayback(EditInterface(this));
+}
 
 class TestKeyboardMacrosTest : public QObject
 {
@@ -74,6 +97,15 @@ void TestKeyboardMacrosTest::testCase1()
         ed->setText(file2string(path));
         QShortcut *sc = new QShortcut(QKeySequence::Quit, ed);
         connect(sc, &QShortcut::activated, &elp, &QEventLoop::quit);
+        //connect(sc, &QShortcut::activatedAmbiguously, &elp, &QEventLoop::quit);
+
+        QShortcut *start = new QShortcut(QKeySequence("Ctrl+Shift+R"), ed);
+        QShortcut *stop = new QShortcut(QKeySequence("Ctrl+Shift+S"), ed);
+        QShortcut *play = new QShortcut(QKeySequence("Ctrl+Shift+P"), ed);
+        connect(start, &QShortcut::activated, ed, &myeditor::startRecording);
+        connect(stop, &QShortcut::activated, ed, &myeditor::stopRecording);
+        connect(play, &QShortcut::activated, ed, &myeditor::Playback);
+
         ed->km = &km;
         ed->show();
     };

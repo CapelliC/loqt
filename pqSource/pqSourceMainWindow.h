@@ -29,6 +29,7 @@
 #include "pqSource_global.h"
 #include "SwiPrologEngine.h"
 #include "MdiHelper.h"
+#include "KeyboardMacros.h"
 
 class pqSource;
 class pqDocView;
@@ -79,6 +80,8 @@ protected:
 
     pqDocView *helpView();
 
+    QPointer<KeyboardMacros> macs;
+
 public slots:
 
     void openFile(QString p, QByteArray g = QByteArray(), int line = 0, int linepos = 0);
@@ -100,6 +103,7 @@ public slots:
     void reportError(QString msg);
     void reportInfo(QString msg);
 
+    void viewCallGraph();
     void viewGraph();
     void viewInclusions();
 
@@ -113,6 +117,11 @@ public slots:
     void decFont();
 
     void markCursor(QTextCursor c);
+
+    void macroStartReg();
+    void macroStopReg();
+    void macroPlayback();
+    void macroSelect();
 
 protected slots:
 
@@ -132,6 +141,9 @@ protected slots:
     void engine_ready();
 
     void onWebScript();
+
+    void playbackCompleted();
+    void registerCompleted();
 };
 
 #endif // PQSOURCEMAINWINDOW_H

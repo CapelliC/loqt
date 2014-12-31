@@ -52,7 +52,7 @@ KeyboardMacros::~KeyboardMacros()
     p.beginWriteArray(k_macros);
     int i = 0;
     foreach(QString name, macros.keys())
-        if (name != defaultName()) {
+        { //if (name != defaultName()) {
             p.setArrayIndex(i);
             p.setValue(k_name, name);
             QStringList s;
@@ -63,6 +63,12 @@ KeyboardMacros::~KeyboardMacros()
     p.endArray();
 }
 
+void KeyboardMacros::setupGUI(QStatusBar *bar, QMenu *menu)
+{
+    // tbd
+    qDebug() << "setupGUI(QStatusBar *bar, QMenu *menu)" << bar << menu;
+}
+/*
 void KeyboardMacros::startRecording(editor)
 {
     lastRecorded = defaultName();
@@ -80,6 +86,7 @@ void KeyboardMacros::startPlayback(QString name, editor t)
         QCoreApplication::postEvent(t.widget(), new QKeyEvent(e.type(), e.key(), e.modifiers(), e.text()));
     }
 }
+*/
 void KeyboardMacros::storeEvent(QKeyEvent *e)
 {
     if (!lastRecorded.isEmpty()) {
@@ -105,4 +112,36 @@ QKeyEvent KeyboardMacros::l2e(const QStringList &l)
 {
     int type = l[0].toInt(), key = l[1].toInt(), modif = l[2].toInt();
     return QKeyEvent(QEvent::Type(type), key, Qt::KeyboardModifier(modif));
+}
+
+bool KeyboardMacros::eventFilter(QObject *obj, QEvent *event)
+{
+    Q_ASSERT(obj == binding.edit);
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        storeEvent(keyEvent);
+    }
+
+    // standard event processing
+    return QObject::eventFilter(obj, event);
+}
+
+void KeyboardMacros::startRecording(QTextEdit *ed)
+{
+    lastRecorded = defaultName();
+    binding.edit = ed;
+    macros[lastRecorded].clear();
+    ed->installEventFilter(this);
+}
+
+void KeyboardMacros::doneRecording()
+{
+    binding.edit->removeEventFilter(this);
+}
+
+void KeyboardMacros::startPlayback(QTextEdit *te)
+{
+    for (auto e: macros[defaultName()]) {
+        QCoreApplication::postEvent(te, new QKeyEvent(e.type(), e.key(), e.modifiers(), e.text()));
+    }
 }

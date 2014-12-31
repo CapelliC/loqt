@@ -307,6 +307,7 @@ PREDICATE(win_open_console, 5) {
  *   icon  - identifier among predefined Qt message box icons
  *   image - pixmap file (ok resource)
  *   image_scale - multiplier to scale image
+ *   min_width - arrange dialog width to fit in specified minimum width
  */
 PREDICATE(win_message_box, 2) {
     if (ConsoleEdit* c = pqConsole::by_thread()) {
@@ -436,6 +437,8 @@ PREDICATE(win_set_preference, 3) {
     return TRUE;
 }
 
+predicate1(win_html_write_help)
+
 /** output html at prompt
  */
 PREDICATE(win_html_write, 1) {
@@ -450,6 +453,15 @@ PREDICATE(win_html_write, 1) {
             });
             s.stop();
         }
+        /*
+        else {
+            SwiPrologEngine::in_thread in;
+            in.named_load("win_html_write_help");
+            // accept a DCG to format to buffer
+            bool rc = win_html_write_help(PL_A1);
+            qDebug() << "win_html_write" << rc;
+        }
+        */
         return TRUE;
     }
     return FALSE;

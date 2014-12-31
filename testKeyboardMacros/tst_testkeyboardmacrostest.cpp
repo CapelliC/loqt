@@ -7,6 +7,7 @@
 #include "KeyboardMacros.h"
 #include "file2string.h"
 
+/*
 class myeditor : public QTextEdit
 {
     Q_OBJECT
@@ -31,27 +32,6 @@ protected:
         qDebug() << "keyPressEvent" << e;
         if (capture)
             km->storeEvent(e);
-        /*
-        if (e->modifiers() == Qt::CTRL) {
-            if (e->key() == 'R') {
-                qDebug() << "km.startRecording(this)";
-                km.startRecording(EditInterface(this));
-            }
-            else if (e->key() == 'S') {
-                qDebug() << "km.doneRecording(this)";
-                km.doneRecording(EditInterface(this));
-            }
-            else if (e->key() == 'P') {
-                qDebug() << "km.startPlayback(this)";
-                km.startPlayback(EditInterface(this));
-            }
-            else
-                km.storeEvent(e);
-        }
-        else {
-            km.storeEvent(e);
-        }
-        */
         QTextEdit::keyPressEvent(e);
     }
 };
@@ -70,6 +50,8 @@ void myeditor::Playback() {
     if (!capture)
         km->startPlayback(EditInterface(this));
 }
+typedef QTextEdit myeditor;
+*/
 
 class TestKeyboardMacrosTest : public QObject
 {
@@ -88,25 +70,31 @@ TestKeyboardMacrosTest::TestKeyboardMacrosTest()
 
 void TestKeyboardMacrosTest::testCase1()
 {
-    myeditor ed[2];
+    QTextEdit ed[2];
     KeyboardMacros km;
     QEventLoop elp;
 
-    auto init = [&](myeditor *ed, QString path) {
+    auto init = [&](QTextEdit *ed, QString path) {
         ed->setWindowTitle(path);
         ed->setText(file2string(path));
         QShortcut *sc = new QShortcut(QKeySequence::Quit, ed);
         connect(sc, &QShortcut::activated, &elp, &QEventLoop::quit);
+
         //connect(sc, &QShortcut::activatedAmbiguously, &elp, &QEventLoop::quit);
 
-        QShortcut *start = new QShortcut(QKeySequence("Ctrl+Shift+R"), ed);
-        QShortcut *stop = new QShortcut(QKeySequence("Ctrl+Shift+S"), ed);
-        QShortcut *play = new QShortcut(QKeySequence("Ctrl+Shift+P"), ed);
-        connect(start, &QShortcut::activated, ed, &myeditor::startRecording);
-        connect(stop, &QShortcut::activated, ed, &myeditor::stopRecording);
-        connect(play, &QShortcut::activated, ed, &myeditor::Playback);
-
+        /*
+        connect(km.start_(ed), &QShortcut::activated, ed, &myeditor::startRecording);
+        connect(km.stop_(ed), &QShortcut::activated, ed, &myeditor::stopRecording);
+        connect(km.play_(ed), &QShortcut::activated, ed, &myeditor::Playback);
         ed->km = &km;
+        */
+
+        /*
+        km.connect(km.start_(ed), &QShortcut::activated, &myeditor::startRecording);
+        km.connect(km.stop_(ed), &QShortcut::activated, &myeditor::stopRecording);
+        km.connect(km.play_(ed), &QShortcut::activated, &myeditor::Playback);
+        */
+
         ed->show();
     };
     init(ed+0, "/home/carlo/.bashrc");

@@ -118,7 +118,8 @@ OTHER_FILES += \
     README.md \
     pqConsole.doxy \
     swipl.png \
-    trace_interception.pl
+    trace_interception.pl \
+    win_html_write_help.pl
 
 RESOURCES += \
     pqConsole.qrc

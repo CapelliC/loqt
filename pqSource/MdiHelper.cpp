@@ -21,6 +21,7 @@
 */
 
 #include "MdiHelper.h"
+#include "KeyboardMacros.h"
 
 #include <QApplication>
 #include <QMenuBar>
@@ -36,7 +37,7 @@ void MdiHelper::setupMdi() {
     mdiArea()->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mdiArea()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    // ?? useless mdiArea()->setActivationOrder(QMdiArea::ActivationHistoryOrder);
+    // ?? useless  mdiArea()->setActivationOrder(QMdiArea::ActivationHistoryOrder);
 
     connect(mdiArea(), SIGNAL(subWindowActivated(QMdiSubWindow*)), this, SLOT(updateMenus()));
     connect(mdiArea(), SIGNAL(subWindowActivated(QMdiSubWindow*)), this, SLOT(subWindowActivated(QMdiSubWindow*)));
@@ -52,8 +53,7 @@ void MdiHelper::setupMdi() {
     setUnifiedTitleAndToolBarOnMac(true);
 }
 
-void MdiHelper::updateMenus()
-{
+void MdiHelper::updateMenus() {
     QMdiSubWindow *msw = mdiArea()->activeSubWindow();
 
     bool hasMdiChild = (msw != 0);
@@ -81,8 +81,7 @@ void MdiHelper::updateMenus()
     copyAct->setEnabled(hasSelection);
 }
 
-void MdiHelper::updateWindowMenu()
-{
+void MdiHelper::updateWindowMenu() {
     windowMenu->clear();
     windowMenu->addAction(closeAct);
     //windowMenu->addAction(closeAllAct);
@@ -108,10 +107,32 @@ void MdiHelper::updateWindowMenu()
     }
 }
 
-void MdiHelper::createActions()
-{
+void MdiHelper::createActions() {
     auto png = [](const char* i) { return QIcon(QString(":/images/%1.png").arg(i)); };
 
+#define CMD 1
+#if CMD
+    auto cmd = [png](QObject *target, QPointer<QAction> &a, QString name, const char *slot, QKeySequence ks = QKeySequence(), const char* ico = 0, QString tip = "") {
+        if (ico) {
+            a = new QAction(png(ico), name, target);
+            a->setIconVisibleInMenu(true);
+        }
+        else
+            a = new QAction(name, target);
+        a->setShortcut(ks);
+        if (!tip.isEmpty())
+            a->setStatusTip(tip);
+
+        connect(a, SIGNAL(triggered()), target, slot);
+    };
+    typedef QKeySequence __;
+
+    cmd(this,   newAct,     tr("&New"),        SLOT(newFile()),         __::New,    "new",  tr("Create a new file"));
+    cmd(this,   openAct,    tr("&Open..."),    SLOT(openFile()),        __::Open,   "open", tr("Open an existing file"));
+    cmd(this,   saveAct,    tr("&Save"),       SLOT(saveFile()),        __::Save,   "save", tr("Save the document file to disk"));
+    cmd(this,   saveAsAct,  tr("Save &As..."), SLOT(saveFileAs()),      __::SaveAs, 0,      tr("Save the document file under a new name"));
+    cmd(qApp,   exitAct,    tr("E&xit"),       SLOT(closeAllWindows()), __::Quit,   0,      tr("Exit the application"));
+#else
     newAct = new QAction(png("new"), tr("&New"), this);
     newAct->setShortcuts(QKeySequence::New);
     newAct->setStatusTip(tr("Create a new file"));
@@ -139,7 +160,12 @@ void MdiHelper::createActions()
     exitAct->setShortcuts(QKeySequence::Quit);
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
-
+#endif
+#if CMD
+    cmd(this,   cutAct,     tr("Cu&t"),     SLOT(cut()),    __::Cut,    "cut",      tr("Cut the current selection's contents to the clipboard"));
+    cmd(this,   copyAct,    tr("&Copy"),    SLOT(copy()),   __::Copy,   "copy",     tr("Copy the current selection's contents to the clipboard"));
+    cmd(this,   pasteAct,   tr("&Paste"),   SLOT(paste()),  __::Paste,  "paste",    tr("Paste the clipboard's contents into the current selection"));
+#else
     cutAct = new QAction(png("cut"), tr("Cu&t"), this);
     cutAct->setShortcuts(QKeySequence::Cut);
     cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
@@ -157,7 +183,14 @@ void MdiHelper::createActions()
     pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
     pasteAct->setIconVisibleInMenu(true);
     connect(pasteAct, SIGNAL(triggered()), this, SLOT(paste()));
+#endif
 
+#if CMD
+    cmd(this,   findAct,        tr("&Find..."),         SLOT(find()),           __::Find,           "edit-find-3",          tr("Select text and search in current document"));
+    cmd(this,   findNextAct,    tr("Find &Next"),       SLOT(findNext()),       __::FindNext,       0,                      tr("Search the next occurrence of text"));
+    cmd(this,   findPreviousAct,tr("Find &Previous"),   SLOT(findPrevious()),   __::FindPrevious,   0,                      tr("Search the previous occurrence of text"));
+    cmd(this,   replaceAct,     tr("&Replace..."),      SLOT(replace()),        __::Replace,        "edit-find-and-replace",tr("Select text to search and replace"));
+#else
     findAct = new QAction(png("edit-find-3"), tr("&Find..."), this);
     findAct->setShortcuts(QKeySequence::Find);
     findAct->setStatusTip(tr("Select text and search in current document"));
@@ -179,7 +212,15 @@ void MdiHelper::createActions()
     replaceAct->setStatusTip(tr("Select text to search and replace"));
     replaceAct->setIconVisibleInMenu(true);
     connect(replaceAct, SIGNAL(triggered()), this, SLOT(replace()));
+#endif
 
+#if CMD
+    cmd(this,   viewSWIPrologPrefAct,   tr("SWI-Prolog &Preferences"),  SLOT(viewSWIPrologPref()),  __(), 0, tr("Edit SWI-Prolog global preferences (restart this application to see changes)"));
+    cmd(this,   selectColorsAct,        tr("Select &Colors..."),        SLOT(selectColors()),       __(), 0, tr("Choose the color palette used for text rendering"));
+    cmd(this,   selectFontAct,          tr("Select &Font..."),          SLOT(selectFont()),         __(), 0, tr("Choose the font used to display text"));
+    cmd(this,   incFontAct,             tr("&Increase Font Size"),      SLOT(incFont()),    __("Ctrl++"), 0, tr("Make characters bigger (Increase Font size)"));
+    cmd(this,   decFontAct,             tr("&Decrease Font Size"),      SLOT(decFont()),    __("Ctrl+-"), 0, tr("Make characters smaller (Decrease Font Size)"));
+#else
     viewSWIPrologPrefAct = new QAction(tr("SWI-Prolog &Preferences"), this);
     viewSWIPrologPrefAct->setStatusTip(tr("Edit SWI-Prolog global preferences (restart this application to see changes)"));
     connect(viewSWIPrologPrefAct, SIGNAL(triggered()), SLOT(viewSWIPrologPref()));
@@ -201,8 +242,18 @@ void MdiHelper::createActions()
     decFontAct->setShortcut(QKeySequence("Ctrl+-"));
     decFontAct->setStatusTip(tr("Make characters smaller (Decrease Font Size)"));
     connect(decFontAct, SIGNAL(triggered()), SLOT(decFont()));
+#endif
 
     QMdiArea *mdiArea = this->mdiArea();
+#if CMD
+    cmd(mdiArea, closeAct,                  tr("Cl&ose"),           SLOT(closeActiveSubWindow()),       __(),               0, tr("Close the active window"));
+    cmd(mdiArea, tileAct,                   tr("&Tile"),            SLOT(tileSubWindows()),             __(),               0, tr("Tile the windows"));
+    cmd(mdiArea, cascadeAct,                tr("&Cascade"),         SLOT(cascadeSubWindows()),          __(),               0, tr("Cascade the windows"));
+    cmd(this,    switchLayoutDirectionAct,  tr("Layout &Direction"),SLOT(switchLayoutDirection()),      __(),               0, tr("Switch layout direction"));
+    cmd(this,    switchViewModeAct,         tr("&View Mode"),       SLOT(switchViewMode()),             __(),               0, tr("Switch SubWindow/Tabbed view mode"));
+    cmd(mdiArea, nextAct,                   tr("Ne&xt"),            SLOT(activateNextSubWindow()),      __::NextChild,      0, tr("Move the focus to the next window"));
+    cmd(mdiArea, previousAct,               tr("Pre&vious"),        SLOT(activatePreviousSubWindow()),  __::PreviousChild,  0, tr("Move the focus to the previous window"));
+#else
 
     closeAct = new QAction(tr("Cl&ose"), this);
     closeAct->setStatusTip(tr("Close the active window"));
@@ -239,6 +290,7 @@ void MdiHelper::createActions()
     previousAct->setShortcuts(QKeySequence::PreviousChild);
     previousAct->setStatusTip(tr("Move the focus to the previous window"));
     connect(previousAct, SIGNAL(triggered()), mdiArea, SLOT(activatePreviousSubWindow()));
+#endif
 
     separatorAct = new QAction(this);
     separatorAct->setSeparator(true);
@@ -252,6 +304,11 @@ void MdiHelper::createActions()
     helpDocAct->setStatusTip(tr("Show the PlDoc HTML for the script"));
     connect(helpDocAct, SIGNAL(triggered()), this, SLOT(helpDoc()));
 
+
+    viewCallGraphAct = new QAction(tr("View &Call Graph"), this);
+    viewCallGraphAct->setShortcut(QKeySequence("Ctrl+Shift+R"));
+    viewCallGraphAct->setStatusTip(tr("Display the XREF graph of current source, courtesy pack(callgraph)"));
+    connect(viewCallGraphAct, SIGNAL(triggered()), this, SLOT(viewCallGraph()));
 
     viewGraphAct = new QAction(tr("View G&raph"), this);
     viewGraphAct->setShortcut(QKeySequence("Ctrl+R"));
@@ -275,6 +332,26 @@ void MdiHelper::createActions()
     aboutQtAct = new QAction(tr("About &Qt"), this);
     aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+
+    // macros
+    macroStartRegAct = new QAction(tr("Macro Start Register"), this);
+    macroStartRegAct->setShortcut(KeyboardMacros::start());
+    macroStartRegAct->setStatusTip(tr("Start Keyboard Macro Registration"));
+    connect(macroStartRegAct, SIGNAL(triggered()), this, SLOT(macroStartReg()));
+
+    macroStopRegAct = new QAction(tr("Macro Stop Register"), this);
+    macroStopRegAct->setShortcut(KeyboardMacros::stop());
+    macroStopRegAct->setStatusTip(tr("Stop Keyboard Macro Registration"));
+    connect(macroStopRegAct, SIGNAL(triggered()), this, SLOT(macroStopReg()));
+
+    macroPlaybackAct = new QAction(tr("Macro Playback"), this);
+    macroPlaybackAct->setShortcut(KeyboardMacros::play());
+    macroPlaybackAct->setStatusTip(tr("Run Last Keyboard Macro Registered"));
+    connect(macroPlaybackAct, SIGNAL(triggered()), this, SLOT(macroPlayback()));
+
+    macroSelectAct = new QAction(tr("Macro Select"), this);
+    macroSelectAct->setStatusTip(tr("Select and run a Keyboard Macro Registered"));
+    connect(macroSelectAct, SIGNAL(triggered()), this, SLOT(macroSelect()));
 
     // debugger
 
@@ -333,8 +410,7 @@ void MdiHelper::createActions()
     connect(watchBPAct, SIGNAL(triggered()), this, SLOT(watchVar()));
 }
 
-void MdiHelper::createMenus()
-{
+void MdiHelper::createMenus() {
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(newAct);
     fileMenu->addAction(openAct);
@@ -359,6 +435,11 @@ void MdiHelper::createMenus()
     editMenu->addAction(findNextAct);
     editMenu->addAction(findPreviousAct);
     editMenu->addAction(replaceAct);
+    editMenu->addSeparator();
+    editMenu->addAction(macroStartRegAct);
+    editMenu->addAction(macroStopRegAct);
+    editMenu->addAction(macroPlaybackAct);
+    editMenu->addAction(macroSelectAct);
 
     prefMenu = menuBar()->addMenu(tr("&Preferences"));
     prefMenu->addAction(viewSWIPrologPrefAct);
@@ -394,6 +475,7 @@ void MdiHelper::createMenus()
     helpMenu->addAction(helpStartAct);
     helpMenu->addAction(helpDocAct);
     helpMenu->addSeparator();
+    helpMenu->addAction(viewCallGraphAct);
     helpMenu->addAction(viewGraphAct);
     helpMenu->addAction(viewGraphIncl);
     helpMenu->addAction(commentClauseAct);
@@ -402,8 +484,7 @@ void MdiHelper::createMenus()
     helpMenu->addAction(aboutQtAct);
 }
 
-void MdiHelper::createToolBars()
-{
+void MdiHelper::createToolBars() {
     fileToolBar = addToolBar(tr("File"));
     fileToolBar->addAction(newAct);
     fileToolBar->addAction(openAct);
@@ -438,14 +519,12 @@ void MdiHelper::createToolBars()
     helpToolBar = addToolBar(tr("Help"));
 }
 
-void MdiHelper::createStatusBar()
-{
+void MdiHelper::createStatusBar() {
     statusBar()->showMessage(tr("Ready"));
     cursorIndicator.initializeStatusBar(statusBar());
 }
 
-void MdiHelper::subWindowActivated(QMdiSubWindow *w)
-{
+void MdiHelper::subWindowActivated(QMdiSubWindow *w) {
     if (w) {
         qDebug() << "subWindowActivated" << w->widget()->metaObject()->className() << w->windowTitle();
         setWindowTitle(w->windowTitle());
@@ -453,8 +532,7 @@ void MdiHelper::subWindowActivated(QMdiSubWindow *w)
     }
 }
 
-void MdiHelper::cursorPositionChanged()
-{
+void MdiHelper::cursorPositionChanged() {
     cursorIndicator.showCursorPosition(sender());
 }
 

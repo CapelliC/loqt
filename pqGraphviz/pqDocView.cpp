@@ -39,7 +39,6 @@ pqDocView::pqDocView(QWidget *parent) :
 
 bool pqDocView::startPlDoc()
 {
-
     // start from a background thread
     auto f = [&]() {
         QString msg;
@@ -50,8 +49,11 @@ bool pqDocView::startPlDoc()
                     msg = tr("library(pldoc) not available");
                 else {
                     //if (!PlCall("current_module(pldoc_http)"))
-                        if (!PlCall(QString("doc_server(%1)").arg(helpDocPort).toUtf8()))
-                            msg = tr("cannot start doc_server at port %1").arg(helpDocPort);
+                    if (!PlCall(QString("doc_server(%1)").arg(helpDocPort).toUtf8()))
+                        msg = tr("cannot start doc_server at port %1").arg(helpDocPort);
+                    /* seems useless by now
+                    else if (!PlCall("use_module(library(pldoc/doc_library))") || !PlCall("doc_load_library"))
+                        msg = tr("cannot doc_load_library"); */
                 }
             }
             else
@@ -125,6 +127,8 @@ void pqDocView::addFeedback(QToolBar *tbar, QStatusBar *sbar)
 void pqDocView::loadFinished(bool yn)
 {
     statusBar->showMessage(tr("load %1 [%2]").arg(url().toString(), yn ? "ok" : "ko"));
+    if (yn)
+        setWindowTitle(url().toString());
 }
 
 void pqDocView::loadProgress(int perc)

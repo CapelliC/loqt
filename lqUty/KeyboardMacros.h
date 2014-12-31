@@ -28,6 +28,8 @@
 
 #include <QKeyEvent>
 #include <QShortcut>
+#include <QMenu>
+#include <QStatusBar>
 
 /** helper class to record and playback macros
  */
@@ -39,25 +41,45 @@ public:
     explicit KeyboardMacros(QObject *parent = 0);
     ~KeyboardMacros();
 
+    /// connect to typical QMainWindow environment
+    void setupGUI(QStatusBar *bar, QMenu *menu);
+
+    /// resonable defaults for GUI bindings hotkeys
+    static QKeySequence start() { return QKeySequence("Ctrl+Shift+R"); }
+    static QKeySequence stop() { return QKeySequence("Ctrl+Shift+T"); }
+    static QKeySequence play() { return QKeySequence("Ctrl+Shift+Y"); }
+
+    static QShortcut *start_(QWidget *parent) { return new QShortcut(start(), parent); }
+    static QShortcut *stop_(QWidget *parent) { return new QShortcut(stop(), parent); }
+    static QShortcut *play_(QWidget *parent) { return new QShortcut(play(), parent); }
+
     typedef const EditInterface& editor;
 
-    void startRecording(editor);
-    void doneRecording(editor);
-    void startPlayback(editor e) { startPlayback(defaultName(), e); }
     void startPlayback(QString name, editor);
 
+    /// provide named macros with fast startup
     void storeEvent(QKeyEvent *e);
     static QString defaultName() { return "<macro>"; }
     void setLastRecordedName(QString name);
 
+    /// serializing to store in preferences
     static QStringList e2l(const QKeyEvent &e);
     static QKeyEvent l2e(const QStringList &l);
     static QString e2s(const QKeyEvent &e) { return e2l(e).join(","); }
     static QKeyEvent s2e(const QString &s) { return l2e(s.split(",")); }
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+
 signals:
+    void playbackCompleted();
+    void registerCompleted();
 
 public slots:
+
+    void startRecording(QTextEdit *);
+    void doneRecording();
+    void startPlayback(QTextEdit *);
 
 private:
 
@@ -65,6 +87,8 @@ private:
     QMap<QString, macro> macros;
 
     QString lastRecorded;
+
+    EditInterface binding;
 };
 
 #endif // KEYBOARDMACROS_H

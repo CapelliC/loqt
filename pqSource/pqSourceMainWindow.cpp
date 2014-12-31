@@ -132,7 +132,7 @@ void pqSourceMainWindow::engine_ready() {
     // calledgraph requires gv_uty: load first
     pqGraphviz::setup();
 
-    foreach (auto m, QString("syncol,trace_interception,calledgraph,pqSourceFileXref").split(',')) {
+    foreach (auto m, QString("syncol,trace_interception,win_html_write_help,calledgraph,pqSourceFileXref").split(',')) {
         bool rc = gui_thread_engine->resource_module(m);
         qDebug() << m << rc;
     }
@@ -640,11 +640,19 @@ void pqSourceMainWindow::reportError(QString msg) {
  */
 pqDocView *pqSourceMainWindow::helpView() {
     pqDocView *v;
+    /*
     foreach(QMdiSubWindow *s, mdiArea()->subWindowList())
         if ((v = qobject_cast<pqDocView*>(s->widget()))) {
             mdiArea()->setActiveSubWindow(s);
             return v;
         }
+    */
+
+    auto l = typedSubWindows<pqDocView>();
+    if (l.count() >= 1) {
+        mdiArea()->setActiveSubWindow(qobject_cast<QMdiSubWindow *>((v = l.at(0))->parentWidget()));
+        return v;
+    }
 
     v = new pqDocView(this);
     v->startPlDoc();
@@ -713,6 +721,47 @@ void pqSourceMainWindow::markCursor(QTextCursor c)
     FindReplace::showMatch(c);
 }
 
+void pqSourceMainWindow::macroStartReg()
+{
+    if (auto e = activeChild<pqSourceBaseClass>()) {
+        if (!macs) {
+            macs = new KeyboardMacros(this);
+            macs->startRecording(e);
+            statusBar()->showMessage(tr("Start registering unnamed Keyboard Macro"));
+        }
+        else
+            statusBar()->showMessage(tr("Already registering unnamed Keyboard Macro"));
+    }
+}
+
+void pqSourceMainWindow::macroStopReg()
+{
+    if (macs) {
+        macs->doneRecording();
+        statusBar()->showMessage(tr("Done registering Keyboard Macro"));
+        delete macs;
+    }
+    else
+        statusBar()->showMessage(tr("Not registering Keyboard Macro"));
+}
+
+void pqSourceMainWindow::macroPlayback()
+{
+    if (auto e = activeChild<pqSourceBaseClass>()) {
+        if (!macs) {
+            KeyboardMacros(this).startPlayback(e);
+            statusBar()->showMessage(tr("Playback Keyboard Macro"));
+        }
+        else
+            statusBar()->showMessage(tr("Currently registering, cannot playback Keyboard Macro"));
+    }
+}
+
+void pqSourceMainWindow::macroSelect()
+{
+
+}
+
 void pqSourceMainWindow::helpStart() {
     if (helpView())
         emit reportInfoSig(tr("doc_server started at port %1").arg(pqDocView::helpDocPort));
@@ -735,6 +784,14 @@ PREDICATE(help_hook, 1) {
         });
 
     return rc;
+}
+
+/** use pack(callgraph) by Samer
+ */
+void pqSourceMainWindow::viewCallGraph() {
+    if (auto s = activeChild<pqSource>()) {
+        qDebug() << "viewCallGraph" << s->file;
+    }
 }
 
 predicate1(calledgraph)
@@ -834,4 +891,14 @@ void pqSourceMainWindow::onWebScript()
         ws->server = s;
         ws->show();
     }
+}
+
+void pqSourceMainWindow::playbackCompleted()
+{
+    statusBar()->showMessage("playbackCompleted");
+}
+
+void pqSourceMainWindow::registerCompleted()
+{
+    statusBar()->showMessage("registerCompleted");
 }

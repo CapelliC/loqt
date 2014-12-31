@@ -4,5 +4,6 @@
     </qresource>
     <qresource prefix="/prolog">
         <file>trace_interception.pl</file>
+        <file>win_html_write_help.pl</file>
     </qresource>
 </RCC>

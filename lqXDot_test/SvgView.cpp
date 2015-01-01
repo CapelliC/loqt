@@ -46,6 +46,9 @@
 #include <QGraphicsSvgItem>
 #include <QPaintEvent>
 #include <qmath.h>
+#include <QSignalMapper>
+#include <QFileDialog>
+#include <QMenu>
 
 #ifndef QT_NO_OPENGL
 #include <QGLWidget>
@@ -186,3 +189,40 @@ void SvgView::wheelEvent(QWheelEvent *event)
     event->accept();
 }
 
+/** create a menu of commands on selected node
+ */
+void SvgView::contextMenuEvent(QContextMenuEvent *event)
+{
+    delete exportFmt;
+    QMenu menu(this);
+
+    exportFmt = new QSignalMapper;
+    connect(exportFmt, SIGNAL(mapped(QString)), SLOT(exportAs(QString)));
+
+    QMenu *e = menu.addMenu(tr("&Export As..."));
+    foreach (auto fmt, QString("png jpg").split(' ')) {
+        QAction *a = e->addAction(fmt);
+        connect(a, SIGNAL(triggered()), exportFmt, SLOT(map()));
+        exportFmt->setMapping(a, fmt);
+    }
+
+    menu.exec(event->globalPos());
+}
+
+void SvgView::exportAs(QString fmt) {
+    setRenderer(Image);
+    repaint();
+    if (!m_image.isNull()) {
+        QFileDialog fd(this);
+        fd.setAcceptMode(fd.AcceptSave);
+        fd.setDefaultSuffix(fmt);
+        if (!lastExportDir.isEmpty())
+            fd.setDirectory(lastExportDir);
+        if (fd.exec()) {
+            m_image.save(fd.selectedFiles()[0], qPrintable(fmt));
+        }
+    }
+
+    setRenderer(Native);
+    repaint();
+}

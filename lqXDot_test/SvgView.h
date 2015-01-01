@@ -42,6 +42,8 @@
 #define SVGVIEW_H
 
 #include <QGraphicsView>
+#include <QSignalMapper>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QWheelEvent;
@@ -70,6 +72,10 @@ public slots:
 protected:
     void wheelEvent(QWheelEvent *event);
     void paintEvent(QPaintEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
+
+protected slots:
+    void exportAs(QString fmt);
 
 private:
     RendererType m_renderer;
@@ -79,5 +85,8 @@ private:
     QGraphicsRectItem *m_outlineItem;
 
     QImage m_image;
+
+    QPointer<QSignalMapper> exportFmt;
+    QString lastExportDir;
 };
 #endif // SVGVIEW_H

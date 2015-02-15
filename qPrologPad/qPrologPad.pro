@@ -3,7 +3,7 @@
 #--------------------------------------------------
 # prologpad courtesy Jan Wielemaker
 #--------------------------------------------------
-# Copyright (C) : 2014 Carlo Capelli
+# Copyright (C) : 2014,2015 Carlo Capelli
 
 QMAKE_CXXFLAGS += -std=c++0x
 

@@ -3,7 +3,8 @@
 #--------------------------------------------------
 # interface SWI-Prolog and lqXDot
 #--------------------------------------------------
-# Copyright (C): 2013,2014,2015
+# Author        : Carlo Capelli
+# Copyright (C) : 2013,2014,2015
 
 QT += gui widgets webkit webkitwidgets concurrent
 

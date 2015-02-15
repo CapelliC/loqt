@@ -4,7 +4,8 @@
 # Collection of Qt components to efficiently
 # interface logic languages
 #--------------------------------------------------
-# Copyright (C) : 2013,2014 Carlo Capelli
+# Author        : Carlo Capelli
+# Copyright (C) : 2013,2014,2015
 
 # please, not obsolete compiler
 QMAKE_CXXFLAGS += -std=c++0x

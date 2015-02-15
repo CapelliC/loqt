@@ -3,7 +3,8 @@
 #--------------------------------------------------
 # REPL in QTextEdit on a background logic processor
 #--------------------------------------------------
-# Copyright (C): 2013,2014,2015
+# Author        : Carlo Capelli
+# Copyright (C) : 2013,2014,2015
 
 QT += core gui widgets
 

@@ -3,7 +3,8 @@
 #--------------------------------------------------
 # my first loqt component
 #--------------------------------------------------
-# Copyright (C): 2013,2014,2015
+# Author        : Carlo Capelli
+# Copyright (C) : 2013,2014,2015
 
 # please, not obsolete compiler
 QMAKE_CXXFLAGS += -std=c++0x

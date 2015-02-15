@@ -4,7 +4,8 @@
 # Collection of Qt components to efficiently
 # interface logic languages
 #--------------------------------------------------
-# Copyright (C): 2013,2014,2015
+# Author        : Carlo Capelli
+# Copyright (C) : 2013,2014,2015
 
 QT += gui widgets webkit webkitwidgets
 

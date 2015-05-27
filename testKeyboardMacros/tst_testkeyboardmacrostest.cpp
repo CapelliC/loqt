@@ -1,109 +1,67 @@
-#include <QString>
+/*
+    testKeyboardMacros: developing LoQT macro recording and playback
+
+    Author        : Carlo Capelli
+    E-mail        : cc.carlo.cap@gmail.com
+    Copyright (C): 2013,2014,2015
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
 #include <QtTest>
-#include <QCoreApplication>
 #include <QDebug>
-#include <QStateMachine>
+#include <QCoreApplication>
 
 #include "KeyboardMacros.h"
 #include "file2string.h"
-
-/*
-class myeditor : public QTextEdit
-{
-    Q_OBJECT
-public:
-
-    myeditor(QWidget *p = 0) : QTextEdit(p), capture(false) {
-    }
-    QPointer<KeyboardMacros> km;
-
-public slots:
-
-    void startRecording();
-    void stopRecording();
-    void Playback();
-
-protected:
-
-    bool capture;
-
-    virtual void keyPressEvent(QKeyEvent *e)
-    {
-        qDebug() << "keyPressEvent" << e;
-        if (capture)
-            km->storeEvent(e);
-        QTextEdit::keyPressEvent(e);
-    }
-};
-
-void myeditor::startRecording() {
-    km->startRecording(EditInterface(this));
-    capture = true;
-}
-void myeditor::stopRecording() {
-    if (capture) {
-        km->doneRecording(EditInterface(this));
-        capture= false;
-    }
-}
-void myeditor::Playback() {
-    if (!capture)
-        km->startPlayback(EditInterface(this));
-}
-typedef QTextEdit myeditor;
-*/
 
 class TestKeyboardMacrosTest : public QObject
 {
     Q_OBJECT
 
-public:
-    TestKeyboardMacrosTest();
-
 private Q_SLOTS:
-    void testCase1();
-};
 
-TestKeyboardMacrosTest::TestKeyboardMacrosTest()
-{
-}
+    void testCase1() {
+        QTextEdit ed;
+        init(&ed, "~/.bashrc");
+        elp.exec();
+        QVERIFY2(true, "Success");
+    }
 
-void TestKeyboardMacrosTest::testCase1()
-{
-    QTextEdit ed[2];
-    KeyboardMacros km;
-    QEventLoop elp;
+    void testCase2() {
+        QTextEdit ed[2];
+        init(ed+0, "~/.bashrc");
+        init(ed+1, "~/.profile");
+        elp.exec();
+        QVERIFY2(true, "Success");
+    }
 
-    auto init = [&](QTextEdit *ed, QString path) {
+private:
+
+    void init(QTextEdit *ed, QString path) {
         ed->setWindowTitle(path);
         ed->setText(file2string(path));
-        QShortcut *sc = new QShortcut(QKeySequence::Quit, ed);
-        connect(sc, &QShortcut::activated, &elp, &QEventLoop::quit);
-
-        //connect(sc, &QShortcut::activatedAmbiguously, &elp, &QEventLoop::quit);
-
-        /*
-        connect(km.start_(ed), &QShortcut::activated, ed, &myeditor::startRecording);
-        connect(km.stop_(ed), &QShortcut::activated, ed, &myeditor::stopRecording);
-        connect(km.play_(ed), &QShortcut::activated, ed, &myeditor::Playback);
-        ed->km = &km;
-        */
-
-        /*
-        km.connect(km.start_(ed), &QShortcut::activated, &myeditor::startRecording);
-        km.connect(km.stop_(ed), &QShortcut::activated, &myeditor::stopRecording);
-        km.connect(km.play_(ed), &QShortcut::activated, &myeditor::Playback);
-        */
-
+        ed->connect(new QShortcut(QKeySequence("Ctrl+Q"), ed),
+                    &QShortcut::activated, &elp, &QEventLoop::quit);
         ed->show();
-    };
-    init(ed+0, "/home/carlo/.bashrc");
-    init(ed+1, "/home/carlo/.profile");
+        km.manage(ed);
+    }
 
-    elp.exec();
-
-    QVERIFY2(true, "Success");
-}
+    KeyboardMacros km;
+    QEventLoop elp;
+};
 
 QTEST_MAIN(TestKeyboardMacrosTest)
 

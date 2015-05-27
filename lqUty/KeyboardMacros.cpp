@@ -29,8 +29,16 @@ static const char* k_name = "name";
 static const char* k_strokes = "strokes";
 
 KeyboardMacros::KeyboardMacros(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    mapStart(new QSignalMapper(this)),
+    mapStop(new QSignalMapper(this)),
+    mapPlay(new QSignalMapper(this)),
+    status(idle)
 {
+    connect(mapStart, SIGNAL(mapped(QWidget*)), this, SLOT(startRecording(QWidget*)));
+    connect(mapStop, SIGNAL(mapped(QWidget*)), this, SLOT(stopRecording(QWidget*)));
+    connect(mapPlay, SIGNAL(mapped(QWidget*)), this, SLOT(startPlayback(QWidget*)));
+
     lqPreferences p;
     int n = p.beginReadArray(k_macros);
     for (int i = 0; i < n; ++i) {
@@ -63,30 +71,35 @@ KeyboardMacros::~KeyboardMacros()
     p.endArray();
 }
 
+QKeySequence KeyboardMacros::start() { return QKeySequence("Ctrl+Shift+R"); }
+QKeySequence KeyboardMacros::stop() { return QKeySequence("Ctrl+Shift+T"); }
+QKeySequence KeyboardMacros::play() { return QKeySequence("Ctrl+Shift+Y"); }
+
+void KeyboardMacros::manage(QWidget *w)
+{
+    QShortcut *v[3] = { start_(w), stop_(w), play_(w) };
+
+    mapStart->setMapping(v[0], w);
+    connect(v[0], SIGNAL(activated()), mapStart, SLOT(map()));
+
+    mapStop->setMapping(v[1], w);
+    connect(v[1], SIGNAL(activated()), mapStop, SLOT(map()));
+
+    mapPlay->setMapping(v[2], w);
+    connect(v[2], SIGNAL(activated()), mapPlay, SLOT(map()));
+
+    //managed << w;
+    //w->installEventFilter(this);
+}
+
 void KeyboardMacros::setupGUI(QStatusBar *bar, QMenu *menu)
 {
+    this->menu = menu;
+    this->statusBar = bar;
     // tbd
     qDebug() << "setupGUI(QStatusBar *bar, QMenu *menu)" << bar << menu;
 }
-/*
-void KeyboardMacros::startRecording(editor)
-{
-    lastRecorded = defaultName();
-}
 
-void KeyboardMacros::doneRecording(editor)
-{
-    lastRecorded.clear();
-}
-
-void KeyboardMacros::startPlayback(QString name, editor t)
-{
-    for (auto e: macros[name]) {
-        qDebug() << "playback" << &e;
-        QCoreApplication::postEvent(t.widget(), new QKeyEvent(e.type(), e.key(), e.modifiers(), e.text()));
-    }
-}
-*/
 void KeyboardMacros::storeEvent(QKeyEvent *e)
 {
     if (!lastRecorded.isEmpty()) {
@@ -116,32 +129,41 @@ QKeyEvent KeyboardMacros::l2e(const QStringList &l)
 
 bool KeyboardMacros::eventFilter(QObject *obj, QEvent *event)
 {
-    Q_ASSERT(obj == binding.edit);
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         storeEvent(keyEvent);
     }
-
     // standard event processing
     return QObject::eventFilter(obj, event);
 }
 
-void KeyboardMacros::startRecording(QTextEdit *ed)
+void KeyboardMacros::startRecording(QWidget *ed)
 {
-    lastRecorded = defaultName();
-    binding.edit = ed;
-    macros[lastRecorded].clear();
-    ed->installEventFilter(this);
+    qDebug() << "startRecording" << status << ed;
+    if (status == idle) {
+        status = onRecord;
+        lastRecorded = defaultName();
+        macros[lastRecorded].clear();
+        ed->installEventFilter(this);
+    }
 }
 
-void KeyboardMacros::doneRecording()
+void KeyboardMacros::stopRecording(QWidget *ed)
 {
-    binding.edit->removeEventFilter(this);
+    qDebug() << "stopRecording" << ed;
+    if (status == onRecord) {
+        ed->removeEventFilter(this);
+        status = idle;
+    }
 }
 
-void KeyboardMacros::startPlayback(QTextEdit *te)
+void KeyboardMacros::startPlayback(QWidget *ed)
 {
-    for (auto e: macros[defaultName()]) {
-        QCoreApplication::postEvent(te, new QKeyEvent(e.type(), e.key(), e.modifiers(), e.text()));
+    qDebug() << "startPlayback" << ed;
+    if (status == idle) {
+        status = onPlayback;
+        for (auto e: macros[defaultName()])
+            QCoreApplication::postEvent(ed, new QKeyEvent(e.type(), e.key(), e.modifiers(), e.text()));
+        status = idle;
     }
 }

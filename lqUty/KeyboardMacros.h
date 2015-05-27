@@ -26,10 +26,12 @@
 #include "EditInterface.h"
 #include "lqPreferences.h"
 
+#include <QMenu>
+#include <QPointer>
 #include <QKeyEvent>
 #include <QShortcut>
-#include <QMenu>
 #include <QStatusBar>
+#include <QSignalMapper>
 
 /** helper class to record and playback macros
  */
@@ -45,17 +47,15 @@ public:
     void setupGUI(QStatusBar *bar, QMenu *menu);
 
     /// resonable defaults for GUI bindings hotkeys
-    static QKeySequence start() { return QKeySequence("Ctrl+Shift+R"); }
-    static QKeySequence stop() { return QKeySequence("Ctrl+Shift+T"); }
-    static QKeySequence play() { return QKeySequence("Ctrl+Shift+Y"); }
+    static QKeySequence start();
+    static QKeySequence stop();
+    static QKeySequence play();
 
     static QShortcut *start_(QWidget *parent) { return new QShortcut(start(), parent); }
     static QShortcut *stop_(QWidget *parent) { return new QShortcut(stop(), parent); }
     static QShortcut *play_(QWidget *parent) { return new QShortcut(play(), parent); }
 
-    typedef const EditInterface& editor;
-
-    void startPlayback(QString name, editor);
+    void manage(QWidget*);
 
     /// provide named macros with fast startup
     void storeEvent(QKeyEvent *e);
@@ -77,9 +77,9 @@ signals:
 
 public slots:
 
-    void startRecording(QTextEdit *);
-    void doneRecording();
-    void startPlayback(QTextEdit *);
+    void startRecording(QWidget*);
+    void stopRecording(QWidget*);
+    void startPlayback(QWidget*);
 
 private:
 
@@ -87,8 +87,13 @@ private:
     QMap<QString, macro> macros;
 
     QString lastRecorded;
+    QWidgetList managed;
 
-    EditInterface binding;
+    QPointer<QMenu> menu;
+    QPointer<QStatusBar> statusBar;
+
+    QPointer<QSignalMapper> mapStart, mapStop, mapPlay;
+    enum { idle, onRecord, onPlayback } status;
 };
 
 #endif // KEYBOARDMACROS_H

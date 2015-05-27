@@ -726,7 +726,7 @@ void pqSourceMainWindow::macroStartReg()
     if (auto e = activeChild<pqSourceBaseClass>()) {
         if (!macs) {
             macs = new KeyboardMacros(this);
-            macs->startRecording(e);
+            //macs->startRecording(e);
             statusBar()->showMessage(tr("Start registering unnamed Keyboard Macro"));
         }
         else
@@ -737,7 +737,7 @@ void pqSourceMainWindow::macroStartReg()
 void pqSourceMainWindow::macroStopReg()
 {
     if (macs) {
-        macs->doneRecording();
+        //macs->doneRecording();
         statusBar()->showMessage(tr("Done registering Keyboard Macro"));
         delete macs;
     }
@@ -749,7 +749,7 @@ void pqSourceMainWindow::macroPlayback()
 {
     if (auto e = activeChild<pqSourceBaseClass>()) {
         if (!macs) {
-            KeyboardMacros(this).startPlayback(e);
+            //KeyboardMacros(this).startPlayback(e);
             statusBar()->showMessage(tr("Playback Keyboard Macro"));
         }
         else

@@ -23,6 +23,7 @@
 #ifndef FILE2STRING_H
 #define FILE2STRING_H
 
+#include <QDir>
 #include <QFile>
 #include <QTextStream>
 #include <stdexcept>
@@ -34,9 +35,15 @@ inline QString file2string(QFile &f, const char *codec = "UTF-8") {
     return ts.readAll();
 }
 
+inline QString bashPath(QString path) {
+    if (path.left(2) == "~/")
+        path = QDir::homePath() + path.mid(1);
+    return path;
+}
+
 //! boilerplate to get a pathname contents
 inline QString file2string(QString path, const char *codec = "UTF-8") {
-    QFile f(path);
+    QFile f(bashPath(path));
     if (!f.open(f.ReadOnly))
         throw std::runtime_error("cannot open " + path.toStdString());
     return file2string(f, codec);

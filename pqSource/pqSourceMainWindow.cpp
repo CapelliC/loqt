@@ -115,6 +115,11 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     pqWebScriptAct->setShortcut(QKeySequence("Ctrl+Shift+W"));
     connect(pqWebScriptAct, SIGNAL(triggered()), this, SLOT(onWebScript()));
     debugMenu->addAction(pqWebScriptAct);
+
+    macs = new KeyboardMacros(this);
+    connect(macs, SIGNAL(feedback(QString)), statusBar(), SLOT(showMessage(QString)));
+
+    macs->setupMenu(editMenu);
 }
 
 /**
@@ -274,13 +279,15 @@ void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, i
         connect(e, SIGNAL(cursorPositionChanged()), SLOT(cursorPositionChanged()));
         connect(e, SIGNAL(requestHelp(QString)), SLOT(requestHelp(QString)));
 
+        // play macros on editor
+        macs->manage(e);
+
         auto w = mdiArea()->addSubWindow(e);
         if (!geometry.isEmpty()) {
             w->restoreGeometry(geometry);
             int dy = w->y() == 24 ? 0 : w->y();
             w->move(w->x(), dy);
         }
-
         w->show();
 
         e->loadSource(line, linepos);
@@ -460,15 +467,18 @@ void pqSourceMainWindow::about() {
     if (message_to_string(A("about"), S)) {
         auto TD = [](QString s="") { return "<td align=center>"+s+"</td>"; };
         auto TR = [](QString s="") { return "<tr>"+s+"</tr>"; };
+        auto LK = [](QString s, QString p) { return QString("<a href='https://github.com/CapelliC/%2'>%1</a>").arg(s, p); };
         info.setText(QString(
             "<table>"
             +TR(TD("<img src=':/swipl.png'>")+TD(t2w(S)))
             +TR()
-            +TR(TD("<a href='%1'>pqConsole</a>")    .arg("https://github.com/CapelliC/pqConsole")                   +TD("SWI-Prolog interface to Qt"))
-            +TR(TD("<a href='%1'>pqGraphviz</a>")   .arg("https://github.com/CapelliC/loqt/tree/master/pqGraphviz") +TD("SWI-Prolog+Qt interface to Graphviz"))
-            +TR(TD("<a href='%4'>pqSource</a>")     .arg("https://github.com/CapelliC/loqt/tree/master/pqSource")   +TD("SWI-Prolog source goodies"))
+            +TR(TD(LK("lqUty",      "loqt/lqUty"))                  +TD("Qt utilities"))
+            +TR(TD(LK("lqXDot",     "loqt/lqXDot"))                 +TD("Qt to Graphviz enabled interface"))
+            +TR(TD(LK("pqConsole",  "pqConsole"))                   +TD("SWI-Prolog interface to Qt"))
+            +TR(TD(LK("pqGraphviz", "loqt/tree/master/pqGraphviz")) +TD("SWI-Prolog+Qt interface to Graphviz"))
+            +TR(TD(LK("pqSource",   "loqt/tree/master/pqSource"))   +TD("SWI-Prolog source goodies"))
             +TR()
-            +TR(TD("by")+                            TD("<a href='mailto:%1'>ing. Carlo Capelli").arg("cc.carlo.cap@gmail.com"))
+            +TR(TD("by")+TD("<a href='mailto:%1'>ing. Carlo Capelli").arg("cc.carlo.cap@gmail.com"))
             +"</table>"));
     }
     info.exec();
@@ -539,6 +549,7 @@ PREDICATE(edit_source, 1) {
                 }
         }
 */
+
     qDebug() << "return" << rc;
     return rc;
 }
@@ -640,13 +651,6 @@ void pqSourceMainWindow::reportError(QString msg) {
  */
 pqDocView *pqSourceMainWindow::helpView() {
     pqDocView *v;
-    /*
-    foreach(QMdiSubWindow *s, mdiArea()->subWindowList())
-        if ((v = qobject_cast<pqDocView*>(s->widget()))) {
-            mdiArea()->setActiveSubWindow(s);
-            return v;
-        }
-    */
 
     auto l = typedSubWindows<pqDocView>();
     if (l.count() >= 1) {
@@ -719,47 +723,6 @@ void pqSourceMainWindow::decFont()
 void pqSourceMainWindow::markCursor(QTextCursor c)
 {
     FindReplace::showMatch(c);
-}
-
-void pqSourceMainWindow::macroStartReg()
-{
-    if (auto e = activeChild<pqSourceBaseClass>()) {
-        if (!macs) {
-            macs = new KeyboardMacros(this);
-            //macs->startRecording(e);
-            statusBar()->showMessage(tr("Start registering unnamed Keyboard Macro"));
-        }
-        else
-            statusBar()->showMessage(tr("Already registering unnamed Keyboard Macro"));
-    }
-}
-
-void pqSourceMainWindow::macroStopReg()
-{
-    if (macs) {
-        //macs->doneRecording();
-        statusBar()->showMessage(tr("Done registering Keyboard Macro"));
-        delete macs;
-    }
-    else
-        statusBar()->showMessage(tr("Not registering Keyboard Macro"));
-}
-
-void pqSourceMainWindow::macroPlayback()
-{
-    if (auto e = activeChild<pqSourceBaseClass>()) {
-        if (!macs) {
-            //KeyboardMacros(this).startPlayback(e);
-            statusBar()->showMessage(tr("Playback Keyboard Macro"));
-        }
-        else
-            statusBar()->showMessage(tr("Currently registering, cannot playback Keyboard Macro"));
-    }
-}
-
-void pqSourceMainWindow::macroSelect()
-{
-
 }
 
 void pqSourceMainWindow::helpStart() {
@@ -891,14 +854,4 @@ void pqSourceMainWindow::onWebScript()
         ws->server = s;
         ws->show();
     }
-}
-
-void pqSourceMainWindow::playbackCompleted()
-{
-    statusBar()->showMessage("playbackCompleted");
-}
-
-void pqSourceMainWindow::registerCompleted()
-{
-    statusBar()->showMessage("registerCompleted");
 }

@@ -118,11 +118,6 @@ public slots:
 
     void markCursor(QTextCursor c);
 
-    void macroStartReg();
-    void macroStopReg();
-    void macroPlayback();
-    void macroSelect();
-
 protected slots:
 
     void fixGeometry();
@@ -141,9 +136,6 @@ protected slots:
     void engine_ready();
 
     void onWebScript();
-
-    void playbackCompleted();
-    void registerCompleted();
 };
 
 #endif // PQSOURCEMAINWINDOW_H

@@ -44,22 +44,22 @@ public:
     ~KeyboardMacros();
 
     /// connect to typical QMainWindow environment
-    void setupGUI(QStatusBar *bar, QMenu *menu);
+    void setupMenu(QMenu *menu);
 
     /// resonable defaults for GUI bindings hotkeys
     static QKeySequence start();
     static QKeySequence stop();
     static QKeySequence play();
-
     static QShortcut *start_(QWidget *parent) { return new QShortcut(start(), parent); }
     static QShortcut *stop_(QWidget *parent) { return new QShortcut(stop(), parent); }
     static QShortcut *play_(QWidget *parent) { return new QShortcut(play(), parent); }
 
     void manage(QWidget*);
 
-    /// provide named macros with fast startup
+    /// TBD provide named macros with fast startup
     void storeEvent(QKeyEvent *e);
     static QString defaultName() { return "<macro>"; }
+    QString currName() const { return defaultName(); }
     void setLastRecordedName(QString name);
 
     /// serializing to store in preferences
@@ -72,28 +72,36 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 signals:
-    void playbackCompleted();
+
     void registerCompleted();
+    void playbackCompleted();
+
+    //! basic user feedback about interface status
+    void feedback(QString msg);
 
 public slots:
 
     void startRecording(QWidget*);
     void stopRecording(QWidget*);
-    void startPlayback(QWidget*);
+    void Playback(QWidget*);
 
 private:
 
+    //! restrict to keyboard events by now
     typedef QList<QKeyEvent> macro;
     QMap<QString, macro> macros;
 
+    //! TBD allows to reference macros by name
     QString lastRecorded;
-    QWidgetList managed;
-
-    QPointer<QMenu> menu;
-    QPointer<QStatusBar> statusBar;
 
     QPointer<QSignalMapper> mapStart, mapStop, mapPlay;
     enum { idle, onRecord, onPlayback } status;
+
+    QPointer<QAction>
+        macroStartRegAct,
+        macroStopRegAct,
+        macroPlaybackAct,
+        macroSelectAct;
 };
 
 #endif // KEYBOARDMACROS_H

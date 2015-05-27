@@ -37,7 +37,7 @@ KeyboardMacros::KeyboardMacros(QObject *parent) :
 {
     connect(mapStart, SIGNAL(mapped(QWidget*)), this, SLOT(startRecording(QWidget*)));
     connect(mapStop, SIGNAL(mapped(QWidget*)), this, SLOT(stopRecording(QWidget*)));
-    connect(mapPlay, SIGNAL(mapped(QWidget*)), this, SLOT(startPlayback(QWidget*)));
+    connect(mapPlay, SIGNAL(mapped(QWidget*)), this, SLOT(Playback(QWidget*)));
 
     lqPreferences p;
     int n = p.beginReadArray(k_macros);
@@ -75,29 +75,73 @@ QKeySequence KeyboardMacros::start() { return QKeySequence("Ctrl+Shift+R"); }
 QKeySequence KeyboardMacros::stop() { return QKeySequence("Ctrl+Shift+T"); }
 QKeySequence KeyboardMacros::play() { return QKeySequence("Ctrl+Shift+Y"); }
 
+/**
+ * @brief KeyboardMacros::manage
+ *  add widget to managed: just hook action triggers
+ * @param w
+ *  widget to manage
+ */
 void KeyboardMacros::manage(QWidget *w)
 {
-    QShortcut *v[3] = { start_(w), stop_(w), play_(w) };
+    qDebug() << "manage" << w;
 
-    mapStart->setMapping(v[0], w);
-    connect(v[0], SIGNAL(activated()), mapStart, SLOT(map()));
+    if (macroStartRegAct) {
+        mapStart->setMapping(macroStartRegAct, w);
+        connect(macroStartRegAct, SIGNAL(triggered()), mapStart, SLOT(map()));
+    } else {
+        auto s = start_(w);
+        mapStart->setMapping(s, w);
+        connect(s, SIGNAL(activated()), mapStart, SLOT(map()));
+    }
 
-    mapStop->setMapping(v[1], w);
-    connect(v[1], SIGNAL(activated()), mapStop, SLOT(map()));
+    if (macroStopRegAct) {
+        mapStop->setMapping(macroStopRegAct, w);
+        connect(macroStopRegAct, SIGNAL(triggered()), mapStop, SLOT(map()));
+    } else {
+        auto s = stop_(w);
+        mapStop->setMapping(s, w);
+        connect(s, SIGNAL(activated()), mapStop, SLOT(map()));
+    }
 
-    mapPlay->setMapping(v[2], w);
-    connect(v[2], SIGNAL(activated()), mapPlay, SLOT(map()));
-
-    //managed << w;
-    //w->installEventFilter(this);
+    if (macroPlaybackAct) {
+        mapPlay->setMapping(macroPlaybackAct, w);
+        connect(macroPlaybackAct, SIGNAL(triggered()), mapPlay, SLOT(map()));
+    } else {
+        auto s = play_(w);
+        mapPlay->setMapping(s, w);
+        connect(s, SIGNAL(activated()), mapPlay, SLOT(map()));
+    }
 }
 
-void KeyboardMacros::setupGUI(QStatusBar *bar, QMenu *menu)
+void KeyboardMacros::setupMenu(QMenu *menu)
 {
-    this->menu = menu;
-    this->statusBar = bar;
-    // tbd
-    qDebug() << "setupGUI(QStatusBar *bar, QMenu *menu)" << bar << menu;
+    qDebug() << "setupMenu" << menu;
+
+    macroStartRegAct = new QAction(tr("Macro Start Recording"), this);
+    macroStartRegAct->setShortcut(start());
+    macroStartRegAct->setStatusTip(tr("Keyboard Macro: Start Recording"));
+    //connect(macroStartRegAct, SIGNAL(triggered()), this, SLOT(macroStartReg()));
+
+    macroStopRegAct = new QAction(tr("Macro Stop Recording"), this);
+    macroStopRegAct->setShortcut(stop());
+    macroStopRegAct->setStatusTip(tr("Keyboard Macro: Stop Recording"));
+    //connect(macroStopRegAct, SIGNAL(triggered()), this, SLOT(macroStopReg()));
+
+    macroPlaybackAct = new QAction(tr("Macro Playback"), this);
+    macroPlaybackAct->setShortcut(play());
+    macroPlaybackAct->setStatusTip(tr("Keyboard Macro: Run Last Recorded"));
+    //connect(macroPlaybackAct, SIGNAL(triggered()), this, SLOT(macroPlayback()));
+    /*
+    macroSelectAct = new QAction(tr("Macro Select"), this);
+    macroSelectAct->setStatusTip(tr("Select and run a Keyboard Macro Registered"));
+    connect(macroSelectAct, SIGNAL(triggered()), this, SLOT(macroSelect()));
+    */
+
+    menu->addSeparator();
+    menu->addAction(macroStartRegAct);
+    menu->addAction(macroStopRegAct);
+    menu->addAction(macroPlaybackAct);
+    //menu->addAction(macroSelectAct);
 }
 
 void KeyboardMacros::storeEvent(QKeyEvent *e)
@@ -145,7 +189,10 @@ void KeyboardMacros::startRecording(QWidget *ed)
         lastRecorded = defaultName();
         macros[lastRecorded].clear();
         ed->installEventFilter(this);
+        emit feedback(tr("Keyboard Macro: Start registering '%1'").arg(currName()));
     }
+    else
+        emit feedback(tr("Keyboard Macro: Already registering unnamed "));
 }
 
 void KeyboardMacros::stopRecording(QWidget *ed)
@@ -154,16 +201,32 @@ void KeyboardMacros::stopRecording(QWidget *ed)
     if (status == onRecord) {
         ed->removeEventFilter(this);
         status = idle;
+        emit feedback(tr("Keyboard Macro: Done recording '%1'").arg(currName()));
+        emit registerCompleted();
     }
+    else
+        emit feedback(tr("Keyboard Macro: Not recording now"));
 }
 
-void KeyboardMacros::startPlayback(QWidget *ed)
+void KeyboardMacros::Playback(QWidget *ed)
 {
-    qDebug() << "startPlayback" << ed;
+    qDebug() << "Playback" << ed << status;
+
+    // shortcut: play whatever recorded so far
+    if (status == onRecord) {
+        emit feedback(tr("Keyboard Macro: Stop recording '%1'").arg(currName()));
+        ed->removeEventFilter(this);
+        status = idle;
+    }
+
     if (status == idle) {
         status = onPlayback;
+        emit feedback(tr("Keyboard Macro: Playback '%1'").arg(currName()));
         for (auto e: macros[defaultName()])
             QCoreApplication::postEvent(ed, new QKeyEvent(e.type(), e.key(), e.modifiers(), e.text()));
         status = idle;
+        emit playbackCompleted();
     }
+    else
+        emit feedback(tr("Keyboard Macro: Currently recording, cannot playback"));
 }

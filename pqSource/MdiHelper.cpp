@@ -304,11 +304,12 @@ void MdiHelper::createActions() {
     helpDocAct->setStatusTip(tr("Show the PlDoc HTML for the script"));
     connect(helpDocAct, SIGNAL(triggered()), this, SLOT(helpDoc()));
 
-
+    /*
     viewCallGraphAct = new QAction(tr("View &Call Graph"), this);
     viewCallGraphAct->setShortcut(QKeySequence("Ctrl+Shift+R"));
     viewCallGraphAct->setStatusTip(tr("Display the XREF graph of current source, courtesy pack(callgraph)"));
     connect(viewCallGraphAct, SIGNAL(triggered()), this, SLOT(viewCallGraph()));
+    */
 
     viewGraphAct = new QAction(tr("View G&raph"), this);
     viewGraphAct->setShortcut(QKeySequence("Ctrl+R"));
@@ -333,7 +334,7 @@ void MdiHelper::createActions() {
     aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
-    // macros
+    /*/ macros
     macroStartRegAct = new QAction(tr("Macro Start Register"), this);
     macroStartRegAct->setShortcut(KeyboardMacros::start());
     macroStartRegAct->setStatusTip(tr("Start Keyboard Macro Registration"));
@@ -352,6 +353,7 @@ void MdiHelper::createActions() {
     macroSelectAct = new QAction(tr("Macro Select"), this);
     macroSelectAct->setStatusTip(tr("Select and run a Keyboard Macro Registered"));
     connect(macroSelectAct, SIGNAL(triggered()), this, SLOT(macroSelect()));
+    */
 
     // debugger
 
@@ -435,11 +437,6 @@ void MdiHelper::createMenus() {
     editMenu->addAction(findNextAct);
     editMenu->addAction(findPreviousAct);
     editMenu->addAction(replaceAct);
-    editMenu->addSeparator();
-    editMenu->addAction(macroStartRegAct);
-    editMenu->addAction(macroStopRegAct);
-    editMenu->addAction(macroPlaybackAct);
-    editMenu->addAction(macroSelectAct);
 
     prefMenu = menuBar()->addMenu(tr("&Preferences"));
     prefMenu->addAction(viewSWIPrologPrefAct);
@@ -475,7 +472,7 @@ void MdiHelper::createMenus() {
     helpMenu->addAction(helpStartAct);
     helpMenu->addAction(helpDocAct);
     helpMenu->addSeparator();
-    helpMenu->addAction(viewCallGraphAct);
+    //helpMenu->addAction(viewCallGraphAct);
     helpMenu->addAction(viewGraphAct);
     helpMenu->addAction(viewGraphIncl);
     helpMenu->addAction(commentClauseAct);

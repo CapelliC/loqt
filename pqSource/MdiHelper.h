@@ -121,12 +121,6 @@ protected:
         aboutAct,
         aboutQtAct,
 
-        // macros
-        macroStartRegAct,
-        macroStopRegAct,
-        macroPlaybackAct,
-        macroSelectAct,
-
         viewCallGraphAct,
         viewGraphAct,
         viewGraphIncl,

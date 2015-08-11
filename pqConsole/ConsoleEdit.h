@@ -131,7 +131,7 @@ public:
     /** html_write */
     void html_write(QString html);
 
-    /** can be disabled from ~/.plrc */
+    /** can be disabled from ~/.swiplrc */
     static bool color_term;
 
 protected:

@@ -31,7 +31,10 @@
 	,new_edge/3
 	,new_edge/4
 	,new_edge/5
-	,find_edge/4
+        ,make_edge/3
+        ,make_edge/4
+        ,make_edge/5
+        ,find_edge/4
 	,find_edge/5
 	,make_edges/2
 	,nodes_chain/2
@@ -163,6 +166,33 @@ new_edge(Graph, NodeSource, NodeTarget, EdgePtr) :-
 new_edge(G, NodeSource, NodeTarget, Name, EdgePtr) :-
         pqGraphviz:agedge(G, NodeSource, NodeTarget, Name, 1, EdgePtr).
 
+%%  make_edge(+Graph, +ObjectSource, +ObjectTarget)
+%
+%   build an unnamed edge between ObjectSource, ObjectTarget
+%
+make_edge(Graph, ObjectSource, ObjectTarget) :-
+        object_reference(Graph, ObjectSource, NodeSource),
+        object_reference(Graph, ObjectTarget, NodeTarget),
+        new_edge(Graph, NodeSource, NodeTarget).
+
+%%  make_edge(+Graph, +ObjectSource, +ObjectTarget, -EdgePtr)
+%
+%   build an unnamed EdgePtr between NodeSource, NodeTarget
+%
+make_edge(Graph, ObjectSource, ObjectTarget, EdgePtr) :-
+        object_reference(Graph, ObjectSource, NodeSource),
+        object_reference(Graph, ObjectTarget, NodeTarget),
+        new_edge(Graph, NodeSource, NodeTarget, EdgePtr).
+
+%%  make_edge(+Graph, +NodeSource, +NodeTarget, +Name, -EdgePtr)
+%
+%   build a named EdgePtr between NodeSource, NodeTarget
+%
+make_edge(G, ObjectSource, ObjectTarget, Name, EdgePtr) :-
+        object_reference(G, ObjectSource, NodeSource),
+        object_reference(G, ObjectTarget, NodeTarget),
+        new_edge(G, NodeSource, NodeTarget, Name, EdgePtr).
+
 %% find_edge(+G, +NodeSource, +NodeTarget, +Name, -EdgePtr) is det.
 %
 %  find edge between NodeSource, NodeTarget in G
@@ -271,3 +301,7 @@ use_edge_attrs(G, Defaults) :-
 default_attrs(G, Kind, Defaults) :-
     debug(gv_uty, '~w', [default_attrs(G, Kind, Defaults)]),
         forall(member(K=V, Defaults), pqGraphviz:agattr(G, Kind, K, V, _)).
+
+object_reference(Graph, ObjectSource, NodeSource) :-
+        find_node(Graph, ObjectSource, NodeSource) ;
+        make_node(Graph, ObjectSource, NodeSource).

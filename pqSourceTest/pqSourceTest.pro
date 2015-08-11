@@ -24,8 +24,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = pqSourceTest
 TEMPLATE = app
 
-# please, not obsolete compiler
-QMAKE_CXXFLAGS += -std=c++0x
+CONFIG += C++11
 
 unix {
     # because SWI-Prolog is built from source

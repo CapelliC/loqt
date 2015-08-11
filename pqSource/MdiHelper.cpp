@@ -334,27 +334,6 @@ void MdiHelper::createActions() {
     aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
-    /*/ macros
-    macroStartRegAct = new QAction(tr("Macro Start Register"), this);
-    macroStartRegAct->setShortcut(KeyboardMacros::start());
-    macroStartRegAct->setStatusTip(tr("Start Keyboard Macro Registration"));
-    connect(macroStartRegAct, SIGNAL(triggered()), this, SLOT(macroStartReg()));
-
-    macroStopRegAct = new QAction(tr("Macro Stop Register"), this);
-    macroStopRegAct->setShortcut(KeyboardMacros::stop());
-    macroStopRegAct->setStatusTip(tr("Stop Keyboard Macro Registration"));
-    connect(macroStopRegAct, SIGNAL(triggered()), this, SLOT(macroStopReg()));
-
-    macroPlaybackAct = new QAction(tr("Macro Playback"), this);
-    macroPlaybackAct->setShortcut(KeyboardMacros::play());
-    macroPlaybackAct->setStatusTip(tr("Run Last Keyboard Macro Registered"));
-    connect(macroPlaybackAct, SIGNAL(triggered()), this, SLOT(macroPlayback()));
-
-    macroSelectAct = new QAction(tr("Macro Select"), this);
-    macroSelectAct->setStatusTip(tr("Select and run a Keyboard Macro Registered"));
-    connect(macroSelectAct, SIGNAL(triggered()), this, SLOT(macroSelect()));
-    */
-
     // debugger
 
     makeAct = new QAction(png("wmaker_apps"), tr("&Make"), this);

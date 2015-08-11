@@ -118,7 +118,6 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
 
     macs = new KeyboardMacros(this);
     connect(macs, SIGNAL(feedback(QString)), statusBar(), SLOT(showMessage(QString)));
-
     macs->setupMenu(editMenu);
 }
 
@@ -258,7 +257,7 @@ inline QString prologSuffix() { return "pl"; }
 
 void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, int linepos) {
 
-    absp.replace("~", QDir::homePath());
+    absp = bashPath(absp); //bashPath.replace("~", QDir::homePath());
 
     foreach (QMdiSubWindow *w, mdiArea()->subWindowList())
         if (auto s = qobject_cast<pqSource*>(w->widget()))
@@ -675,7 +674,7 @@ void pqSourceMainWindow::requestHelp(QString topic) {
 
 void pqSourceMainWindow::viewSWIPrologPref()
 {
-    openFile("~/.plrc");
+    openFile("~/.swiplrc");
 }
 
 void pqSourceMainWindow::selectColors()

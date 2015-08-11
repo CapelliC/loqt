@@ -35,8 +35,7 @@ OTHER_FILES += \
     test/genealogy/pqGraphviz_emu.pl \
     test/genealogy/allocator.pl
 
-# use some modern features
-QMAKE_CXXFLAGS += -std=c++0x
+CONFIG += C++11
 
 unix {
     target.path = /usr/lib

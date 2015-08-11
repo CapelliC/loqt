@@ -5,12 +5,12 @@
 #--------------------------------------------------
 # Copyright (C) : 2014,2015 Carlo Capelli
 
-QMAKE_CXXFLAGS += -std=c++0x
-
 QT += core gui widgets webkit webkitwidgets
 
 TARGET = qPrologPad
 TEMPLATE = app
+
+CONFIG += C++11
 
 SOURCES += \
     main.cpp \

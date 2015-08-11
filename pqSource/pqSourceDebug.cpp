@@ -45,6 +45,8 @@ void pqSource::set_action(DebugCommand c, QString a)
 /** start debug mode */
 void pqSource::entry_debug_mode(QString query, DebugCommand mode)
 {
+    qDebug() << "entry_debug_mode1" << query << debugStatus << mode;
+
     Q_UNUSED(mode)
     if (debugStatus == no_Debug) {
 
@@ -54,8 +56,9 @@ void pqSource::entry_debug_mode(QString query, DebugCommand mode)
             query = QFileInfo(file).baseName();
 
         sendCommand("set_prolog_flag(pq_tracer, true)");
-        sendCommand(QString("trace,'%1'").arg(query));
-qDebug() << "entry_debug_mode1";
+        sendCommand("trace");
+        sendCommand(query);
+
         level_curr = 0; // not yet seen
         level_top = 0;
         debugCommand = mode;
@@ -78,7 +81,15 @@ inline T frame_attr(T Frame, QString Attr)
 
 bool pqSource::Trace_(QObject *pThis, const T &Port, const T &Frame, const T &Choice, T &Action)
 {
+#if 0
     return qobject_cast<pqSource*>(pThis)->Trace_(Port, Frame, Choice, Action);
+#else
+    static int cTrace = 0;
+    qDebug() << "pqSource::Trace_" << CT << ++cTrace;
+    auto rc = qobject_cast<pqSource*>(pThis)->Trace_(Port, Frame, Choice, Action);
+    qDebug() << "pqSource::Trace_" << CT << cTrace << "rc:" << rc;
+    return rc;
+#endif
 }
 
 bool pqSource::check_top_level(QString port)
@@ -106,8 +117,6 @@ bool pqSource::Trace_(const T &Port, const T &Frame, const T &Choice, T &Action)
     T goal = frame_attr(Frame, "goal");
     QString s_goal = t2w(goal);
 
-    qDebug() << level_curr << port << s_goal;
-
     emit reportInfo(QString("(%1) %2 %3").arg(level_curr).arg(port).arg(s_goal));
 
     QString source;
@@ -121,6 +130,8 @@ bool pqSource::Trace_(const T &Port, const T &Frame, const T &Choice, T &Action)
             qDebug() << "open other file" << source;
         }
     }
+
+    qDebug() << "pqSource::Trace_" << CT << source << level_curr << level_top << port << s_goal;
 
     switch (debugCommand) {
 
@@ -138,7 +149,9 @@ bool pqSource::Trace_(const T &Port, const T &Frame, const T &Choice, T &Action)
             Action = A("continue");
             return wait_cmd(Action);
         }
-        return false;
+        Action = A("continue");
+        return true;
+        //return false;
 
     case StepIn:
         if (check_top_level(port)) {
@@ -191,18 +204,16 @@ void pqSource::sendCommand(QString cmd)
         connect(deb_server, SIGNAL(query_exception(QString,QString)), this, SLOT(query_exception(QString,QString)));
     }
     sent_commands << cmd;
-    deb_server->query_run(cmd);
+    deb_server->query_run(moduleName(), cmd);
 }
 
 void pqSource::query_result(QString q, int n)
 {
-    //qDebug() << "query_result" << sent_commands << q << n;
     qDebug() << "pqSource::query_result" << q << n;
 }
 
 void pqSource::query_complete(QString q, int n)
 {
-    //qDebug() << "query_complete" << sent_commands << q << n << state_curr << state_next;
     qDebug() << "pqSource::query_complete" << q << n << state_curr << state_next;
     if (sent_commands.count() && sent_commands.takeFirst() == q) {
         emit reportInfo(QString("query_complete %1").arg(q));
@@ -304,7 +315,7 @@ void pqSource::stepIn()
         emit reportInfo("stepIn");
     }
     else
-         emit reportError("Cannot stepIn");
+        emit reportError("Cannot stepIn");
 }
 
 void pqSource::stepOut()

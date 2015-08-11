@@ -6,13 +6,12 @@
 # Author        : Carlo Capelli
 # Copyright (C) : 2013,2014,2015
 
-# please, not obsolete compiler
-QMAKE_CXXFLAGS += -std=c++0x
-
 QT += core gui widgets webkit webkitwidgets
 
 TARGET = spqr
 TEMPLATE = app
+
+CONFIG += C++11
 
 SOURCES += \
     main.cpp \

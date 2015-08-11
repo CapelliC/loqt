@@ -7,8 +7,8 @@
 # Author        : Carlo Capelli
 # Copyright (C) : 2013,2014,2015
 
-# please, not obsolete compiler
-QMAKE_CXXFLAGS += -std=c++0x
+# please, an up-to-date compiler
+CONFIG += C++11
 
 QT += core gui webkit widgets
 
@@ -31,10 +31,3 @@ OTHER_FILES += \
     README.md \
     img/cluster.png \
     img/cluster-dot.png
-
-#win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/pqSource/release/ -lpqSource
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/pqSource/debug/ -lpqSource
-#else:unix: LIBS += -L$$OUT_PWD/pqSource/ -lpqSource
-
-#INCLUDEPATH += $$PWD/lqUty
-#DEPENDPATH += $$PWD/lqUty

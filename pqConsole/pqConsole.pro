@@ -19,8 +19,7 @@ DEFINES += PQCONSOLE_LIBRARY
 # prevent symbol/macro clashes with Qt
 DEFINES += PL_SAFE_ARG_MACROS
 
-# please, not obsolete compiler
-!macx: QMAKE_CXXFLAGS += -std=c++0x
+CONFIG += C++11
 
 SOURCES += \
     pqConsole.cpp \

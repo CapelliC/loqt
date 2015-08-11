@@ -26,8 +26,7 @@ TEMPLATE = lib
 
 DEFINES += PQSOURCE_LIBRARY
 
-# please, not obsolete compiler
-QMAKE_CXXFLAGS += -std=c++0x
+CONFIG += C++11
 
 SOURCES += \
     pqSource.cpp \
@@ -40,7 +39,9 @@ SOURCES += \
     symclass.cpp \
     pqSourceMainWindow.cpp \
     MdiChildWithCheck.cpp \
-    pqWebScript.cpp
+    pqWebScript.cpp \
+    pqProofView.cpp \
+    pqProofScene.cpp
 
 HEADERS += \
     pqSource.h \
@@ -53,7 +54,9 @@ HEADERS += \
     pqSyntaxData.h \
     symclass.h \
     MdiChildWithCheck.h \
-    pqWebScript.h
+    pqWebScript.h \
+    pqProofView.h \
+    pqProofScene.h
 
 unix {
 

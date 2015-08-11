@@ -11,7 +11,7 @@ QT += gui svg widgets
 
 TARGET = lqXDot_test
 TEMPLATE = app
-QMAKE_CXXFLAGS += -std=c++0x
+CONFIG += C++11
 
 unix {
     CONFIG += link_pkgconfig

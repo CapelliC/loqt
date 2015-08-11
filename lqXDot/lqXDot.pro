@@ -11,7 +11,7 @@ QT += core gui widgets
 
 TARGET = lqXDot
 TEMPLATE = lib
-QMAKE_CXXFLAGS += -std=c++0x
+CONFIG += C++11
 
 DEFINES += LQXDOT_LIBRARY
 

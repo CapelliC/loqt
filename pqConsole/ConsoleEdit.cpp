@@ -50,7 +50,7 @@
 /** peek color by index */
 static QColor ANSI2col(int c, bool highlight = false) { return Preferences::ANSI2col(c, highlight); }
 
-/** can be disabled from ~/.plrc */
+/** can be disabled from ~/.swiplrc */
 bool ConsoleEdit::color_term = true;
 
 /** build command line interface to SWI Prolog engine

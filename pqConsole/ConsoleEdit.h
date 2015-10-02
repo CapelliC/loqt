@@ -25,6 +25,7 @@
 
 #include <QEvent>
 #include <QCompleter>
+#include <QElapsedTimer>
 
 // make this definition available in client projects
 #define PQCONSOLE_BROWSER
@@ -244,6 +245,9 @@ protected:
 
     /** replace references to source of error/warning with links */
     void linkto_message_source();
+
+    /** relax selection check requirement */
+    QElapsedTimer sel_check_timing;
 
 protected:
 

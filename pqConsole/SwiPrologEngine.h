@@ -23,6 +23,7 @@
 #ifndef SWIPROLOGENGINE_H
 #define SWIPROLOGENGINE_H
 
+#define PL_ARITY_AS_SIZE
 #include <SWI-cpp.h>
 
 #include <QMap>

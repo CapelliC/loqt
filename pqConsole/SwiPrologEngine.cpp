@@ -20,6 +20,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#define PL_ARITY_AS_SIZE
 #include <SWI-Stream.h>
 #include <SWI-cpp.h>
 #include "SwiPrologEngine.h"

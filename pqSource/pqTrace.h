@@ -23,6 +23,7 @@
 #ifndef PQTRACE_H
 #define PQTRACE_H
 
+#define PL_ARITY_AS_SIZE
 #include <SWI-cpp.h>
 #include <QString>
 #include <QObject>

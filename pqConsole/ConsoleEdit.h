@@ -26,6 +26,7 @@
 #include <QEvent>
 #include <QCompleter>
 #include <QElapsedTimer>
+#include <QReadWriteLock>
 
 // make this definition available in client projects
 #define PQCONSOLE_BROWSER
@@ -109,7 +110,10 @@ public:
 
     private:
         QThread *stop_, *go_;
-        QMutex sync;
+
+        QMutex mutex;
+        QReadWriteLock rwlock;
+        QWaitCondition wait;
         int timeout_ms;
     };
 

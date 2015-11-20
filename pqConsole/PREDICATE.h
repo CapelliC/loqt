@@ -23,6 +23,7 @@
 #ifndef PREDICATE_H
 #define PREDICATE_H
 
+#define PL_ARITY_AS_SIZE
 #include <SWI-cpp.h>
 
 #ifndef NO_SHORTEN_INTERFACE

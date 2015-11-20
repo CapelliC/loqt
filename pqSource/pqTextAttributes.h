@@ -27,6 +27,8 @@
 
 #include <QHash>
 #include <QTextCharFormat>
+
+#define PL_ARITY_AS_SIZE
 #include <SWI-cpp.h>
 
 /** decode syntax highlighting attributes

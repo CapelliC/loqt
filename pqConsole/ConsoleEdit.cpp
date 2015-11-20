@@ -996,6 +996,12 @@ ConsoleEdit::exec_sync::exec_sync(int timeout_ms) : timeout_ms(timeout_ms) {
     go_ = 0;
 }
 void ConsoleEdit::exec_sync::stop() {
+    mutex.lock();
+    wait.wait(&mutex);
+    mutex.unlock();
+    //sync.lock();
+    //wait.wait(&sync);
+    /*
     Q_ASSERT(CT == stop_);
     for ( ; ; ) {
         {   QMutexLocker lk(&sync);
@@ -1004,9 +1010,12 @@ void ConsoleEdit::exec_sync::stop() {
         }
         SwiPrologEngine::msleep(10);
     }
+    */
     //Q_ASSERT(go_ && go_ != stop_);
+
 }
 void ConsoleEdit::exec_sync::go() {
+    /*
     Q_ASSERT(go_ == 0);
     Q_ASSERT(stop_ != 0);
     auto t = CT;
@@ -1016,6 +1025,9 @@ void ConsoleEdit::exec_sync::go() {
     }
     else
         go_ = t;
+    */
+    //wait.wakeAll();
+    wait.wakeOne();
 }
 
 void ConsoleEdit::setSource(const QUrl &name) {
@@ -1043,7 +1055,7 @@ void ConsoleEdit::set_editable(bool allow) {
 void ConsoleEdit::selectionChanged()
 {
     if (sel_check_timing.isValid()) {
-        if (sel_check_timing.elapsed() < 100)
+        if (sel_check_timing.elapsed() < 20)
             return;
         sel_check_timing.restart();
     }

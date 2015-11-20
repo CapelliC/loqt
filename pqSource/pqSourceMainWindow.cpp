@@ -50,6 +50,7 @@
 #include <QStringListModel>
 #include <QFont>
 #include <QFontDialog>
+#include <QColorDialog>
 
 structure1(library)
 structure1(atom)
@@ -246,9 +247,10 @@ void pqSourceMainWindow::closeEvent(QCloseEvent *e) {
 }
 
 void pqSourceMainWindow::customEvent(QEvent *event) {
-    Q_ASSERT(event->type() == QEvent::User+1);
-    auto res = static_cast<reqEditSource*>(event);
-    emit openFile(res->file, res->geometry, res->line, res->linepos);
+    //Q_ASSERT(event->type() == QEvent::User+1);
+    //auto res = static_cast<reqEditSource*>(event);
+    if (auto res = dynamic_cast<reqEditSource*>(event))
+        emit openFile(res->file, res->geometry, res->line, res->linepos);
 }
 
 inline QString stars() { return mapQStrings([](QString s){ return "*." + s; }, pqSource::extensionsProlog()).join(" "); }
@@ -679,6 +681,17 @@ void pqSourceMainWindow::viewSWIPrologPref()
 
 void pqSourceMainWindow::selectColors()
 {
+    Preferences p;
+    QColorDialog d(this);
+    d.setOption(QColorDialog::DontUseNativeDialog);
+    Q_ASSERT(d.customCount() >= p.ANSI_sequences.size());
+    for (int i = 0; i < p.ANSI_sequences.size(); ++i)
+        d.setCustomColor(i, p.ANSI_sequences[i].rgb());
+    if (d.exec()) {
+        for (int i = 0; i < p.ANSI_sequences.size(); ++i)
+            p.ANSI_sequences[i] = d.customColor(i);
+        p.save();
+    }
 }
 
 void pqSourceMainWindow::selectFont()

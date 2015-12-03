@@ -991,6 +991,7 @@ void ConsoleEdit::query_run(QString module, QString call) {
         query_run(module + ":" + call);
 }
 
+#if 0
 ConsoleEdit::exec_sync::exec_sync(int timeout_ms) : timeout_ms(timeout_ms) {
     stop_ = CT;
     go_ = 0;
@@ -1028,6 +1029,33 @@ void ConsoleEdit::exec_sync::go() {
     */
     //wait.wakeAll();
     wait.wakeOne();
+}
+#endif
+ConsoleEdit::exec_sync::exec_sync(int timeout_ms) : timeout_ms(timeout_ms) {
+    stop_ = CT;
+    go_ = 0;
+}
+void ConsoleEdit::exec_sync::stop() {
+    Q_ASSERT(CT == stop_);
+    for ( ; ; ) {
+        {   QMutexLocker lk(&sync);
+            if (go_)
+                break;
+        }
+        SwiPrologEngine::msleep(10);
+    }
+    //Q_ASSERT(go_ && go_ != stop_);
+}
+void ConsoleEdit::exec_sync::go() {
+    Q_ASSERT(go_ == 0);
+    Q_ASSERT(stop_ != 0);
+    auto t = CT;
+    if (stop_ != t) {
+        QMutexLocker lk(&sync);
+        go_ = t;
+    }
+    else
+        go_ = t;
 }
 
 void ConsoleEdit::setSource(const QUrl &name) {

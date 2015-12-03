@@ -34,7 +34,7 @@ pqProofScene::~pqProofScene()
 
 void pqProofScene::addNode(QString line)
 {
-
+    Q_UNUSED(line)
 }
 
 void pqProofScene::layout()

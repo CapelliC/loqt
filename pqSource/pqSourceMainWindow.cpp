@@ -35,6 +35,7 @@
 #include "lqXDotView.h"
 #include "maplist.h"
 #include "pqWebScript.h"
+#include "XmlSyntaxHighlighter.h"
 
 #include <QDebug>
 #include <QStatusBar>
@@ -276,20 +277,35 @@ void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, i
 
     if (QFile::exists(absp)) {
 
-        auto e = new pqSource(absp);
-        e->setLineWrapMode(e->NoWrap);
+        QWidget *editor = 0;
+        QFileInfo fileinfo(absp);
+        auto ext = fileinfo.suffix().toLower();
+        if (ext == "xml" || ext == "scxml" || ext == "glade" || ext == "ui") {
+            auto te = new QTextEdit();
+            te->setPlainText(file2string(absp));
+            new XmlSyntaxHighlighter(te->document());
+            te->setLineWrapMode(QTextEdit::NoWrap);
+            editor = te;
+        }
+        else {
 
-        connect(e, SIGNAL(reportInfo(QString)), statusBar(), SLOT(showMessage(QString)));
-        connect(e, SIGNAL(reportInfo(QString)), SLOT(reportInfo(QString)));
-        connect(e, SIGNAL(reportError(QString)), SLOT(reportError(QString)));
+            auto e = new pqSource(absp);
+            e->setLineWrapMode(e->NoWrap);
 
-        connect(e, SIGNAL(cursorPositionChanged()), SLOT(cursorPositionChanged()));
-        connect(e, SIGNAL(requestHelp(QString)), SLOT(requestHelp(QString)));
+            connect(e, SIGNAL(reportInfo(QString)), statusBar(), SLOT(showMessage(QString)));
+            connect(e, SIGNAL(reportInfo(QString)), SLOT(reportInfo(QString)));
+            connect(e, SIGNAL(reportError(QString)), SLOT(reportError(QString)));
 
-        // play macros on editor
-        macs->manage(e);
+            connect(e, SIGNAL(cursorPositionChanged()), SLOT(cursorPositionChanged()));
+            connect(e, SIGNAL(requestHelp(QString)), SLOT(requestHelp(QString)));
 
-        auto w = mdiArea()->addSubWindow(e);
+            // play macros on editor
+            macs->manage(e);
+
+            editor = e;
+        }
+
+        auto w = mdiArea()->addSubWindow(editor);
         if (!geometry.isEmpty()) {
             w->restoreGeometry(geometry);
             int dy = w->y() == 24 ? 0 : w->y();
@@ -297,7 +313,12 @@ void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, i
         }
         w->show();
 
-        e->loadSource(line, linepos);
+        if (auto e = qobject_cast<pqSource*>(editor))
+            e->loadSource(line, linepos);
+        else
+            w->setWindowTitle(fileinfo.completeBaseName());
+        //e->loadSource(line, linepos);
+
         insertPath(this, absp);
     }
     else {

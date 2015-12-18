@@ -110,8 +110,6 @@ void MdiHelper::updateWindowMenu() {
 void MdiHelper::createActions() {
     auto png = [](const char* i) { return QIcon(QString(":/images/%1.png").arg(i)); };
 
-#define CMD 1
-#if CMD
     auto cmd = [png](QObject *target, QPointer<QAction> &a, QString name, const char *slot, QKeySequence ks = QKeySequence(), const char* ico = 0, QString tip = "") {
         if (ico) {
             a = new QAction(png(ico), name, target);
@@ -132,165 +130,30 @@ void MdiHelper::createActions() {
     cmd(this,   saveAct,    tr("&Save"),       SLOT(saveFile()),        __::Save,   "save", tr("Save the document file to disk"));
     cmd(this,   saveAsAct,  tr("Save &As..."), SLOT(saveFileAs()),      __::SaveAs, 0,      tr("Save the document file under a new name"));
     cmd(qApp,   exitAct,    tr("E&xit"),       SLOT(closeAllWindows()), __::Quit,   0,      tr("Exit the application"));
-#else
-    newAct = new QAction(png("new"), tr("&New"), this);
-    newAct->setShortcuts(QKeySequence::New);
-    newAct->setStatusTip(tr("Create a new file"));
-    newAct->setIconVisibleInMenu(true);
-    connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
 
-    openAct = new QAction(png("open"), tr("&Open..."), this);
-    openAct->setShortcuts(QKeySequence::Open);
-    openAct->setStatusTip(tr("Open an existing file"));
-    openAct->setIconVisibleInMenu(true);
-    connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
-
-    saveAct = new QAction(png("save"), tr("&Save"), this);
-    saveAct->setShortcuts(QKeySequence::Save);
-    saveAct->setStatusTip(tr("Save the document to disk"));
-    saveAct->setIconVisibleInMenu(true);
-    connect(saveAct, SIGNAL(triggered()), this, SLOT(saveFile()));
-
-    saveAsAct = new QAction(tr("Save &As..."), this);
-    saveAsAct->setShortcuts(QKeySequence::SaveAs);
-    saveAsAct->setStatusTip(tr("Save the document under a new name"));
-    connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveFileAs()));
-
-    exitAct = new QAction(tr("E&xit"), this);
-    exitAct->setShortcuts(QKeySequence::Quit);
-    exitAct->setStatusTip(tr("Exit the application"));
-    connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
-#endif
-#if CMD
     cmd(this,   cutAct,     tr("Cu&t"),     SLOT(cut()),    __::Cut,    "cut",      tr("Cut the current selection's contents to the clipboard"));
     cmd(this,   copyAct,    tr("&Copy"),    SLOT(copy()),   __::Copy,   "copy",     tr("Copy the current selection's contents to the clipboard"));
     cmd(this,   pasteAct,   tr("&Paste"),   SLOT(paste()),  __::Paste,  "paste",    tr("Paste the clipboard's contents into the current selection"));
-#else
-    cutAct = new QAction(png("cut"), tr("Cu&t"), this);
-    cutAct->setShortcuts(QKeySequence::Cut);
-    cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
-    cutAct->setIconVisibleInMenu(true);
-    connect(cutAct, SIGNAL(triggered()), this, SLOT(cut()));
 
-    copyAct = new QAction(png("copy"), tr("&Copy"), this);
-    copyAct->setShortcuts(QKeySequence::Copy);
-    copyAct->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
-    copyAct->setIconVisibleInMenu(true);
-    connect(copyAct, SIGNAL(triggered()), this, SLOT(copy()));
-
-    pasteAct = new QAction(png("paste"), tr("&Paste"), this);
-    pasteAct->setShortcuts(QKeySequence::Paste);
-    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
-    pasteAct->setIconVisibleInMenu(true);
-    connect(pasteAct, SIGNAL(triggered()), this, SLOT(paste()));
-#endif
-
-#if CMD
     cmd(this,   findAct,        tr("&Find..."),         SLOT(find()),           __::Find,           "edit-find-3",          tr("Select text and search in current document"));
     cmd(this,   findNextAct,    tr("Find &Next"),       SLOT(findNext()),       __::FindNext,       0,                      tr("Search the next occurrence of text"));
     cmd(this,   findPreviousAct,tr("Find &Previous"),   SLOT(findPrevious()),   __::FindPrevious,   0,                      tr("Search the previous occurrence of text"));
     cmd(this,   replaceAct,     tr("&Replace..."),      SLOT(replace()),        __::Replace,        "edit-find-and-replace",tr("Select text to search and replace"));
-#else
-    findAct = new QAction(png("edit-find-3"), tr("&Find..."), this);
-    findAct->setShortcuts(QKeySequence::Find);
-    findAct->setStatusTip(tr("Select text and search in current document"));
-    findAct->setIconVisibleInMenu(true);
-    connect(findAct, SIGNAL(triggered()), this, SLOT(find()));
 
-    findNextAct = new QAction(tr("Find &Next"), this);
-    findNextAct->setShortcuts(QKeySequence::FindNext);
-    findNextAct->setStatusTip(tr("Search the next occurrence of text"));
-    connect(findNextAct, SIGNAL(triggered()), this, SLOT(findNext()));
-
-    findPreviousAct = new QAction(tr("Find &Previous"), this);
-    findPreviousAct->setShortcuts(QKeySequence::FindPrevious);
-    findPreviousAct->setStatusTip(tr("Search the previous occurrence of text"));
-    connect(findPreviousAct, SIGNAL(triggered()), this, SLOT(findPrevious()));
-
-    replaceAct = new QAction(png("edit-find-and-replace"), tr("&Replace..."), this);
-    replaceAct->setShortcuts(QKeySequence::Replace);
-    replaceAct->setStatusTip(tr("Select text to search and replace"));
-    replaceAct->setIconVisibleInMenu(true);
-    connect(replaceAct, SIGNAL(triggered()), this, SLOT(replace()));
-#endif
-
-#if CMD
     cmd(this,   viewSWIPrologPrefAct,   tr("SWI-Prolog &Preferences"),  SLOT(viewSWIPrologPref()),  __(), 0, tr("Edit SWI-Prolog global preferences (restart this application to see changes)"));
     cmd(this,   selectColorsAct,        tr("Select &Colors..."),        SLOT(selectColors()),       __(), 0, tr("Choose the color palette used for text rendering"));
     cmd(this,   selectFontAct,          tr("Select &Font..."),          SLOT(selectFont()),         __(), 0, tr("Choose the font used to display text"));
     cmd(this,   incFontAct,             tr("&Increase Font Size"),      SLOT(incFont()),    __("Ctrl++"), 0, tr("Make characters bigger (Increase Font size)"));
     cmd(this,   decFontAct,             tr("&Decrease Font Size"),      SLOT(decFont()),    __("Ctrl+-"), 0, tr("Make characters smaller (Decrease Font Size)"));
-#else
-    viewSWIPrologPrefAct = new QAction(tr("SWI-Prolog &Preferences"), this);
-    viewSWIPrologPrefAct->setStatusTip(tr("Edit SWI-Prolog global preferences (restart this application to see changes)"));
-    connect(viewSWIPrologPrefAct, SIGNAL(triggered()), SLOT(viewSWIPrologPref()));
-
-    selectColorsAct = new QAction(tr("Select &Colors..."), this);
-    selectColorsAct->setStatusTip(tr("Choose the color palette used for text rendering"));
-    connect(selectColorsAct, SIGNAL(triggered()), SLOT(selectColors()));
-
-    selectFontAct = new QAction(tr("Select &Font..."), this);
-    selectFontAct->setStatusTip(tr("Choose the font used to display text"));
-    connect(selectFontAct, SIGNAL(triggered()), SLOT(selectFont()));
-
-    incFontAct = new QAction(tr("&Increase Font Size"), this);
-    incFontAct->setShortcut(QKeySequence("Ctrl++"));
-    incFontAct->setStatusTip(tr("Make characters bigger (Increase Font size)"));
-    connect(incFontAct, SIGNAL(triggered()), SLOT(incFont()));
-
-    decFontAct = new QAction(tr("&Decrease Font Size"), this);
-    decFontAct->setShortcut(QKeySequence("Ctrl+-"));
-    decFontAct->setStatusTip(tr("Make characters smaller (Decrease Font Size)"));
-    connect(decFontAct, SIGNAL(triggered()), SLOT(decFont()));
-#endif
 
     QMdiArea *mdiArea = this->mdiArea();
-#if CMD
     cmd(mdiArea, closeAct,                  tr("Cl&ose"),           SLOT(closeActiveSubWindow()),       __(),               0, tr("Close the active window"));
-    cmd(mdiArea, tileAct,                   tr("&Tile"),            SLOT(tileSubWindows()),             __(),               0, tr("Tile the windows"));
+    cmd(mdiArea, tileAct,                   tr("&Tile"),            SLOT(tileSubWindows()),             __("Ctrl+T"),       0, tr("Tile the windows"));
     cmd(mdiArea, cascadeAct,                tr("&Cascade"),         SLOT(cascadeSubWindows()),          __(),               0, tr("Cascade the windows"));
     cmd(this,    switchLayoutDirectionAct,  tr("Layout &Direction"),SLOT(switchLayoutDirection()),      __(),               0, tr("Switch layout direction"));
     cmd(this,    switchViewModeAct,         tr("&View Mode"),       SLOT(switchViewMode()),             __(),               0, tr("Switch SubWindow/Tabbed view mode"));
     cmd(mdiArea, nextAct,                   tr("Ne&xt"),            SLOT(activateNextSubWindow()),      __::NextChild,      0, tr("Move the focus to the next window"));
     cmd(mdiArea, previousAct,               tr("Pre&vious"),        SLOT(activatePreviousSubWindow()),  __::PreviousChild,  0, tr("Move the focus to the previous window"));
-#else
-
-    closeAct = new QAction(tr("Cl&ose"), this);
-    closeAct->setStatusTip(tr("Close the active window"));
-    connect(closeAct, SIGNAL(triggered()), mdiArea, SLOT(closeActiveSubWindow()));
-
-    /*
-    closeAllAct = new QAction(tr("Close &All"), this);
-    closeAllAct->setStatusTip(tr("Close all the windows"));
-    connect(closeAllAct, SIGNAL(triggered()), mdiArea, SLOT(closeAllSubWindows()));
-    */
-
-    tileAct = new QAction(tr("&Tile"), this);
-    tileAct->setStatusTip(tr("Tile the windows"));
-    connect(tileAct, SIGNAL(triggered()), mdiArea, SLOT(tileSubWindows()));
-
-    cascadeAct = new QAction(tr("&Cascade"), this);
-    cascadeAct->setStatusTip(tr("Cascade the windows"));
-    connect(cascadeAct, SIGNAL(triggered()), mdiArea, SLOT(cascadeSubWindows()));
-
-    switchLayoutDirectionAct = new QAction(tr("Layout &Direction"), this);
-    switchLayoutDirectionAct->setStatusTip(tr("Switch layout direction"));
-    connect(switchLayoutDirectionAct, SIGNAL(triggered()), this, SLOT(switchLayoutDirection()));
-
-    switchViewModeAct = new QAction(tr("&View Mode"), this);
-    switchViewModeAct->setStatusTip(tr("Switch SubWindow/Tabbed view mode"));
-    connect(switchViewModeAct, SIGNAL(triggered()), this, SLOT(switchViewMode()));
-
-    nextAct = new QAction(tr("Ne&xt"), this);
-    nextAct->setShortcuts(QKeySequence::NextChild);
-    nextAct->setStatusTip(tr("Move the focus to the next window"));
-    connect(nextAct, SIGNAL(triggered()), mdiArea, SLOT(activateNextSubWindow()));
-
-    previousAct = new QAction(tr("Pre&vious"), this);
-    previousAct->setShortcuts(QKeySequence::PreviousChild);
-    previousAct->setStatusTip(tr("Move the focus to the previous window"));
-    connect(previousAct, SIGNAL(triggered()), mdiArea, SLOT(activatePreviousSubWindow()));
-#endif
 
     separatorAct = new QAction(this);
     separatorAct->setSeparator(true);
@@ -303,13 +166,6 @@ void MdiHelper::createActions() {
     helpDocAct = new QAction(tr("Preview &Documentation"), this);
     helpDocAct->setStatusTip(tr("Show the PlDoc HTML for the script"));
     connect(helpDocAct, SIGNAL(triggered()), this, SLOT(helpDoc()));
-
-    /*
-    viewCallGraphAct = new QAction(tr("View &Call Graph"), this);
-    viewCallGraphAct->setShortcut(QKeySequence("Ctrl+Shift+R"));
-    viewCallGraphAct->setStatusTip(tr("Display the XREF graph of current source, courtesy pack(callgraph)"));
-    connect(viewCallGraphAct, SIGNAL(triggered()), this, SLOT(viewCallGraph()));
-    */
 
     viewGraphAct = new QAction(tr("View G&raph"), this);
     viewGraphAct->setShortcut(QKeySequence("Ctrl+R"));
@@ -427,7 +283,7 @@ void MdiHelper::createMenus() {
     prefMenu->addSeparator();
     prefMenu->addAction(switchLayoutDirectionAct);
     prefMenu->addAction(switchViewModeAct);
-
+/*
     debugMenu = menuBar()->addMenu(tr("&Debug"));
     debugMenu->addAction(makeAct);
     debugMenu->addAction(consultAct);
@@ -440,7 +296,7 @@ void MdiHelper::createMenus() {
     debugMenu->addAction(stepOutAct);
     debugMenu->addAction(stepOverAct);
     debugMenu->addAction(toggleBPAct);
-
+*/
     windowMenu = menuBar()->addMenu(tr("&Window"));
     updateWindowMenu();
     connect(windowMenu, SIGNAL(aboutToShow()), this, SLOT(updateWindowMenu()));
@@ -472,7 +328,7 @@ void MdiHelper::createToolBars() {
     editToolBar->addAction(pasteAct);
     editToolBar->addAction(findAct);
     editToolBar->addAction(replaceAct);
-
+/*
     debugToolBar = addToolBar(tr("Debug"));
     debugToolBar->addAction(makeAct);
     debugToolBar->addAction(consultAct);
@@ -491,7 +347,7 @@ void MdiHelper::createToolBars() {
     queriesBox->setToolTip(tr("Hold the query used to start the debugger"));
     queriesBox->setStatusTip(tr("Debugger will start with this query. <editor> refers to 'scriptname'."));
     debugToolBar->addWidget(queriesBox);
-
+*/
     helpToolBar = addToolBar(tr("Help"));
 }
 

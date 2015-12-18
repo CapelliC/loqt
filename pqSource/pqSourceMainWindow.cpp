@@ -111,11 +111,13 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     connect(findReplace, SIGNAL(outcome(QString)), statusBar(), SLOT(showMessage(QString)));
 
     //QTimer::singleShot(0, this, SLOT(fixGeometry()));
-    debugMenu->addSeparator();
-    pqWebScriptAct = new QAction("&Web Script", this);
-    pqWebScriptAct->setShortcut(QKeySequence("Ctrl+Shift+W"));
-    connect(pqWebScriptAct, SIGNAL(triggered()), this, SLOT(onWebScript()));
-    debugMenu->addAction(pqWebScriptAct);
+    if (debugMenu) {
+        debugMenu->addSeparator();
+        pqWebScriptAct = new QAction("&Web Script", this);
+        pqWebScriptAct->setShortcut(QKeySequence("Ctrl+Shift+W"));
+        connect(pqWebScriptAct, SIGNAL(triggered()), this, SLOT(onWebScript()));
+        debugMenu->addAction(pqWebScriptAct);
+    }
 
     macs = new KeyboardMacros(this);
     connect(macs, SIGNAL(feedback(QString)), statusBar(), SLOT(showMessage(QString)));
@@ -181,11 +183,13 @@ void pqSourceMainWindow::fixGeometry() {
 
     restoreState(p.value("windowState").toByteArray());
 
-    QStringList saved_queries = p.value("queries").toStringList();
-    if (saved_queries.isEmpty())
-        saved_queries.append(emptyQuery());
-    queriesBox->addItems(saved_queries);
-    queriesBox->setEditable(true);
+    if (queriesBox) {
+        QStringList saved_queries = p.value("queries").toStringList();
+        if (saved_queries.isEmpty())
+            saved_queries.append(emptyQuery());
+        queriesBox->addItems(saved_queries);
+        queriesBox->setEditable(true);
+    }
 }
 
 /**
@@ -237,10 +241,12 @@ void pqSourceMainWindow::closeEvent(QCloseEvent *e) {
 
     p.setValue("windowState", saveState());
 
-    QStringList l;
-    for (int i = 0; i < queriesBox->count(); ++i)
-        l.append(queriesBox->itemText(i));
-    p.setValue("queries", l);
+    if (queriesBox) {
+        QStringList l;
+        for (int i = 0; i < queriesBox->count(); ++i)
+            l.append(queriesBox->itemText(i));
+        p.setValue("queries", l);
+    }
 
     if (!SwiPrologEngine::quit_request())
         e->ignore();

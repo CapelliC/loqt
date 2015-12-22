@@ -285,6 +285,10 @@ void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, i
             te->setPlainText(file2string(absp));
             new XmlSyntaxHighlighter(te->document());
             te->setLineWrapMode(QTextEdit::NoWrap);
+
+            Preferences pref;
+            te->setFont(pref.console_font);
+
             editor = te;
         }
         else {

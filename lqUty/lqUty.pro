@@ -29,7 +29,10 @@ SOURCES += \
     CodeMirror.cpp \
     XmlSyntaxHighlighter.cpp \
     KeyboardMacros.cpp \
-    JSSyntax.cpp
+    JSSyntax.cpp \
+    framedTextAttr.cpp \
+    foldedTextAttr.cpp \
+    foldingQTextEdit.cpp
 
 HEADERS += \
     lqUty.h \
@@ -54,7 +57,10 @@ HEADERS += \
     maplist.h \
     KeyboardMacros.h \
     Tabbler.h \
-    JSSyntax.h
+    JSSyntax.h \
+    framedTextAttr.h \
+    foldedTextAttr.h \
+    foldingQTextEdit.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

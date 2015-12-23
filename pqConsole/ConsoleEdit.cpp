@@ -47,6 +47,8 @@
 #include <QApplication>
 #include <QStringListModel>
 
+#include <QDebug>
+
 /** peek color by index */
 static QColor ANSI2col(int c, bool highlight = false) { return Preferences::ANSI2col(c, highlight); }
 
@@ -721,7 +723,6 @@ void ConsoleEdit::command_do() {
 /** handle tooltip from helpidx to display current cursor word synopsis
  */
 bool ConsoleEdit::event(QEvent *event) {
-
 #if defined(PQCONSOLE_BROWSER)
     // there is a bug when QTextBrowser == ConsoleEditBase: trying to avoid discarding message
     if (event->type() == QEvent::KeyPress) {
@@ -749,13 +750,15 @@ bool ConsoleEdit::event(QEvent *event) {
 
 /** sense word under cursor for tooltip display
  */
-bool ConsoleEdit::eventFilter(QObject *, QEvent *event) {
+bool ConsoleEdit::eventFilter(QObject *obj, QEvent *event) {
+    Q_UNUSED(obj)
     if (event->type() == QEvent::MouseMove) {
         QTextCursor c = cursorForPosition(static_cast<QMouseEvent*>(event)->pos());
         set_cursor_tip(c);
         clickable_message_line(c, true);
     }
     return false;
+    //return QObject::eventFilter(obj, event);
 }
 
 /** the user identifying label is attached somewhere to parents chain
@@ -787,6 +790,7 @@ bool ConsoleEdit::can_close() {
  */
 void ConsoleEdit::onCursorPositionChanged() {
     QTextCursor c = textCursor();
+qDebug() << "ConsoleEdit::onCursorPositionChanged()" << c.anchor();
     set_cursor_tip(c);
     if (fixedPosition > c.position()) {
         viewport()->setCursor(Qt::OpenHandCursor);
@@ -865,6 +869,7 @@ void ConsoleEdit::clickable_message_line(QTextCursor c, bool highlight) {
 /** setup tooltip info
  */
 void ConsoleEdit::set_cursor_tip(QTextCursor c) {
+    qDebug() << "ConsoleEdit::set_cursor_tip(QTextCursor c)" << c.anchor();
     last_tip = Completion::pred_tip(c);
     if (!last_tip.isEmpty())
         setToolTip(last_tip);
@@ -888,6 +893,8 @@ void ConsoleEdit::onConsoleMenuAction() {
     }
 }
 void ConsoleEdit::onConsoleMenuActionMap(const QString& action) {
+    qDebug() << "onConsoleMenuActionMap" << action;
+
     if (auto w = find_parent<pqMainWindow>(this)) {
         if (ConsoleEdit *target = w->consoleActive()) {
             qDebug() << action << target->status << QTime::currentTime();

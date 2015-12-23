@@ -173,6 +173,7 @@ QKeyEvent KeyboardMacros::l2e(const QStringList &l)
 
 bool KeyboardMacros::eventFilter(QObject *obj, QEvent *event)
 {
+    qDebug() << "KeyboardMacros::eventFilter" << obj << event;
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         storeEvent(keyEvent);

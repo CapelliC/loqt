@@ -254,6 +254,7 @@ void pqSourceMainWindow::closeEvent(QCloseEvent *e) {
 }
 
 void pqSourceMainWindow::customEvent(QEvent *event) {
+    //qDebug() << "customEvent(QEvent *event)" << event;
     //Q_ASSERT(event->type() == QEvent::User+1);
     //auto res = static_cast<reqEditSource*>(event);
     if (auto res = dynamic_cast<reqEditSource*>(event))
@@ -321,7 +322,6 @@ void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, i
             e->loadSource(line, linepos);
         else
             w->setWindowTitle(fileinfo.completeBaseName());
-        //e->loadSource(line, linepos);
 
         insertPath(this, absp);
     }

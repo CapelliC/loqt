@@ -154,8 +154,14 @@ DEPENDPATH += $$PWD/../pqGraphviz
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/release/ -llqXDot
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/debug/ -llqXDot
-else:symbian: LIBS += -llqXDot
 else:unix: LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
 
 INCLUDEPATH += $$PWD/../lqXDot
 DEPENDPATH += $$PWD/../lqXDot
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqXml/release/ -lpqXml
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqXml/debug/ -lpqXml
+else:unix: LIBS += -L$$OUT_PWD/../pqXml/ -lpqXml
+
+INCLUDEPATH += $$PWD/../pqXml
+DEPENDPATH += $$PWD/../pqXml

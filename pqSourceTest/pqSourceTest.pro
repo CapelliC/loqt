@@ -39,7 +39,9 @@ HEADERS +=
 
 RESOURCES +=
 
-OTHER_FILES +=
+OTHER_FILES += \
+    screenshots/pqSourceTest.jpg \
+    screenshots/eldest.jpg
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqSource/release/ -lpqSource
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqSource/debug/ -lpqSource
@@ -76,6 +78,9 @@ else:unix:!symbian: LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
 INCLUDEPATH += $$PWD/../lqXDot
 DEPENDPATH += $$PWD/../lqXDot
 
-DISTFILES += \
-    screenshots/pqSourceTest.jpg \
-    screenshots/eldest.jpg
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqXml/release/ -lpqXml
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqXml/debug/ -lpqXml
+else:unix: LIBS += -L$$OUT_PWD/../pqXml/ -lpqXml
+
+INCLUDEPATH += $$PWD/../pqXml
+DEPENDPATH += $$PWD/../pqXml

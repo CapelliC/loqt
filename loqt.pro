@@ -21,12 +21,12 @@ SUBDIRS += \
     lqXDot_test \
     pqConsole \
     pqGraphviz \
+    pqXml \
     pqSource \
     pqSourceTest \
     spqr \
     qPrologPad \
-    testKeyboardMacros \
-    pqXml
+    testKeyboardMacros
 
 OTHER_FILES += \
     README.md \

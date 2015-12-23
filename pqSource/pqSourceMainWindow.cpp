@@ -36,6 +36,7 @@
 #include "maplist.h"
 #include "pqWebScript.h"
 #include "XmlSyntaxHighlighter.h"
+#include "pqXmlView.h"
 
 #include <QDebug>
 #include <QStatusBar>
@@ -282,7 +283,7 @@ void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, i
         QFileInfo fileinfo(absp);
         auto ext = fileinfo.suffix().toLower();
         if (ext == "xml" || ext == "scxml" || ext == "glade" || ext == "ui") {
-            auto te = new QTextEdit();
+            auto te = new pqXmlView();
             te->setPlainText(file2string(absp));
             new XmlSyntaxHighlighter(te->document());
             te->setLineWrapMode(QTextEdit::NoWrap);

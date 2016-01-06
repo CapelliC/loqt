@@ -24,6 +24,7 @@ SUBDIRS += \
     testKeyboardMacros
 
 OTHER_FILES += \
+    loqt.pri \
     README.md \
     img/cluster.png \
     img/cluster-dot.png

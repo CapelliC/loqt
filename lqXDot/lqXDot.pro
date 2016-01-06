@@ -5,7 +5,7 @@
 # interface logic languages
 #--------------------------------------------------
 # Author        : Carlo Capelli
-# Copyright (C) : 2013,2014,2015
+# Copyright (C): 2013,2014,2015,2016
 
 QT += core gui widgets
 

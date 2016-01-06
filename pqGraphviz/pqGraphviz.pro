@@ -4,7 +4,7 @@
 # interface SWI-Prolog and lqXDot
 #--------------------------------------------------
 # Author        : Carlo Capelli
-# Copyright (C) : 2013,2014,2015
+# Copyright (C): 2013,2014,2015,2016
 
 include(../loqt.pri)
 

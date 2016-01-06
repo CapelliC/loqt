@@ -2,7 +2,7 @@
 #
 #    E-mail        : cc.carlo.cap@gmail.com
 #    Author        : Carlo Capelli
-#    Copyright (C) : 2013,2014,2015
+#    Copyright (C): 2013,2014,2015,2016
 
 
 #    This library is free software; you can redistribute it and/or

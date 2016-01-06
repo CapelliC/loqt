@@ -23,13 +23,20 @@
 #ifndef QPPVIEW_H
 #define QPPVIEW_H
 
-#include <QWebView>
+#ifdef QT_WEBENGINE_LIB
+    #include <QWebEngineView>
+    typedef QWebEngineView WEB_VIEW_BASE;
+#else
+    #include <QWebView>
+    typedef QWebView WEB_VIEW_BASE;
+#endif
+
 
 /** source editing with CodeMirror.
  *  The (mini) API will be similar to QPlainTextEdit where possible.
  *  Prolog semantic highlighting served by PrologPad
  */
-class qppView : public QWebView
+class qppView : public WEB_VIEW_BASE
 {
     Q_OBJECT
 
@@ -61,7 +68,7 @@ public:
     void setPlainText(QString s);
 
 signals:
-    
+
     //! hosting GUI must react and expose the message text
     void userMessage(qppView::messageKind kind, QString text);
 
@@ -93,7 +100,9 @@ private slots:
 
 private:
 
+    #ifndef QT_WEBENGINE_LIB
     QWebFrame *frame() const { return page()->mainFrame(); }
+    #endif
     void run(QString script) const;
     QVariant eval(QString script) const;
 

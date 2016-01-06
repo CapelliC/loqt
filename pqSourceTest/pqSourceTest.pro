@@ -18,13 +18,10 @@
 #    License along with this library; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-QT += core gui
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+include(../loqt.pri)
 
 TARGET = pqSourceTest
 TEMPLATE = app
-
-CONFIG += C++11
 
 unix {
     # because SWI-Prolog is built from source

@@ -7,8 +7,8 @@
 # Author        : Carlo Capelli
 # Copyright (C) : 2015
 
-QT += widgets svg xml xmlpatterns
-CONFIG += C++11
+include(../loqt.pri)
+QT += svg xml xmlpatterns
 
 TARGET = pqXml
 TEMPLATE = lib

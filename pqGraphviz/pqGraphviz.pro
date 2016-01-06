@@ -6,7 +6,9 @@
 # Author        : Carlo Capelli
 # Copyright (C) : 2013,2014,2015
 
-QT += gui widgets webkit webkitwidgets concurrent
+include(../loqt.pri)
+
+QT += concurrent
 
 TARGET = pqGraphviz
 TEMPLATE = lib
@@ -34,8 +36,6 @@ OTHER_FILES += \
     test/genealogy/familiari.pdf \
     test/genealogy/pqGraphviz_emu.pl \
     test/genealogy/allocator.pl
-
-CONFIG += C++11
 
 unix {
     target.path = /usr/lib

@@ -28,7 +28,6 @@
 #include <QMessageBox>
 #include <QCloseEvent>
 #include <QFileSystemWatcher>
-#include <QWebView>
 #include <QPointer>
 
 #include "MruHelper.h"

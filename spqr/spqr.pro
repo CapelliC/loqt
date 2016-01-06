@@ -6,12 +6,10 @@
 # Author        : Carlo Capelli
 # Copyright (C) : 2013,2014,2015
 
-QT += core gui widgets webkit webkitwidgets
+include(../loqt.pri)
 
 TARGET = spqr
 TEMPLATE = app
-
-CONFIG += C++11
 
 SOURCES += \
     main.cpp \

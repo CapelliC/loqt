@@ -23,14 +23,21 @@
 #ifndef CODEMIRROR_H
 #define CODEMIRROR_H
 
-#include <QWebView>
+#ifdef QT_WEBENGINE_LIB
+    #include <QWebEngineView>
+    typedef QWebEngineView WEB_VIEW_BASE;
+#else
+    #include <QWebView>
+    typedef QWebView WEB_VIEW_BASE;
+#endif
+
 #include "lqUty_global.h"
 
 /** source editing with CodeMirror.
  *  The (mini) API will be similar to QPlainTextEdit where possible.
  *  A Prolog mode (see lqUty/Other Files/codemirror/mode/prolog/prolog.js) is available.
  */
-class LQUTYSHARED_EXPORT CodeMirror : public QWebView
+class LQUTYSHARED_EXPORT CodeMirror : public WEB_VIEW_BASE
 {
     Q_OBJECT
 
@@ -94,7 +101,10 @@ private slots:
 
 private:
 
+#ifndef QT_WEBENGINE_LIB
     QWebFrame *frame() const { return page()->mainFrame(); }
+#endif
+
     void run(QString script) const;
     QVariant eval(QString script) const;
 

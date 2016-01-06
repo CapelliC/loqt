@@ -31,7 +31,7 @@
 #include <QTime>
 
 pqDocView::pqDocView(QWidget *parent) :
-    QWebView(parent)
+    WEB_VIEW_BASE(parent)
 {
     setHtml(QString("<h4>%1</h4>").arg(tr("Please wait, plDoc is starting...")));
     setWindowTitle(tr("Help (courtesy plDoc)"));
@@ -108,10 +108,17 @@ void pqDocView::helpFile(QString file)
 void pqDocView::addFeedback(QToolBar *tbar, QStatusBar *sbar)
 {
     toolBar = tbar;
+#ifdef QT_WEBENGINE_LIB
+    toolBar->addAction(pageAction(QWebEnginePage::Back));
+    toolBar->addAction(pageAction(QWebEnginePage::Forward));
+    toolBar->addAction(pageAction(QWebEnginePage::Reload));
+    toolBar->addAction(pageAction(QWebEnginePage::Stop));
+#else
     toolBar->addAction(pageAction(QWebPage::Back));
     toolBar->addAction(pageAction(QWebPage::Forward));
     toolBar->addAction(pageAction(QWebPage::Reload));
     toolBar->addAction(pageAction(QWebPage::Stop));
+#endif
     //toolBar->addWidget(locationEdit);
 
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));

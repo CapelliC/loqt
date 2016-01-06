@@ -31,14 +31,16 @@
  *  In a MDI environment, a view is usually attached to a QMdiChildWindow...
  */
 pqWebScript::pqWebScript(QWidget *parent) :
-    QWebView(parent)
+    WEB_VIEW_BASE(parent)
 {
+#ifndef QT_WEBENGINE_LIB
+
     // this will issue a developer environment creation
     page()->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
 
     // simpler browser events...
     connect(this, &QWebView::titleChanged, [=](const QString &t) { setWindowTitle(t); });
-
+#endif
     // server creation must be delayed after display
     QTimer::singleShot(1, this, SLOT(startWebScript()));
 }

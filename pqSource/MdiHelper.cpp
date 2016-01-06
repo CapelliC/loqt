@@ -54,8 +54,7 @@ void MdiHelper::setupMdi() {
 }
 
 void MdiHelper::updateMenus() {
-    qDebug() << "updateMenus";
-return;
+
     QMdiSubWindow *msw = mdiArea()->activeSubWindow();
 
     bool hasMdiChild = (msw != 0);
@@ -84,8 +83,6 @@ return;
 }
 
 void MdiHelper::updateWindowMenu() {
-
-    qDebug() << "updateWindowMenu";
 
     windowMenu->clear();
     windowMenu->addAction(closeAct);
@@ -362,8 +359,6 @@ void MdiHelper::createStatusBar() {
 }
 
 void MdiHelper::subWindowActivated(QMdiSubWindow *w) {
-    qDebug() << "subWindowActivated" << w;
-
     if (w) {
         qDebug() << "subWindowActivated" << w->widget()->metaObject()->className() << w->windowTitle();
         setWindowTitle(w->windowTitle());
@@ -401,7 +396,6 @@ void MdiHelper::switchViewMode() {
 
 void MdiHelper::setActiveSubWindow(QWidget *window) {
     QMdiSubWindow* sub = qobject_cast<QMdiSubWindow *>(window);
-    qDebug() << "setActiveSubWindow" << window << sub;
     if (sub)
         mdiArea()->setActiveSubWindow(sub);
 }

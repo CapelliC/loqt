@@ -23,10 +23,17 @@
 #ifndef PQWEBSCRIPT_H
 #define PQWEBSCRIPT_H
 
-#include <QWebView>
+#ifdef QT_WEBENGINE_LIB
+    #include <QWebEngineView>
+    typedef QWebEngineView WEB_VIEW_BASE;
+#else
+    #include <QWebView>
+    typedef QWebView WEB_VIEW_BASE;
+#endif
+
 #include "pqSource.h"
 
-class pqWebScript : public QWebView
+class pqWebScript : public WEB_VIEW_BASE
 {
     Q_OBJECT
 public:

@@ -23,7 +23,14 @@
 #ifndef PQDOCVIEW_H
 #define PQDOCVIEW_H
 
-#include <QWebView>
+#ifdef QT_WEBENGINE_LIB
+    #include <QWebEngineView>
+    typedef QWebEngineView WEB_VIEW_BASE;
+#else
+    #include <QWebView>
+    typedef QWebView WEB_VIEW_BASE;
+#endif
+
 #include <QToolBar>
 #include <QStatusBar>
 #include <QPointer>
@@ -32,7 +39,7 @@
 
 /** implements plDoc browser
  */
-class PQGRAPHVIZSHARED_EXPORT pqDocView : public QWebView
+class PQGRAPHVIZSHARED_EXPORT pqDocView : public WEB_VIEW_BASE
 {
     Q_OBJECT
 public:

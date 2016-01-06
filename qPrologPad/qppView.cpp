@@ -21,21 +21,24 @@
 */
 
 #include "qppView.h"
+#ifndef QT_WEBENGINE_LIB
 #include <QWebFrame>
+#endif
 #include <QDebug>
 
 void qppView::initialize() {
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
+    #ifndef QT_WEBENGINE_LIB
     page()->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    #endif
 }
 
-qppView::qppView(QWidget *parent) :
-    QWebView(parent)
+qppView::qppView(QWidget *parent) : WEB_VIEW_BASE(parent)
 {
     initialize();
 }
 
-qppView::qppView(const qppView &e) : QWebView(e.parentWidget()) {
+qppView::qppView(const qppView &e) : WEB_VIEW_BASE(e.parentWidget()) {
     initialize();
 }
 
@@ -55,7 +58,9 @@ void qppView::helpRequest(QString topic) {
 void qppView::loadFinished(bool ok) {
     emit userMessage(log, QString("loadFinished %1... (len %2, ok %3)").arg(text.left(20)).arg(text.length()).arg(ok));
     if (ok) {
+        #ifndef QT_WEBENGINE_LIB
         frame()->addToJavaScriptWindowObject("proxy", this);
+        #endif
         if (text.length())
             run("editor.setValue(proxy.plainText)");
         run("editor.on(\"change\", function() { proxy.onChange() })");
@@ -77,8 +82,18 @@ void qppView::show_call(long from, long stop) {
 }
 
 void qppView::run(QString script) const {
+    #ifndef QT_WEBENGINE_LIB
     frame()->evaluateJavaScript(script);
+    #else
+    page()->runJavaScript(script);
+    #endif
 }
 QVariant qppView::eval(QString script) const {
+    #ifndef QT_WEBENGINE_LIB
     return frame()->evaluateJavaScript(script);
+    #else
+    QVariant rc;
+    page()->runJavaScript(script, [&](const QVariant &result) {rc = result;});
+    return rc;
+    #endif
 }

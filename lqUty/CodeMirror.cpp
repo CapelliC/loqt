@@ -22,24 +22,28 @@
 
 #include "CodeMirror.h"
 #include "file2string.h"
-#include <QWebFrame>
+#ifndef QT_WEBENGINE_LIB
+    #include <QWebFrame>
+#endif
 #include <QDebug>
 
 void CodeMirror::initialize() {
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
+
+    #ifndef QT_WEBENGINE_LIB
     page()->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    #endif
 
     // initialize with a simple HTML template - a full textarea controlled by CodeMirror library
     setHtml(file2string(":/CodeMirror.html"), QUrl("qrc:/"));
 }
 
-CodeMirror::CodeMirror(QWidget *parent) :
-    QWebView(parent)
+CodeMirror::CodeMirror(QWidget *parent) : WEB_VIEW_BASE(parent)
 {
     initialize();
 }
 
-CodeMirror::CodeMirror(const CodeMirror &e) : QWebView(e.parentWidget()) {
+CodeMirror::CodeMirror(const CodeMirror &e) : WEB_VIEW_BASE(e.parentWidget()) {
     initialize();
 }
 
@@ -59,7 +63,11 @@ void CodeMirror::helpRequest(QString topic) {
 void CodeMirror::loadFinished(bool ok) {
     emit userMessage(log, QString("loadFinished %1... (len %2, ok %3)").arg(text.left(20)).arg(text.length()).arg(ok));
     if (ok) {
+        #ifndef QT_WEBENGINE_LIB
         frame()->addToJavaScriptWindowObject("proxy", this);
+        #else
+        //??? addToJavaScriptWindowObject("proxy", this);
+        #endif
         if (text.length())
             run("editor.setValue(proxy.plainText)");
         run("editor.on(\"change\", function() { proxy.onChange() })");
@@ -81,8 +89,18 @@ void CodeMirror::show_call(long from, long stop) {
 }
 
 void CodeMirror::run(QString script) const {
+    #ifndef QT_WEBENGINE_LIB
     frame()->evaluateJavaScript(script);
+    #else
+    page()->runJavaScript(script);
+    #endif
 }
 QVariant CodeMirror::eval(QString script) const {
+    #ifndef QT_WEBENGINE_LIB
     return frame()->evaluateJavaScript(script);
+    #else
+    QVariant rc;
+    page()->runJavaScript(script, [&](const QVariant &result) {rc = result;});
+    return rc;
+    #endif
 }

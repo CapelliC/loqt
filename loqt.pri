@@ -7,23 +7,13 @@
 # Author        : Carlo Capelli
 # Copyright (C) : 2013,2014,2015
 
-TEMPLATE = subdirs
+# please, an up-to-date compiler
+CONFIG += C++11
 
-SUBDIRS += \
-    fdqueens \
-    lqUty \
-    lqXDot \
-    lqXDot_test \
-    pqConsole \
-    pqGraphviz \
-    pqXml \
-    pqSource \
-    pqSourceTest \
-    spqr \
-    qPrologPad \
-    testKeyboardMacros
+QT += core gui widgets
 
-OTHER_FILES += \
-    README.md \
-    img/cluster.png \
-    img/cluster-dot.png
+greaterThan(QT_VERSION, "5.5.0"): {
+    QT += webenginewidgets
+} else {
+    QT += webkitwidgets
+}

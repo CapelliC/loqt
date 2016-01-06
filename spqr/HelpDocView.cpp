@@ -22,6 +22,6 @@
 
 #include "HelpDocView.h"
 
-HelpDocView::HelpDocView(QWidget* parent) :QWebView(parent)
+HelpDocView::HelpDocView(QWidget* parent) : WEB_VIEW_BASE(parent)
 {
 }

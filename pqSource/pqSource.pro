@@ -19,14 +19,13 @@
 #    License along with this library; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-QT += webkit webkitwidgets widgets concurrent
+include(../loqt.pri)
+QT += concurrent
 
 TARGET = pqSource
 TEMPLATE = lib
 
 DEFINES += PQSOURCE_LIBRARY
-
-CONFIG += C++11
 
 SOURCES += \
     pqSource.cpp \

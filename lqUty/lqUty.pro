@@ -7,11 +7,10 @@
 # Author        : Carlo Capelli
 # Copyright (C) : 2013,2014,2015
 
-QT += gui widgets webkit webkitwidgets
+include(../loqt.pri)
 
 TARGET = lqUty
 TEMPLATE = lib
-CONFIG += C++11
 
 DEFINES += LQUTY_LIBRARY
 
@@ -65,7 +64,7 @@ HEADERS += \
 symbian {
     MMP_RULES += EXPORTUNFROZEN
     TARGET.UID3 = 0xE3BE79CA
-    TARGET.CAPABILITY = 
+    TARGET.CAPABILITY =
     TARGET.EPOCALLOWDLLDATA = 1
     addFiles.sources = lqUty.dll
     addFiles.path = !:/sys/bin

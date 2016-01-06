@@ -23,9 +23,16 @@
 #ifndef HELPDOCVIEW_H
 #define HELPDOCVIEW_H
 
-#include <QWebView>
+#ifdef QT_WEBENGINE_LIB
+    #include <QWebEngineView>
+    typedef QWebEngineView WEB_VIEW_BASE;
+#else
+    #include <QWebView>
+    typedef QWebView WEB_VIEW_BASE;
+#endif
 
-class HelpDocView : public QWebView
+
+class HelpDocView : public WEB_VIEW_BASE
 {
     Q_OBJECT
 public:

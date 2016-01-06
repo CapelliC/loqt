@@ -35,7 +35,6 @@
 #include "lqXDotView.h"
 #include "maplist.h"
 #include "pqWebScript.h"
-#include "XmlSyntaxHighlighter.h"
 #include "pqXmlView.h"
 
 #include <QDebug>
@@ -178,6 +177,9 @@ void pqSourceMainWindow::fixGeometry() {
                 } else if (k.left(x) == pqSource::staticMetaObject.className()) {
                     qApp->postEvent(this, new reqEditSource(files[i], A));
                 }
+                else if (k.left(x) == pqXmlView::staticMetaObject.className()) {
+                    qApp->postEvent(this, new reqEditSource(files[i], A));
+                }
             }
         }
     }
@@ -219,6 +221,10 @@ void pqSourceMainWindow::closeEvent(QCloseEvent *e) {
         if (auto c = qobject_cast<ConsoleEdit*>(w->widget())) {
             // bind to console Prolog thread id
             key = QString("%1/%2").arg(key).arg(c->thread_id());
+        }
+        if (auto x = qobject_cast<pqXmlView*>(w->widget())) {
+            // bind to console Prolog thread id
+            key = QString("%1/%2").arg(key).arg(x->file);
         }
         p.setValue(key, w->saveGeometry());
     }
@@ -284,9 +290,12 @@ void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, i
         auto ext = fileinfo.suffix().toLower();
         if (ext == "xml" || ext == "scxml" || ext == "glade" || ext == "ui") {
             auto te = new pqXmlView();
+            te->openFile(absp);
+            /*
             te->setPlainText(file2string(absp));
             new XmlSyntaxHighlighter(te->document());
             te->setLineWrapMode(QTextEdit::NoWrap);
+            */
 
             Preferences pref;
             te->setFont(pref.console_font);
@@ -322,7 +331,7 @@ void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, i
         if (auto e = qobject_cast<pqSource*>(editor))
             e->loadSource(line, linepos);
         else
-            w->setWindowTitle(fileinfo.completeBaseName());
+            w->setWindowTitle(fileinfo.fileName());
 
         insertPath(this, absp);
     }
@@ -509,6 +518,7 @@ void pqSourceMainWindow::about() {
             +TR(TD(LK("lqXDot",     "loqt/lqXDot"))                 +TD("Qt to Graphviz enabled interface"))
             +TR(TD(LK("pqConsole",  "pqConsole"))                   +TD("SWI-Prolog interface to Qt"))
             +TR(TD(LK("pqGraphviz", "loqt/tree/master/pqGraphviz")) +TD("SWI-Prolog+Qt interface to Graphviz"))
+            +TR(TD(LK("pqXml",      "loqt/tree/master/pqXml"))      +TD("SWI-Prolog XML goodies"))
             +TR(TD(LK("pqSource",   "loqt/tree/master/pqSource"))   +TD("SWI-Prolog source goodies"))
             +TR()
             +TR(TD("by")+TD("<a href='mailto:%1'>ing. Carlo Capelli").arg("cc.carlo.cap@gmail.com"))
@@ -524,6 +534,9 @@ QString pqSourceMainWindow::symbol(QWidget *w) {
 
     if (auto *s = qobject_cast<pqSource*>(w))
         return path2title(s->file);
+
+    if (auto *x = qobject_cast<pqXmlView*>(w))
+        return path2title(x->file);
 
     return w->windowTitle();
 }

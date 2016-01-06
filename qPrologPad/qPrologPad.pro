@@ -5,12 +5,10 @@
 #--------------------------------------------------
 # Copyright (C) : 2014,2015 Carlo Capelli
 
-QT += core gui widgets webkit webkitwidgets
+include(../loqt.pri)
 
 TARGET = qPrologPad
 TEMPLATE = app
-
-CONFIG += C++11
 
 SOURCES += \
     main.cpp \

@@ -87,6 +87,10 @@ protected:
         copyAct,
         pasteAct,
 
+        renderViewAct,
+        toggleFoldAct,
+        allFoldAct,
+
         findAct,
         findNextAct,
         findPreviousAct,

@@ -41,6 +41,8 @@
 #ifndef SVGVIEW_H
 #define SVGVIEW_H
 
+#include "lqXDot_global.h"
+
 #include <QGraphicsView>
 #include <QSignalMapper>
 #include <QPointer>
@@ -51,7 +53,7 @@ class QPaintEvent;
 class QFile;
 QT_END_NAMESPACE
 
-class SvgView : public QGraphicsView
+class LQXDOTSHARED_EXPORT SvgView : public QGraphicsView
 {
     Q_OBJECT
 

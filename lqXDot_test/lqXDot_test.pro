@@ -27,12 +27,10 @@ DEFINES += QT_NO_OPENGL
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp \
-    SvgView.cpp
+    mainwindow.cpp
 
 HEADERS += \
-    mainwindow.h \
-    SvgView.h
+    mainwindow.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/release/ -llqXDot
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/debug/ -llqXDot

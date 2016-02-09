@@ -39,6 +39,7 @@ class PQXMLSHARED_EXPORT pqXmlView : public foldingQTextEdit
     Q_OBJECT
 public:
     pqXmlView();
+    pqXmlView(QString path);
 
     QString file;
     void openFile(QString file);
@@ -46,6 +47,7 @@ public:
 signals:
 
 public slots:
+
 };
 
 #endif // PQXMLVIEW_H

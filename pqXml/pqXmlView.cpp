@@ -27,6 +27,9 @@
 pqXmlView::pqXmlView() {
 
 }
+pqXmlView::pqXmlView(QString path) {
+    openFile(path);
+}
 
 void pqXmlView::openFile(QString file) {
     this->file = file;

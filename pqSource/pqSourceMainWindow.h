@@ -40,7 +40,7 @@ class PQSOURCESHARED_EXPORT pqSourceMainWindow : public MdiHelper
     Q_OBJECT
 public:
     explicit pqSourceMainWindow(int argc, char **argv, QWidget *parent = 0);
-    
+
     /** support SWI... prolog_edit:edit_source(File) */
     struct reqEditSource : public QEvent {
         QString file;
@@ -117,6 +117,10 @@ public slots:
     void decFont();
 
     void markCursor(QTextCursor c);
+
+    void renderView();
+    void toggleFold();
+    void foldAllcut();
 
 protected slots:
 

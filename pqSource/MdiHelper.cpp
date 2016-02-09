@@ -137,6 +137,11 @@ void MdiHelper::createActions() {
     cmd(this,   copyAct,    tr("&Copy"),    SLOT(copy()),   __::Copy,   "copy",     tr("Copy the current selection's contents to the clipboard"));
     cmd(this,   pasteAct,   tr("&Paste"),   SLOT(paste()),  __::Paste,  "paste",    tr("Paste the clipboard's contents into the current selection"));
 
+    cmd(this,   renderViewAct,  tr("&Render View"), SLOT(renderView()),    __(),    0,      tr("Render View"));
+    cmd(this,   toggleFoldAct,  tr("&Toggle Fold"), SLOT(toggleFold()),    __(),    0,      tr("Toggle Fold"));
+    cmd(this,   allFoldAct,     tr("&Fold All"),    SLOT(foldAllcut()),    __(),    0,      tr("Fold All"));
+
+
     cmd(this,   findAct,        tr("&Find..."),         SLOT(find()),           __::Find,           "edit-find-3",          tr("Select text and search in current document"));
     cmd(this,   findNextAct,    tr("Find &Next"),       SLOT(findNext()),       __::FindNext,       0,                      tr("Search the next occurrence of text"));
     cmd(this,   findPreviousAct,tr("Find &Previous"),   SLOT(findPrevious()),   __::FindPrevious,   0,                      tr("Search the previous occurrence of text"));
@@ -316,6 +321,11 @@ void MdiHelper::createMenus() {
     helpMenu->addSeparator();
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
+
+    helpMenu->addSeparator();
+    helpMenu->addAction(renderViewAct);
+    helpMenu->addAction(toggleFoldAct);
+    helpMenu->addAction(allFoldAct);
 }
 
 void MdiHelper::createToolBars() {

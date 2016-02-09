@@ -270,7 +270,7 @@ void pqSource::loadSource(int line, int linepos)
         reportUser(tr("not a Prolog file, reading as text"));
     else {
         int lc = document()->lineCount();
-        const int MAX_LINES = 5000;
+        const int MAX_LINES = 10000;
         if (lc < MAX_LINES) {
             reportUser(tr("highlighting %1 lines").arg(lc));
             startHighliter();

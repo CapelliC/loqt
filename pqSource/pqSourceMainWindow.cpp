@@ -288,9 +288,8 @@ void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, i
         QWidget *editor = 0;
         QFileInfo fileinfo(absp);
         auto ext = fileinfo.suffix().toLower();
-        if (ext == "xml" || ext == "scxml" || ext == "glade" || ext == "ui") {
-            auto te = new pqXmlView();
-            te->openFile(absp);
+        if (ext == "xml" || ext == "scxml" || ext == "glade" || ext == "ui" || ext == "svg") {
+            auto te = new pqXmlView(absp);
             /*
             te->setPlainText(file2string(absp));
             new XmlSyntaxHighlighter(te->document());
@@ -896,8 +895,7 @@ void pqSourceMainWindow::viewInclusions() {
  *  Attach a WebView to current script, if none yet attached.
  *  Script must be a module, exposing start/stop HTTP server
  */
-void pqSourceMainWindow::onWebScript()
-{
+void pqSourceMainWindow::onWebScript() {
     qDebug() << "onWebScript";
     if (auto s = activeChild<pqSource>()) {
         for (auto ws: typedSubWindows<pqWebScript>()) {
@@ -912,3 +910,16 @@ void pqSourceMainWindow::onWebScript()
         ws->show();
     }
 }
+
+void pqSourceMainWindow::renderView() {
+    qDebug() << "renderView";
+}
+
+void pqSourceMainWindow::toggleFold() {
+    qDebug() << "toggleFold";
+}
+
+void pqSourceMainWindow::foldAllcut() {
+    qDebug() << "foldAllcut";
+}
+

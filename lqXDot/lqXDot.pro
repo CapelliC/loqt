@@ -7,7 +7,7 @@
 # Author        : Carlo Capelli
 # Copyright (C): 2013,2014,2015,2016
 
-QT += core gui widgets
+QT += core gui widgets svg
 
 TARGET = lqXDot
 TEMPLATE = lib
@@ -25,6 +25,8 @@ unix {
     PKGCONFIG += libcgraph libgvc
 }
 
+DEFINES += QT_NO_OPENGL
+
 SOURCES += \
     lqContextGraph.cpp \
     lqAobj.cpp \
@@ -32,7 +34,8 @@ SOURCES += \
     lqXDotView.cpp \
     lqXDotScene.cpp \
     lqGvSynCol.cpp \
-    make_nop.cpp
+    make_nop.cpp \
+    SvgView.cpp
 
 HEADERS += \
     lqXDot_global.h \
@@ -43,7 +46,8 @@ HEADERS += \
     lqXDotScene.h \
     lqGvSynCol.h \
     lqXDot_configure.h \
-    make_nop.h
+    make_nop.h \
+    SvgView.h
 
 unix:!symbian {
     maemo5 {

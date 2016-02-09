@@ -749,15 +749,19 @@ bool ConsoleEdit::event(QEvent *event) {
 }
 
 /** sense word under cursor for tooltip display
+ *
+ *  at least! this override is the culprit of menus' weird behaviour
  */
 bool ConsoleEdit::eventFilter(QObject *obj, QEvent *event) {
-    Q_UNUSED(obj)
+    return ConsoleEditBase::eventFilter(obj, event);
+    //Q_UNUSED(obj)
     if (event->type() == QEvent::MouseMove) {
         QTextCursor c = cursorForPosition(static_cast<QMouseEvent*>(event)->pos());
         set_cursor_tip(c);
         clickable_message_line(c, true);
     }
-    return false;
+    return ConsoleEditBase::eventFilter(obj, event);
+    //return false;
     //return QObject::eventFilter(obj, event);
 }
 

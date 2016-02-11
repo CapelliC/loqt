@@ -39,6 +39,24 @@ pqDocView::pqDocView(QWidget *parent) :
 
 bool pqDocView::startPlDoc()
 {
+#ifdef QT_WEBENGINE_LIB
+    QTimer::singleShot(1, [this]() {
+        QString msg;
+        try {
+            if (!PlCall("use_module(library(pldoc))"))
+                msg = tr("library(pldoc) not available");
+            else {
+                if (!PlCall(QString("doc_server(%1)").arg(helpDocPort).toUtf8()))
+                    msg = tr("cannot start doc_server at port %1").arg(helpDocPort);
+            }
+        }
+        catch(PlException e) {
+            msg = t2w(e);
+        }
+        requests << QString("http://localhost:%1/doc_for?object=root").arg(helpDocPort);
+        emit initUrl();
+    });
+#else
     // start from a background thread
     auto f = [&]() {
         QString msg;
@@ -65,7 +83,6 @@ bool pqDocView::startPlDoc()
         qDebug() << "msg:" << msg;
     };
 
-
     //requests << QString("http://localhost:%1").arg(helpDocPort);
     requests << QString("http://localhost:%1/doc_for?object=root").arg(helpDocPort);
 
@@ -74,6 +91,7 @@ bool pqDocView::startPlDoc()
 
     // run the Prolog snippet in background
     w->setFuture(QtConcurrent::run(f));
+#endif
 
     return true;
 }
@@ -126,9 +144,10 @@ void pqDocView::addFeedback(QToolBar *tbar, QStatusBar *sbar)
 
     statusBar = sbar;
     connect(this, SIGNAL(titleChanged(QString)), sbar, SLOT(showMessage(QString)));
-
+#ifndef QT_WEBENGINE_LIB
     connect(page(), SIGNAL(linkHovered(QString,QString,QString)), SLOT(linkHovered(QString,QString,QString)));
     connect(page(), SIGNAL(statusBarMessage(QString)), sbar, SLOT(showMessage(QString)));
+#endif
 }
 
 void pqDocView::loadFinished(bool yn)

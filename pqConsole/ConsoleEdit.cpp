@@ -794,7 +794,7 @@ bool ConsoleEdit::can_close() {
  */
 void ConsoleEdit::onCursorPositionChanged() {
     QTextCursor c = textCursor();
-qDebug() << "ConsoleEdit::onCursorPositionChanged()" << c.anchor();
+//qDebug() << "ConsoleEdit::onCursorPositionChanged()" << c.anchor();
     set_cursor_tip(c);
     if (fixedPosition > c.position()) {
         viewport()->setCursor(Qt::OpenHandCursor);
@@ -873,7 +873,7 @@ void ConsoleEdit::clickable_message_line(QTextCursor c, bool highlight) {
 /** setup tooltip info
  */
 void ConsoleEdit::set_cursor_tip(QTextCursor c) {
-    qDebug() << "ConsoleEdit::set_cursor_tip(QTextCursor c)" << c.anchor();
+//qDebug() << "ConsoleEdit::set_cursor_tip(QTextCursor c)" << c.anchor();
     last_tip = Completion::pred_tip(c);
     if (!last_tip.isEmpty())
         setToolTip(last_tip);

@@ -704,8 +704,8 @@ pqDocView *pqSourceMainWindow::helpView() {
     }
 
     v = new pqDocView(this);
-    v->startPlDoc();
     v->addFeedback(helpToolBar, statusBar());
+    v->startPlDoc();
 
     QMdiSubWindow *w = mdiArea()->addSubWindow(v);
     w->show();

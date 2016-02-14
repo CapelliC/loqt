@@ -15,6 +15,8 @@ SUBDIRS += \
     lqXDot \
     lqXDot_test \
     pqConsole \
+    lq3d \
+    lq3d_test \
     pqGraphviz \
     pqXml \
     pqSource \

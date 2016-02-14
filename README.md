@@ -10,6 +10,8 @@ Logic Objecs and Qt
 
 + pqConsole: reusing swipl-console in a component based environment (shared libraries)
 
++ lq3d: merging Qt3D and SWI-Prolog powers
+
 + lqXDot: just a rendering of Graphviz (via library cgraph,xdot) to Qt Graphic Scene.
   Such rendering plays a role in my next project (to be published), showcasing (SWI)Prolog direct control of Qt via reflection.
 
@@ -19,6 +21,18 @@ Logic Objecs and Qt
   Graphviz rendering by Prolog.
 
 + fdqueens: an example of multithreading GUI interface, with CLP(FD) processing.
+  now entirely rewritten as a case study of SCXML, implemented with QStateMachine
+
+==========
+
+lq3d components:
+
++ lq3d is a dynamically loadable component, providing Qt3D architecture ready to use in Qt GUIs
+  + lq3dView holds the camera and input interfaces
+  + lq3dScene holds the tree scenegraph root and the context
+
++ lq3d_test is a simple example
+  (will) show how to merge support from pqConsole and lq3d to get a Prolog controlled 3d environment
 
 ==========
 
@@ -42,3 +56,5 @@ spqr features:
 + editing Prolog files via CodeMirror (requires QtWebKit)
 + pqConsole control
 + inline plDoc help (requires QtWebKit)
+  sorry, with the transition from QtWebKit to QWebEngine this is currently not working...
+  to be fixed ASAP

@@ -355,3 +355,13 @@ void pqSyntaxData::insert_sorted(cat &c, t_nesting& nest)
     if (inserted == -1)
         nest.insert(0, 1, c);
 }
+
+pqSyntaxData::range pqSyntaxData::clause_extent(int position) const {
+    range cb = clause_boundary(position);
+    if (cb.size() > 0 && cb.end < cats.size()) {
+        // get actual positions
+        int start = cats[cb.beg].beg, stop = cats[cb.end].end;
+        return range(start, stop);
+    }
+    return range();
+}

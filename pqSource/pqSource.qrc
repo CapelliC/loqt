@@ -37,5 +37,9 @@
         <file>prolog/pqSourceTemplate.pl</file>
         <file>prolog/calledgraph.pl</file>
         <file>prolog/pqSourceFileXref.pl</file>
+        <file>images/folder.png</file>
+        <file>images/folder-open.png</file>
+        <file>images/folders.png</file>
+        <file>images/folder-tree.png</file>
     </qresource>
 </RCC>

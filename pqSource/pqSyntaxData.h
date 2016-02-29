@@ -109,6 +109,9 @@ public:
     //! it's a basic visit
     void topdown_preorder(const cat& c, std::function<void(const cat &)>) const;
 
+    //! get text begin/end positions
+    range clause_extent(int position) const;
+
 protected:
 
     //! actual structured representation

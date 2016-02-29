@@ -128,7 +128,12 @@ protected:
         viewCallGraphAct,
         viewGraphAct,
         viewGraphIncl,
-        commentClauseAct;
+        commentClauseAct,
+
+        foldClauseAct,
+        unfoldClauseAct,
+        foldAllAct,
+        unfoldAllAct;
 
     inline QMdiArea* mdiArea() const {
         return qobject_cast<QMdiArea*>(centralWidget());

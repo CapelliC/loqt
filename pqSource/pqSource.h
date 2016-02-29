@@ -40,6 +40,9 @@
 #include "pqHighlighter.h"
 #include "pqSourceMainWindow.h"
 
+#include "framedTextAttr.h"
+#include "foldedTextAttr.h"
+
 /* Prolog source editing
    use SWI-Prolog facilities to *edit*, *debug* and *browse*
    relies on pqConsole for initialized syncronous Prolog interface
@@ -159,6 +162,10 @@ protected:
     void setTitle();
     void reportUser(QString info);
 
+private:
+    QPointer<framedTextAttr> framed_handler;
+    QPointer<foldedTextAttr> folded_handler;
+
 signals:
 
     void reportInfo(QString info);
@@ -185,6 +192,12 @@ protected slots:
     void query_result(QString,int);
     void query_complete(QString,int);
     void query_exception(QString query, QString message);
+
+public slots:
+    void onFoldClause();
+    void onUnfoldClause();
+    void onFoldAll();
+    void onUnfoldAll();
 };
 
 #endif // PQSOURCE_H

@@ -25,6 +25,10 @@
 
 #include <QMenu>
 #include <QMenuBar>
+#include <QStatusBar>
+#include <QApplication>
+#include <QPlainTextEdit>
+/*
 #include <QSettings>
 #include <QFileDialog>
 #include <QTemporaryFile>
@@ -32,6 +36,7 @@
 #include <QApplication>
 #include <QTextCodec>
 #include <QTextStream>
+*/
 #include <QDebug>
 
 /** GUI setup
@@ -39,6 +44,44 @@
 MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     : QMainWindow(parent), MruHelper("lq3d_test")
 {
+    setCentralWidget(new QMdiArea(this));
+
+    QMenu *m = menuBar()->addMenu("&File");
+    m->addAction(tr("&New..."), this, &MainWindow::newFile, QKeySequence::New);
+    m->addSeparator();
+    m->addAction(tr("E&xit"), qApp, &QApplication::quit, QKeySequence::Quit);
+
+    statusBar()->showMessage("Ready...");
+}
+
+void MainWindow::newFile()
+{
+    auto view = new lq3dView();
+    auto rootEntity = view->scene->rootEntity;
+
+    Qt3DRender::QCylinderMesh *cylinder = new Qt3DRender::QCylinderMesh();
+    cylinder->setRadius(1);
+    cylinder->setLength(3);
+    cylinder->setRings(100);
+    cylinder->setSlices(20);
+
+    // CylinderMesh Transform
+    Qt3DCore::QTransform *cylinderTransform = new Qt3DCore::QTransform;
+    cylinderTransform->setScale(1.5f);
+    cylinderTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), 45.0f));
+
+    // Cylinder
+    Qt3DCore::QEntity *cylinderEntity = new Qt3DCore::QEntity(rootEntity);
+    cylinderEntity->addComponent(cylinder);
+    cylinderEntity->addComponent(cylinderTransform);
+
+    view->scene->cg->engine.setRootEntity(rootEntity);
+    auto w = QWidget::createWindowContainer(view); //, mdiArea()); //Qt::WindowType::ForeignWindow);
+    //auto w = new QPlainTextEdit;
+    mdiArea()->addSubWindow(w);
+    w->show();
+
+    statusBar()->showMessage("Created new File");
 }
 
 /** save settings

@@ -141,6 +141,10 @@ void MdiHelper::createActions() {
     cmd(this,   toggleFoldAct,  tr("&Toggle Fold"), SLOT(toggleFold()),    __(),    0,      tr("Toggle Fold"));
     cmd(this,   allFoldAct,     tr("&Fold All"),    SLOT(foldAllcut()),    __(),    0,      tr("Fold All"));
 
+    cmd(this,   foldClauseAct,      tr("&Fold Clause"),     SLOT(onFoldClause()),   __(),    "folder",      tr("Fold Clause"));
+    cmd(this,   unfoldClauseAct,    tr("Unfold &Clause"),   SLOT(onUnfoldClause()), __(),    "folder-open", tr("Unfold Clause"));
+    cmd(this,   foldAllAct,         tr("Fold &All"),        SLOT(onFoldAll()),      __(),    "folders",     tr("Fold All"));
+    cmd(this,   unfoldAllAct,       tr("&Unfold All"),      SLOT(onUnfoldAll()),    __(),    "folder-tree", tr("Unfold All"));
 
     cmd(this,   findAct,        tr("&Find..."),         SLOT(find()),           __::Find,           "edit-find-3",          tr("Select text and search in current document"));
     cmd(this,   findNextAct,    tr("Find &Next"),       SLOT(findNext()),       __::FindNext,       0,                      tr("Search the next occurrence of text"));
@@ -280,6 +284,12 @@ void MdiHelper::createMenus() {
     editMenu->addAction(findPreviousAct);
     editMenu->addAction(replaceAct);
 
+    editMenu->addSeparator();
+    editMenu->addAction(foldClauseAct);
+    editMenu->addAction(unfoldClauseAct);
+    editMenu->addAction(foldAllAct);
+    editMenu->addAction(unfoldAllAct);
+
     prefMenu = menuBar()->addMenu(tr("&Preferences"));
     prefMenu->addAction(viewSWIPrologPrefAct);
     prefMenu->addSeparator();
@@ -290,7 +300,7 @@ void MdiHelper::createMenus() {
     prefMenu->addSeparator();
     prefMenu->addAction(switchLayoutDirectionAct);
     prefMenu->addAction(switchViewModeAct);
-/*
+
     debugMenu = menuBar()->addMenu(tr("&Debug"));
     debugMenu->addAction(makeAct);
     debugMenu->addAction(consultAct);
@@ -303,7 +313,7 @@ void MdiHelper::createMenus() {
     debugMenu->addAction(stepOutAct);
     debugMenu->addAction(stepOverAct);
     debugMenu->addAction(toggleBPAct);
-*/
+
     windowMenu = menuBar()->addMenu(tr("&Window"));
     updateWindowMenu();
     connect(windowMenu, SIGNAL(aboutToShow()), this, SLOT(updateWindowMenu()));
@@ -340,7 +350,13 @@ void MdiHelper::createToolBars() {
     editToolBar->addAction(pasteAct);
     editToolBar->addAction(findAct);
     editToolBar->addAction(replaceAct);
-/*
+
+    editToolBar->addSeparator();
+    editToolBar->addAction(foldClauseAct);
+    editToolBar->addAction(unfoldClauseAct);
+    editToolBar->addAction(foldAllAct);
+    editToolBar->addAction(unfoldAllAct);
+
     debugToolBar = addToolBar(tr("Debug"));
     debugToolBar->addAction(makeAct);
     debugToolBar->addAction(consultAct);
@@ -359,7 +375,7 @@ void MdiHelper::createToolBars() {
     queriesBox->setToolTip(tr("Hold the query used to start the debugger"));
     queriesBox->setStatusTip(tr("Debugger will start with this query. <editor> refers to 'scriptname'."));
     debugToolBar->addWidget(queriesBox);
-*/
+
     helpToolBar = addToolBar(tr("Help"));
 }
 

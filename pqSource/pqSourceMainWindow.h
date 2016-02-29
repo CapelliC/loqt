@@ -140,6 +140,11 @@ protected slots:
     void engine_ready();
 
     void onWebScript();
+
+    void onFoldClause();
+    void onUnfoldClause();
+    void onFoldAll();
+    void onUnfoldAll();
 };
 
 #endif // PQSOURCEMAINWINDOW_H

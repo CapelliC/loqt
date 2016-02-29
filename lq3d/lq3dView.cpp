@@ -33,7 +33,7 @@ lq3dView::lq3dView(QScreen *screen)
 {
     setSurfaceType(QSurface::OpenGLSurface);
 
-    resize(1024, 768);
+    resize(800, 600);
 
     QSurfaceFormat format;
     if (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGL) {

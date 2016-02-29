@@ -73,7 +73,9 @@ pqSource::pqSource(QString file) :
     debugStatus(no_Debug),
     debugCommand(no_Command),
     skip_changes(),
-    last_change_position(-1)
+    last_change_position(-1),
+    framed_handler(new framedTextAttr(this)),
+    folded_handler(new foldedTextAttr(this))
 {
     qDebug() << "pqSource::pqSource" << file;
 
@@ -88,6 +90,9 @@ pqSource::pqSource(QString file) :
     connect(this, &pqSource::setCallSig, &pqSource::showCall);
 
     hl = new pqHighlighter(this);
+
+    document()->documentLayout()->registerHandler(framed_handler->type(), framed_handler);
+    document()->documentLayout()->registerHandler(folded_handler->type(), folded_handler);
 }
 
 /**
@@ -787,4 +792,35 @@ void pqSource::insertFromMimeData(const QMimeData *source)
     QTextCharFormat f;
     f.setFont(Preferences().console_font);
     textCursor().insertText(source->text(), f);
+}
+
+void pqSource::onFoldClause() {
+    if (hl->sem_info_avail()) {
+        auto tc = textCursor();
+        auto cb = hl->clause_extent(tc.position());
+        tc.setPosition(cb.beg);
+        tc.setPosition(cb.end, tc.KeepAnchor);
+        folded_handler->fold(tc);
+    }
+}
+
+void pqSource::onUnfoldClause() {
+    if (hl->sem_info_avail()) {
+        auto tc = textCursor();
+        if (folded_handler->unfold(tc)) {
+
+        }
+    }
+}
+
+void pqSource::onFoldAll() {
+    if (hl->sem_info_avail()) {
+
+    }
+}
+
+void pqSource::onUnfoldAll() {
+    if (hl->sem_info_avail()) {
+
+    }
 }

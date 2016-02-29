@@ -24,30 +24,28 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QTabWidget>
-#include <QTextEdit>
-#include <QMessageBox>
+#include <QMdiArea>
 #include <QCloseEvent>
 #include <QFileSystemWatcher>
 
 #include "lq3dView.h"
 #include "MruHelper.h"
-#include "RowColIndicators.h"
-#include "ParenMatching.h"
 
-/** display a single graph (dot file)
-  * - lq3DView main viewer
-  * - the SVG rendering of the same
-  * - DOT source file
-  * - SVG source file
+/** display Qt3D rendering of pqConsole scripts
+  * - lq3dView viewers
   */
-class MainWindow : public QMainWindow, MruHelper
+class MainWindow : public QMainWindow, protected MruHelper
 {
     Q_OBJECT
 
 public:
     MainWindow(int argc, char *argv[], QWidget *parent = 0);
     ~MainWindow();
+
+    //void addScript(QString script);
+    inline QMdiArea* mdiArea() const {
+        return qobject_cast<QMdiArea*>(centralWidget());
+    }
 
 protected:
 
@@ -56,6 +54,7 @@ protected:
 private:
 
 public slots:
+    void newFile();
 
 };
 

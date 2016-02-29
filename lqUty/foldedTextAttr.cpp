@@ -22,6 +22,7 @@
 
 #include "foldedTextAttr.h"
 #include <QTextDocumentFragment>
+#include <QDebug>
 
 foldedTextAttr::foldedTextAttr(QObject *parent) : QObject(parent) {
 }
@@ -62,8 +63,21 @@ void foldedTextAttr::fold(QTextCursor c) {
 bool foldedTextAttr::unfold(QTextCursor c) {
     if (!c.hasSelection()) {
         QTextCharFormat f = c.charFormat();
+qDebug() << "f" << f.objectType() << f.isValid() << c.position();
         if (f.objectType() == type()) {
+            c.movePosition(c.Right);
+            QTextCharFormat g = c.charFormat();
+            if (g.objectType() == type()) {
+qDebug() << "g" << g.objectType() << g.isValid() << c.position();
+                c.movePosition(c.Left, c.KeepAnchor);
+                QVariant v = g.property(prop());
+                auto q = v.value<QTextDocumentFragment>();
+                c.insertFragment(q);
+                return true;
+            }
+            c.movePosition(c.Left);
             c.movePosition(c.Left, c.KeepAnchor);
+            //c.movePosition(c.Right, c.KeepAnchor);
             QVariant v = f.property(prop());
             auto q = v.value<QTextDocumentFragment>();
             c.insertFragment(q);

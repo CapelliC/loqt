@@ -54,6 +54,8 @@ public:
         bool overlap(const int p) const { return beg <= p && end >= p; }
         bool operator==(const range &r) const { return r.end == end && r.beg == beg; }
 
+        operator bool() const { return size() > 0; }
+
         void normalize() { if (beg > end) std::swap(beg, end); }
 
         /** apply range selection to cursor */
@@ -117,9 +119,9 @@ public:
     bool onOpen;
 
 signals:
-    
+
 public slots:
-    
+
 };
 
 #endif // PARENMATCHING_H

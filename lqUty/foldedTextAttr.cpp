@@ -23,6 +23,7 @@
 #include "foldedTextAttr.h"
 #include <QTextDocumentFragment>
 #include <QDebug>
+#include <QTextBlock>
 
 foldedTextAttr::foldedTextAttr(QObject *parent) : QObject(parent) {
 }
@@ -42,7 +43,6 @@ QSizeF foldedTextAttr::intrinsicSize(QTextDocument *doc, int posInDocument, cons
 }
 
 void foldedTextAttr::drawObject(QPainter *painter, const QRectF &rect, QTextDocument *doc, int posInDocument, const QTextFormat &format) {
-
     Q_UNUSED(doc)
     Q_UNUSED(posInDocument)
     Q_ASSERT(format.type() == format.CharFormat);
@@ -53,36 +53,84 @@ void foldedTextAttr::drawObject(QPainter *painter, const QRectF &rect, QTextDocu
 
 Q_DECLARE_METATYPE(QTextDocumentFragment)
 
-void foldedTextAttr::fold(QTextCursor c) {
+foldedTextAttr::folding foldedTextAttr::fold(QTextCursor c) {
     QTextCharFormat f;
     f.setObjectType(type());
-    QVariant v; v.setValue(c.selection());
+    auto s = c.selection();
+    QVariant v; v.setValue(s);
     f.setProperty(prop(), v);
     c.insertText(QString(QChar::ObjectReplacementCharacter), f);
+    return folding { s.toPlainText().length(), -1 };
 }
+
+QTextDocumentFragment foldedTextAttr::fragment(QTextCharFormat f) {
+    Q_ASSERT(f.objectType() == type());
+    QVariant v = f.property(prop());
+    return v.value<QTextDocumentFragment>();
+}
+
 bool foldedTextAttr::unfold(QTextCursor c) {
     if (!c.hasSelection()) {
         QTextCharFormat f = c.charFormat();
-qDebug() << "f" << f.objectType() << f.isValid() << c.position();
         if (f.objectType() == type()) {
             c.movePosition(c.Right);
-            QTextCharFormat g = c.charFormat();
-            if (g.objectType() == type()) {
-qDebug() << "g" << g.objectType() << g.isValid() << c.position();
-                c.movePosition(c.Left, c.KeepAnchor);
-                QVariant v = g.property(prop());
-                auto q = v.value<QTextDocumentFragment>();
-                c.insertFragment(q);
-                return true;
-            }
-            c.movePosition(c.Left);
+            if (c.charFormat().objectType() != type())
+                c.movePosition(c.Left);
             c.movePosition(c.Left, c.KeepAnchor);
-            //c.movePosition(c.Right, c.KeepAnchor);
-            QVariant v = f.property(prop());
-            auto q = v.value<QTextDocumentFragment>();
-            c.insertFragment(q);
+            c.insertFragment(fragment(f));
             return true;
         }
     }
     return false;
+}
+int foldedTextAttr::unfoldAll() {
+    return -1;
+}
+foldedTextAttr::actualPos foldedTextAttr::cursorPos(QTextCursor c) const {
+    return actualPos { 0,0, c.position() };
+}
+/*
+void foldedTextAttr::fragments(QTextCursor c, function<bool()> f) {
+    for (QTextBlock i = c.document()->begin(); i != c.document()->end(); i = i.next()) {
+        for (QTextBlock::iterator j = i.begin(); j != i.end(); ++j) {
+            auto f = j.fragment();
+            if (f.charFormat().objectType() == type()) {
+                pos += fragment(f.charFormat()).toPlainText().length() - 1;
+            }
+        }
+        if (b == i)
+            break;
+    }
+    return pos;
+}
+*/
+int foldedTextAttr::translatePos(QTextCursor c, int pos) {
+    QTextDocument *d = c.document();
+    QTextBlock b = d->findBlock(pos);
+    for (QTextBlock i = d->begin(), e = d->end(); i != e; i = i.next()) {
+        for (QTextBlock::iterator j = i.begin(); j != i.end(); ++j) {
+            auto f = j.fragment();
+            if (f.charFormat().objectType() == type()) {
+                pos += fragment(f.charFormat()).toPlainText().length() - 1;
+            }
+        }
+        if (b == i)
+            break;
+    }
+    return pos;
+}
+int foldedTextAttr::offset(QTextCursor c) {
+    int offset = 0;
+    auto d = c.document();
+    auto blockPos = d->findBlock(c.position());
+    for (QTextBlock i = d->begin(), e = d->end(); i != e; i = i.next()) {
+        for (QTextBlock::iterator j = i.begin(); j != i.end(); ++j) {
+            auto f = j.fragment();
+            if (f.charFormat().objectType() == type())
+                offset += fragment(f.charFormat()).toPlainText().length() - 1;
+        }
+        if (blockPos == i)
+            break;
+    }
+    return offset;
 }

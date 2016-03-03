@@ -163,8 +163,10 @@ protected:
     void reportUser(QString info);
 
 private:
+
     QPointer<framedTextAttr> framed_handler;
     QPointer<foldedTextAttr> folded_handler;
+    bool check_avail();
 
 signals:
 

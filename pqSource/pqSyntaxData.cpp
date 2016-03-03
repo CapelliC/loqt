@@ -26,13 +26,23 @@
 #include <QtAlgorithms>
 #include <QTextStream>
 
+pqSyntaxData::cat &set_desc(pqSyntaxData::cat &c, QString desc) {
+    #define Q(q) if ((c.desc = desc) == #q) c.qualification = pqSyntaxData::q;
+    Q(structured_comment) else
+    Q(directive) else
+    Q(fullstop) else
+    Q(clause) else
+    Q(grammar_rule)
+    #undef Q
+    return c;
+}
+
 /** insert qualified fragment - usually from library callback (so called closure)
  */
 void pqSyntaxData::add_element(const char* functor, int from, int len)
 {
     cat c(from, from + len);
-    c.desc = functor;
-    insert_nested(c, cats);
+    insert_nested(set_desc(c, functor), cats);
 }
 
 /** enriched with attributes from library(prolog_colour):syntax_colour/2
@@ -41,8 +51,7 @@ void pqSyntaxData::add_element_attr(QString desc, int from, int len, const QText
 {
     cat c(from, from + len);
     c.fmt = fmt;
-    c.desc = desc;
-    insert_nested(c, cats);
+    insert_nested(set_desc(c, desc), cats);
 }
 
 /** enriched with attributes from library(prolog_colour):syntax_colour/2
@@ -51,8 +60,7 @@ void pqSyntaxData::add_element_sorted(QString desc, int from, int len, const QTe
 {
     cat c(from, from + len);
     c.fmt = fmt;
-    c.desc = desc;
-    insert_sorted(c, cats);
+    insert_sorted(set_desc(c, desc), cats);
 }
 
 /** recursive insertion, search from back
@@ -364,4 +372,8 @@ pqSyntaxData::range pqSyntaxData::clause_extent(int position) const {
         return range(start, stop);
     }
     return range();
+}
+
+void pqSyntaxData::fold(range r) {
+
 }

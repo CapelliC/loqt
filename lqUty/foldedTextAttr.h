@@ -26,6 +26,7 @@
 #include "lqUty_global.h"
 
 #include <QObject>
+#include <QVector>
 #include <QPainter>
 #include <QTextDocument>
 #include <QTextObjectInterface>
@@ -49,8 +50,28 @@ public:
     QSizeF intrinsicSize(QTextDocument *doc, int posInDocument, const QTextFormat &format);
     void drawObject(QPainter *painter, const QRectF &rect, QTextDocument *doc, int posInDocument, const QTextFormat &format);
 
-    void fold(QTextCursor c);
+    struct folding { int beg, end; };
+    folding fold(QTextCursor c);
     bool unfold(QTextCursor c);
+    int unfoldAll();
+
+    struct actualPos { int position; int row; int column; };
+    actualPos cursorPos(QTextCursor c) const;
+
+    int translatePos(QTextCursor c, int pos);
+    int offset(QTextCursor c);
+    //void fragments(QTextCursor c, function<bool(QTextDocumentFragment)> f);
+
+    QTextDocumentFragment fragment(QTextCharFormat f);
+
+private:
+
+    struct remember {
+        int originalPos;
+        QVector<remember> embedded;
+    };
+
+    QVector<remember> folded;
 };
 
 #endif // FOLDEDTEXTATTR_H

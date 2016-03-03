@@ -41,7 +41,7 @@
 
 /** GUI setup
  */
-MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
+MainWindow::MainWindow(int, char *[], QWidget *parent)
     : QMainWindow(parent), MruHelper("lq3d_test")
 {
     setCentralWidget(new QMdiArea(this));
@@ -94,7 +94,7 @@ MainWindow::~MainWindow() {
 
 /** handle details on application quit
  */
-void MainWindow::closeEvent(QCloseEvent *e) {
+void MainWindow::closeEvent(QCloseEvent *) {
     if (isWindowModified()) {
     }
 }

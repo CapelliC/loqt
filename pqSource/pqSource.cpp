@@ -103,6 +103,8 @@ pqSource::~pqSource()
 {
     qDebug() << "pqSource::~pqSource" << file;
     delete hl;
+    delete framed_handler;
+    delete folded_handler;
 }
 
 /**
@@ -794,33 +796,59 @@ void pqSource::insertFromMimeData(const QMimeData *source)
     textCursor().insertText(source->text(), f);
 }
 
+bool pqSource::check_avail() {
+    if (hl->sem_info_avail())
+        return true;
+    reportUser(tr("no semantic highlight syntax info available"));
+    return false;
+}
+
 void pqSource::onFoldClause() {
-    if (hl->sem_info_avail()) {
+    if (check_avail()) {
         auto tc = textCursor();
-        auto cb = hl->clause_extent(tc.position());
-        tc.setPosition(cb.beg);
-        tc.setPosition(cb.end, tc.KeepAnchor);
-        folded_handler->fold(tc);
+        auto off = folded_handler->offset(tc);
+        if (auto cb = hl->clause_extent(tc.position() + off)) {
+            tc.setPosition(cb.beg - off);
+            tc.setPosition(cb.end - off, tc.KeepAnchor);
+            folded_handler->fold(tc);
+        }
     }
 }
 
 void pqSource::onUnfoldClause() {
-    if (hl->sem_info_avail()) {
+    if (check_avail()) {
         auto tc = textCursor();
         if (folded_handler->unfold(tc)) {
-
         }
     }
 }
 
 void pqSource::onFoldAll() {
-    if (hl->sem_info_avail()) {
-
+    if (check_avail()) {
+        typedef pqSyntaxData S;
+        auto &h = *folded_handler;
+        for (auto &f : hl->nesting()) {
+            switch (f.qualification) {
+            case S::structured_comment:
+            case S::directive:
+            case S::clause:
+            case S::grammar_rule:
+            {   QTextCursor c = textCursor();
+                c.setPosition(h.translatePos(c, f.beg));
+                c.setPosition(h.translatePos(c, f.end), c.KeepAnchor);
+                h.fold(c);
+            }   break;
+            //case S::fullstop:
+            default:
+                qDebug() << f.desc;
+            }
+        }
     }
 }
 
 void pqSource::onUnfoldAll() {
-    if (hl->sem_info_avail()) {
-
+    if (check_avail()) {
+        if (int nc = folded_handler->unfoldAll())
+            reportUser(tr("unfolded %1 fragments").arg(nc));
     }
 }

@@ -49,6 +49,16 @@ public:
     //! reuse pair of points from ParenMatching class
     typedef ParenMatching::range range;
 
+    //! make explicit structure symbols exchanged as atoms
+    enum categories {
+        structured_comment,
+        directive,
+        fullstop,
+        clause,
+        grammar_rule,
+        __other__
+    };
+
     /** this recursive data structure it's the heart of syntax report
       * note: no pointers (except inside QVector...)
       */
@@ -68,6 +78,9 @@ public:
 
         //! debugging helper - dump indented structure
         QString structure(QString indent) const;
+
+        //! avoid reying on strings
+        categories qualification = __other__;
 
         //! sanity check: nesting should always hold
         int check() const;
@@ -111,6 +124,12 @@ public:
 
     //! get text begin/end positions
     range clause_extent(int position) const;
+
+    //! need readonly access to build on structure...
+    const t_nesting& nesting() const { return cats; }
+
+    //! folding changes the text buffer... let it know
+    void fold(range r);
 
 protected:
 

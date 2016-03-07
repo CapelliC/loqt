@@ -1,9 +1,9 @@
 /*
-    lqUty        : loqt utilities
+    lqGraphix    : SWI-Prolog and Qt Graphics Framework
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
-    Copyright (C): 2013,2014,2015,2016
+    Copyright (C): 2016
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -20,27 +20,30 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef CENTERWIDGETS_H
-#define CENTERWIDGETS_H
+#ifndef PRIMITIVES_H
+#define PRIMITIVES_H
 
-#include <QWidget>
-#include <QApplication>
-#include <QDesktopWidget>
+#include <QGraphicsEllipseItem>
+#include <QGraphicsPathItem>
+#include <QGraphicsRectItem>
+#include <QGraphicsPolygonItem>
+#include <QGraphicsTextItem>
+#include <QGraphicsLineItem>
+#include <QGraphicsPixmapItem>
 
-inline void CenterWidgets(QWidget *widget, QWidget *host = 0) {
-    if (!host)
-        host = widget->parentWidget();
+#define meta(Cla) class lqGraphix##Cla : public QGraphics##Cla { \
+    public: \
+        lqGraphix##Cla() {} \
+        lqGraphix##Cla(const lqGraphix##Cla &) : QGraphics##Cla() {} \
+        ~lqGraphix##Cla() {} \
+};
 
-    if (host) {
-        auto hostRect = host->geometry();
-        widget->move(hostRect.center() - widget->rect().center());
-    }
-    else {
-        QRect screenGeometry = QApplication::desktop()->screenGeometry();
-        int x = (screenGeometry.width() - widget->width()) / 2;
-        int y = (screenGeometry.height() - widget->height()) / 2;
-        widget->move(x, y);
-    }
-}
+meta(EllipseItem)
+meta(PathItem)
+meta(RectItem)
+meta(PolygonItem)
+meta(TextItem)
+meta(LineItem)
+meta(PixmapItem)
 
-#endif // CENTERWIDGETS_H
+#endif // PRIMITIVES_H

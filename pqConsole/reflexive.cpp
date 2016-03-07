@@ -63,10 +63,19 @@ PREDICATE(create, 2) {
     throw PlException(A(QString("create '%1' failed").arg(name)));
 }
 
-static QVariant T2V(PlTerm pl)
+static QVariant T2V(PlTerm pl, int match = 0)
 {
     switch (pl.type()) {
     case PL_INTEGER:
+        if (match) {
+            if (match == QMetaType::VoidStar ||
+                match == QMetaType::QObjectStar ||
+                match == qMetaTypeId<QWidget*>() ||
+                match >= QMetaType::User) {
+                    VP p = pl;
+                    return QVariant(match, &p);
+                }
+        }
         return QVariant(qlonglong(long(pl)));
     case PL_FLOAT:
         return QVariant(double(pl));
@@ -156,94 +165,96 @@ PREDICATE(invoke, 4) {
         // iterate superClasses
         for (const QMetaObject *meta = obj->metaObject(); meta; meta = meta->superClass()) {
             for (int i = 0; i < meta->methodCount(); ++i) {
-                QMetaMethod m = meta->method(i);
+                const QMetaMethod &m = meta->method(i);
                 if (m.methodType() == m.Method && m.access() == m.Public) {
                     QString sig = m.methodSignature();
                     if (sig.left(sig.indexOf('(')) == Member) {
-                        QVariantList vl;
-                        QList<QGenericArgument> va;
+
+                        auto const &pl = m.parameterTypes();
+                        if (pl.size() > 9)
+                            throw PlException("pqConsole::invoke unsupported call (max 9 arguments)");
 
                         // scan the argument list
                         L Args(PL_A3); T Arg;
+                        // converted values buffer
+                        QVariantList vl;
                         int ipar = 0;
                         for ( ; Args.next(Arg); ++ipar) {
-
-                            if (ipar == m.parameterTypes().size())
+                            if (ipar == pl.size())
                                 throw PlException("argument list count mismatch (too much arguments)");
-
                             // match variant type
-                            int vt = QMetaType::type(m.parameterTypes()[ipar]);
-
-                            switch (Arg.type()) {
-                            case PL_ATOM:
-                                switch (vt) {
-                                case QVariant::String:
-                                    vl.append(t2w(Arg));
-                                    break;
-                                default:
-                                    throw PlException("invalid type");
-                                }
-                                break;
-                            case PL_INTEGER:
-                                if (vt == QVariant::Int) {
-                                    qlonglong l = long(Arg);
-                                    vl.append(l);
-                                } else if (vt == QMetaType::VoidStar ||
-                                           vt == QMetaType::QObjectStar ||
-                                           vt == qMetaTypeId<QWidget*>() ||
-                                           vt >= QMetaType::User) {
-                                    VP p = Arg;
-                                    vl.append(QVariant(vt, &p));
-                                }
-                                else
-                                    throw PlException("invalid type");
-                                break;
-                            case PL_FLOAT:
-                                if (vt == QVariant::Double)
-                                    vl.append(double(Arg));
-                                else
-                                    throw PlException("invalid type");
-                                break;
-                            default:
-                                throw PlException("unknown type conversion");
-                            }
-
-                            va.append(QGenericArgument(vl.back().typeName(), vl.back().data()));
+                            vl << T2V(Arg, m.parameterType(ipar));
                         }
 
-                        if (ipar < m.parameterTypes().size())
+                        /* if (ipar < m.parameterTypes().size())
                             throw PlException("argument list count mismatch (miss arguments)");
-
-                        if (m.parameterTypes().size() > 3)
-                            throw PlException("unsupported call (max 3 arguments)");
+                        */
 
                         // optional return value
-                        int trv = QMetaType::type(m.typeName());
+                        int trv = m.returnType();
+                        QVariant rv(trv);
+                        QGenericReturnArgument ra(rv.typeName(), rv.data());
+
                         if (trv == QMetaType::Void)
                             trv = 0;    // was 0 in Qt 4
-                        QVariant rv(trv, static_cast<void*>(NULL));
-                        QGenericReturnArgument ra(m.typeName(), rv.data());
 
                         bool rc = false;
                         pqConsole::gui_run([&]() {
-                            switch (m.parameterTypes().size()) {
+
+                            // fill missing arguments (instead of commented exception above)
+                            for ( ; ipar < pl.size(); ipar++)
+                                vl << QVariant(pl[ipar]);
+
+                            QList<QGenericArgument> va;
+                            for (auto &v: vl)
+                                va << QGenericArgument(v.typeName(), v.data());
+
+                            #define _0 va[0]
+                            #define _1 va[1]
+                            #define _2 va[2]
+                            #define _3 va[3]
+                            #define _4 va[4]
+                            #define _5 va[5]
+                            #define _6 va[6]
+                            #define _7 va[7]
+                            #define _8 va[8]
+
+                            switch (pl.size()) {
                             case 0:
                                 rc = trv ? m.invoke(obj, ra) : m.invoke(obj);
                                 break;
                             case 1:
-                                rc = trv ? m.invoke(obj, ra, va[0]) : m.invoke(obj, va[0]);
+                                rc = trv ? m.invoke(obj, ra, _0) : m.invoke(obj, _0);
                                 break;
                             case 2:
-                                rc = trv ? m.invoke(obj, ra, va[0], va[1]) : m.invoke(obj, va[0], va[1]);
+                                rc = trv ? m.invoke(obj, ra, _0,_1) : m.invoke(obj, _0,_1);
                                 break;
                             case 3:
-                                rc = trv ? m.invoke(obj, ra, va[0], va[1], va[2]) : m.invoke(obj, va[0], va[1], va[2]);
+                                rc = trv ? m.invoke(obj, ra, _0,_1,_2) : m.invoke(obj, _0,_1,_2);
+                                break;
+                            case 4:
+                                rc = trv ? m.invoke(obj, ra, _0,_1,_2,_3) : m.invoke(obj, _0,_1,_2,_3);
+                                break;
+                            case 5:
+                                rc = trv ? m.invoke(obj, ra, _0,_1,_2,_3,_4) : m.invoke(obj, _0,_1,_2,_3,_4);
+                                break;
+                            case 6:
+                                rc = trv ? m.invoke(obj, ra, _0,_1,_2,_3,_4,_5) : m.invoke(obj, _0,_1,_2,_3,_4,_5);
+                                break;
+                            case 7:
+                                rc = trv ? m.invoke(obj, ra, _0,_1,_2,_3,_4,_5,_6) : m.invoke(obj, _0,_1,_2,_3,_4,_5,_6);
+                                break;
+                            case 8:
+                                rc = trv ? m.invoke(obj, ra, _0,_1,_2,_3,_4,_5,_6,_7) : m.invoke(obj, _0,_1,_2,_3,_4,_5,_6,_7);
+                                break;
+                            case 9:
+                                rc = trv ? m.invoke(obj, ra, _0,_1,_2,_3,_4,_5,_6,_7,_8) : m.invoke(obj, _0,_1,_2,_3,_4,_5,_6,_7,_8);
                                 break;
                             }
                         });
 
                         if (rc && trv) {
-                            // TBD unify return value
+                            // unify (some) return value
                             switch (trv) {
                             case QMetaType::Int:
                                 PL_A4 = rv.toInt();
@@ -257,8 +268,14 @@ PREDICATE(invoke, 4) {
                             case QMetaType::ULongLong:
                                 PL_A4 = static_cast<int>(rv.toULongLong());
                                 break;
+                            case QMetaType::VoidStar:
+                                PL_A4 = rv.value<void*>();
+                                break;
+                            case QMetaType::PointerToQObject:
+                                PL_A4 = rv.value<QObject*>();
+                                break;
                             default:
-                                throw PlException("unsupported return type");
+                                throw PlException("pqConsole::invoke unsupported return type");
                             }
                         }
 
@@ -268,7 +285,7 @@ PREDICATE(invoke, 4) {
             }
         }
     }
-    throw PlException("pq_method failed");
+    throw PlException("pqConsole::invoke failed");
 }
 
 /** property(Object, Property, Value)
@@ -302,7 +319,7 @@ PREDICATE(property, 3) {
             }
         }
     }
-    throw PlException("pq_property failed");
+    throw PlException("pqConsole::property failed");
 }
 
 /** unify a property of QObject:

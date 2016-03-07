@@ -119,8 +119,8 @@ public slots:
     void markCursor(QTextCursor c);
 
     void renderView();
-    void toggleFold();
-    void foldAllcut();
+    void renderClause();
+    void renderPredicate();
 
 protected slots:
 

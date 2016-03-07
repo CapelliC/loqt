@@ -28,15 +28,6 @@
 #include <QStatusBar>
 #include <QApplication>
 #include <QPlainTextEdit>
-/*
-#include <QSettings>
-#include <QFileDialog>
-#include <QTemporaryFile>
-#include <QDateTime>
-#include <QApplication>
-#include <QTextCodec>
-#include <QTextStream>
-*/
 #include <QDebug>
 
 /** GUI setup
@@ -96,5 +87,6 @@ MainWindow::~MainWindow() {
  */
 void MainWindow::closeEvent(QCloseEvent *) {
     if (isWindowModified()) {
+
     }
 }

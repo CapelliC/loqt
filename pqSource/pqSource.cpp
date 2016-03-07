@@ -24,7 +24,6 @@
 #include "pqSource.h"
 #include "PREDICATE.h"
 #include "pqSourceMainWindow.h"
-#include "CenterWidgets.h"
 #include "pqTrace.h"
 #include "pqTextAttributes.h"
 #include "do_events.h"
@@ -851,4 +850,14 @@ void pqSource::onUnfoldAll() {
         if (int nc = folded_handler->unfoldAll())
             reportUser(tr("unfolded %1 fragments").arg(nc));
     }
+}
+
+void pqSource::onRenderView() {
+    qDebug() << "renderView";
+}
+void pqSource::onRenderClause() {
+    qDebug() << "renderClause";
+}
+void pqSource::onRenderPredicate() {
+    qDebug() << "renderPredicate";
 }

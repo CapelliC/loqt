@@ -200,6 +200,10 @@ public slots:
     void onUnfoldClause();
     void onFoldAll();
     void onUnfoldAll();
+
+    void onRenderView();
+    void onRenderClause();
+    void onRenderPredicate();
 };
 
 #endif // PQSOURCE_H

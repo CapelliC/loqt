@@ -88,8 +88,8 @@ protected:
         pasteAct,
 
         renderViewAct,
-        toggleFoldAct,
-        allFoldAct,
+        renderClauseAct,
+        renderPredicateAct,
 
         findAct,
         findNextAct,

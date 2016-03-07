@@ -1,9 +1,9 @@
 /*
-    lqUty        : loqt utilities
+    lqGraphix    : SWI-Prolog and Qt Graphics Framework
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
-    Copyright (C): 2013,2014,2015,2016
+    Copyright (C): 2016
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -20,27 +20,25 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef CENTERWIDGETS_H
-#define CENTERWIDGETS_H
+#ifndef LQGRAPHIXVIEW_H
+#define LQGRAPHIXVIEW_H
 
-#include <QWidget>
-#include <QApplication>
-#include <QDesktopWidget>
+#include <QGraphicsView>
+#include "lqGraphixScene.h"
 
-inline void CenterWidgets(QWidget *widget, QWidget *host = 0) {
-    if (!host)
-        host = widget->parentWidget();
+class lqGraphixView : public QGraphicsView
+{
+    Q_OBJECT
+public:
+    lqGraphixView(QWidget *parent = Q_NULLPTR);
 
-    if (host) {
-        auto hostRect = host->geometry();
-        widget->move(hostRect.center() - widget->rect().center());
-    }
-    else {
-        QRect screenGeometry = QApplication::desktop()->screenGeometry();
-        int x = (screenGeometry.width() - widget->width()) / 2;
-        int y = (screenGeometry.height() - widget->height()) / 2;
-        widget->move(x, y);
-    }
-}
+    //! fulfill qRegisterMetaType requirements
+    lqGraphixView(const lqGraphixView &other);
+    ~lqGraphixView();
 
-#endif // CENTERWIDGETS_H
+    lqGraphixScene* scene() const { return qobject_cast<lqGraphixScene*>(QGraphicsView::scene()); }
+
+    bool loadScript(QString script);
+};
+
+#endif // LQGRAPHIXVIEW_H

@@ -23,7 +23,8 @@ SUBDIRS += \
     pqSourceTest \
     spqr \
     qPrologPad \
-    testKeyboardMacros
+    testKeyboardMacros \
+    lqGraphix
 
 OTHER_FILES += \
     loqt.pri \

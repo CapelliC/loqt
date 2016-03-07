@@ -1,9 +1,9 @@
 /*
-    lqUty        : loqt utilities
+    lqGraphix    : SWI-Prolog and Qt Graphics Framework
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
-    Copyright (C): 2013,2014,2015,2016
+    Copyright (C): 2016
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -20,27 +20,27 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef CENTERWIDGETS_H
-#define CENTERWIDGETS_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
-#include <QWidget>
-#include <QApplication>
-#include <QDesktopWidget>
+#include <QMainWindow>
+#include <QSplitter>
 
-inline void CenterWidgets(QWidget *widget, QWidget *host = 0) {
-    if (!host)
-        host = widget->parentWidget();
+#include "lqGraphixView.h"
+#include "ConsoleEdit.h"
 
-    if (host) {
-        auto hostRect = host->geometry();
-        widget->move(hostRect.center() - widget->rect().center());
-    }
-    else {
-        QRect screenGeometry = QApplication::desktop()->screenGeometry();
-        int x = (screenGeometry.width() - widget->width()) / 2;
-        int y = (screenGeometry.height() - widget->height()) / 2;
-        widget->move(x, y);
-    }
-}
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
 
-#endif // CENTERWIDGETS_H
+    QSplitter *splitter() const { return qobject_cast<QSplitter*>(centralWidget()); }
+
+public:
+    MainWindow(int argc, char **argv, QWidget *parent = 0);
+    ~MainWindow();
+
+    lqGraphixView* view() const { return qobject_cast<lqGraphixView*>(splitter()->widget(0)); }
+    ConsoleEdit* console() const { return qobject_cast<ConsoleEdit*>(splitter()->widget(1)); }
+};
+
+#endif // MAINWINDOW_H

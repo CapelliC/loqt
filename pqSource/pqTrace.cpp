@@ -38,8 +38,6 @@ typedef QPair<QObject*, pqTrace::callback> t_callback;
 static QList<t_callback> debug_callbacks;
 
 PREDICATE(pq_trace_interception, 4) {
-    //qDebug() << "pq_trace_interception";
-    //return FALSE;
     const PlTerm
         &Port = PL_A1,
         &Frame = PL_A2,

@@ -912,33 +912,30 @@ void pqSourceMainWindow::onWebScript() {
 }
 
 void pqSourceMainWindow::renderView() {
-    qDebug() << "renderView";
+    if (auto e = activeChild<pqSource>())
+        e->onRenderView();
 }
-
-void pqSourceMainWindow::toggleFold() {
-    qDebug() << "toggleFold";
+void pqSourceMainWindow::renderClause() {
+    if (auto e = activeChild<pqSource>())
+        e->onRenderClause();
 }
-
-void pqSourceMainWindow::foldAllcut() {
-    qDebug() << "foldAllcut";
+void pqSourceMainWindow::renderPredicate() {
+    if (auto e = activeChild<pqSource>())
+        e->onRenderPredicate();
 }
-
 
 void pqSourceMainWindow::onFoldClause() {
     if (auto e = activeChild<pqSource>())
         e->onFoldClause();
 }
-
 void pqSourceMainWindow::onUnfoldClause() {
     if (auto e = activeChild<pqSource>())
         e->onUnfoldClause();
 }
-
 void pqSourceMainWindow::onFoldAll() {
     if (auto e = activeChild<pqSource>())
         e->onFoldAll();
 }
-
 void pqSourceMainWindow::onUnfoldAll() {
     if (auto e = activeChild<pqSource>())
         e->onUnfoldAll();

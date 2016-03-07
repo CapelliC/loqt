@@ -137,9 +137,9 @@ void MdiHelper::createActions() {
     cmd(this,   copyAct,    tr("&Copy"),    SLOT(copy()),   __::Copy,   "copy",     tr("Copy the current selection's contents to the clipboard"));
     cmd(this,   pasteAct,   tr("&Paste"),   SLOT(paste()),  __::Paste,  "paste",    tr("Paste the clipboard's contents into the current selection"));
 
-    cmd(this,   renderViewAct,  tr("&Render View"), SLOT(renderView()),    __(),    0,      tr("Render View"));
-    cmd(this,   toggleFoldAct,  tr("&Toggle Fold"), SLOT(toggleFold()),    __(),    0,      tr("Toggle Fold"));
-    cmd(this,   allFoldAct,     tr("&Fold All"),    SLOT(foldAllcut()),    __(),    0,      tr("Fold All"));
+    cmd(this,   renderViewAct,      tr("Render &View"),     SLOT(renderView()),     __(),    0,      tr("Render View"));
+    cmd(this,   renderClauseAct,    tr("Render &Clause"),   SLOT(renderClause()),   __(),    0,      tr("Render Clause"));
+    cmd(this,   renderPredicateAct, tr("Render &Predicate"),SLOT(renderPredicate()),__(),    0,      tr("Render Predicate"));
 
     cmd(this,   foldClauseAct,      tr("&Fold Clause"),     SLOT(onFoldClause()),   __(),    "folder",      tr("Fold Clause"));
     cmd(this,   unfoldClauseAct,    tr("Unfold &Clause"),   SLOT(onUnfoldClause()), __(),    "folder-open", tr("Unfold Clause"));
@@ -334,8 +334,8 @@ void MdiHelper::createMenus() {
 
     helpMenu->addSeparator();
     helpMenu->addAction(renderViewAct);
-    helpMenu->addAction(toggleFoldAct);
-    helpMenu->addAction(allFoldAct);
+    helpMenu->addAction(renderClauseAct);
+    helpMenu->addAction(renderPredicateAct);
 }
 
 void MdiHelper::createToolBars() {

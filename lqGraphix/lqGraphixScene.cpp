@@ -33,6 +33,16 @@ lqGraphixScene::~lqGraphixScene() {
     qDebug() << "~lqGraphixScene";
 }
 
+lqGraphixRectItem *lqGraphixScene::addRect(const QRectF &rect, const QPen &pen, const QBrush &brush)
+{
+    auto r = new lqGraphixRectItem;
+    r->setRect(rect);
+    r->setPen(pen);
+    r->setBrush(brush);
+    addItem(r);
+    return r;
+}
+
 lqGraphixEllipseItem *lqGraphixScene::addEllipse(const QRectF &rect, const QPen &pen, const QBrush &brush)
 {
     qDebug() << "addEllipse" << rect << pen << brush;
@@ -85,25 +95,11 @@ lqGraphixPolygonItem *lqGraphixScene::addPolygon(const QPolygonF &polygon, const
     return p;
 }
 
-lqGraphixRectItem *lqGraphixScene::addRect(const QRectF &rect, int i) //, const QPen &pen, const QBrush &brush)
-{
-    //qDebug() << "addRect" << rect << pen << brush;
-    qDebug() << "addRect" << rect << i;
-    auto r = new lqGraphixRectItem;
-    r->setRect(rect);
-    /*
-    r->setPen(pen);
-    r->setBrush(brush);
-    */
-    addItem(r);
-    return r;
-}
-
-lqGraphixTextItem *lqGraphixScene::addText(const QString &text, const QFont &font)
+lqGraphixSimpleTextItem *lqGraphixScene::addSimpleText(const QString &text, const QFont &font)
 {
     qDebug() << "addText" << text << font;
-    auto t = new lqGraphixTextItem;
-    t->setPlainText(text);
+    auto t = new lqGraphixSimpleTextItem;
+    t->setText(text);
     t->setFont(font);
     addItem(t);
     return t;

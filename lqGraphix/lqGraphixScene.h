@@ -39,8 +39,8 @@ public:
     Q_INVOKABLE lqGraphixPathItem *addPath(const QPainterPath &path, const QPen &pen, const QBrush &brush);
     Q_INVOKABLE lqGraphixPixmapItem *addPixmap(const QPixmap &pixmap);
     Q_INVOKABLE lqGraphixPolygonItem *addPolygon(const QPolygonF &polygon, const QPen &pen, const QBrush &brush);
-    Q_INVOKABLE lqGraphixRectItem *addRect(const QRectF &rect, int i); //, const QPen &pen, const QBrush &brush);
-    Q_INVOKABLE lqGraphixTextItem *addText(const QString &text, const QFont &font);
+    Q_INVOKABLE lqGraphixRectItem *addRect(const QRectF &rect, const QPen &pen, const QBrush &brush);
+    Q_INVOKABLE lqGraphixSimpleTextItem *addSimpleText(const QString &text, const QFont &font);
 };
 
 #endif // LQGRAPHIXSCENE_H

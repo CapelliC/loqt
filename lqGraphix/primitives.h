@@ -23,13 +23,16 @@
 #ifndef PRIMITIVES_H
 #define PRIMITIVES_H
 
+#include <QGraphicsItem>
+/*
+#include <QGraphicsRectItem>
 #include <QGraphicsEllipseItem>
 #include <QGraphicsPathItem>
-#include <QGraphicsRectItem>
 #include <QGraphicsPolygonItem>
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
 #include <QGraphicsPixmapItem>
+*/
 
 #define meta(Cla) class lqGraphix##Cla : public QGraphics##Cla { \
     public: \
@@ -38,11 +41,20 @@
         ~lqGraphix##Cla() {} \
 };
 
+meta(RectItem)
+/*
+class lqGraphixRectItem : public QGraphicsRectItem, public QGraphicsObject {
+    Q_OBJECT
+    public:
+        lqGraphixRectItem() {}
+        lqGraphixRectItem(const lqGraphixRectItem &) : QGraphicsRectItem() {}
+        ~lqGraphixRectItem() {}
+};
+*/
 meta(EllipseItem)
 meta(PathItem)
-meta(RectItem)
 meta(PolygonItem)
-meta(TextItem)
+meta(SimpleTextItem)
 meta(LineItem)
 meta(PixmapItem)
 

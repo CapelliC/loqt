@@ -34,7 +34,8 @@ SOURCES += \
     pqApplication.cpp \
     win_builtins.cpp \
     reflexive.cpp \
-    pqMiniSyntax.cpp
+    pqMiniSyntax.cpp \
+    pqMeta.cpp
 
 HEADERS += \
     pqConsole.h \
@@ -49,7 +50,8 @@ HEADERS += \
     Preferences.h \
     FlushOutputEvents.h \
     pqApplication.h \
-    pqMiniSyntax.h
+    pqMiniSyntax.h \
+    pqMeta.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

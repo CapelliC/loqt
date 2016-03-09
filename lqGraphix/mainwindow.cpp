@@ -23,6 +23,7 @@
 #include "mainwindow.h"
 #include "lqGraphixView.h"
 #include "primitives.h"
+#include "PREDICATE.h"
 
 #include <QMenuBar>
 #include <QApplication>
@@ -37,29 +38,33 @@ static MainWindow *mainWindow() {
     return 0;
 }
 
+structure2(pqObj)
+inline T toObj(QObject* obj) { return pqObj(A(obj->metaObject()->className()), obj); }
+
 PREDICATE(view, 1) {
     if (auto m = mainWindow())
-        return PL_A1 = m->view();
+        return PL_A1 = toObj(m->view());
     return false;
 }
 PREDICATE(scene, 1) {
     if (auto m = mainWindow())
-        return PL_A1 = m->view()->scene();
+        return PL_A1 = toObj(m->view()->scene());
     return false;
 }
 
 MainWindow::MainWindow(int argc, char **argv, QWidget *parent)
     : QMainWindow(parent)
 {
-    if (metatypes.empty()) {
-        #define reg(T) metatypes[#T] = qRegisterMetaType<T*>(#T "*");
+    if (1) { // metatypes.empty()) {
+        Q_ASSERT(metatypes.empty());
+        #define reg(T) metatypes[#T "*"] = qRegisterMetaType<T*>(#T "*");
         reg(lqGraphixView)
         reg(lqGraphixScene)
         reg(lqGraphixEllipseItem)
         reg(lqGraphixPathItem)
         reg(lqGraphixRectItem)
         reg(lqGraphixPolygonItem)
-        reg(lqGraphixTextItem)
+        reg(lqGraphixSimpleTextItem)
         reg(lqGraphixLineItem)
         reg(lqGraphixPixmapItem)
         #undef reg
@@ -79,7 +84,10 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent)
     auto open = new QAction("&Open script", this);
     open->setShortcut(QKeySequence::Open);
     connect(open, &QAction::triggered, [&]() {
-        auto script = QFileDialog::getOpenFileName(this, "Select script", QString(), "*.pl");
+        QString cscript;
+        if (qApp->arguments().size() == 2)
+            cscript = qApp->arguments()[1];
+        auto script = QFileDialog::getOpenFileName(this, "Select script", cscript, "*.pl");
         if (!script.isEmpty())
             view()->loadScript(script);
     });

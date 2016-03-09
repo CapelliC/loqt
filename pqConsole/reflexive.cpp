@@ -23,6 +23,7 @@
 #define PROLOG_MODULE "pqConsole"
 #include "PREDICATE.h"
 #include "pqConsole.h"
+#include "pqMeta.h"
 
 #include <QStack>
 #include <QDebug>
@@ -63,8 +64,11 @@ PREDICATE(create, 2) {
     throw PlException(A(QString("create '%1' failed").arg(name)));
 }
 
-static QVariant T2V(PlTerm pl, int match = 0)
-{
+static QVariant C2V(PlTerm pl, int match = 0);
+static QVariant F2V(PlTerm pl);
+static QVariant T2V(PlTerm pl, int match = 0);
+
+static QVariant C2V(PlTerm pl, int match) {
     switch (pl.type()) {
     case PL_INTEGER:
         if (match) {
@@ -82,75 +86,144 @@ static QVariant T2V(PlTerm pl, int match = 0)
     case PL_ATOM:
         return QVariant(t2w(pl));
 
-    case PL_TERM: {
-        int ty = QMetaType::type(pl.name()), ar = pl.arity();
+    case PL_TERM:
+        return F2V(pl);
+    }
+    return QVariant();
+}
+static QVariant F2V(PlTerm pl) {
+    Q_ASSERT(pl.type() == PL_TERM);
 
-        switch (ty) {
+    int ty = QMetaType::type(pl.name()),
+        ar = pl.arity();
 
-        case QMetaType::QSize:
-            return QSize(pl[1], pl[2]);
+    switch (ty) {
 
-        case QMetaType::QSizeF:
-            return QSizeF(pl[1], pl[2]);
+    case QMetaType::QSize:
+        return QSize(pl[1], pl[2]);
 
-        case QMetaType::QDate:
-            return QDate(pl[1], pl[2], pl[3]);
+    case QMetaType::QSizeF:
+        return QSizeF(pl[1], pl[2]);
 
-        case QMetaType::QTime:
-            return ar == 2 ? QTime(pl[1], pl[2]) :
-                   ar == 3 ? QTime(pl[1], pl[2], pl[3]) :
-                             QTime(pl[1], pl[2], pl[3], pl[4]);
+    case QMetaType::QDate:
+        return QDate(pl[1], pl[2], pl[3]);
 
-        case QMetaType::QDateTime:
-            return QDateTime(T2V(pl[1]).toDate(), T2V(pl[2]).toTime());
+    case QMetaType::QTime:
+        return ar == 2 ? QTime(pl[1], pl[2]) :
+               ar == 3 ? QTime(pl[1], pl[2], pl[3]) :
+                         QTime(pl[1], pl[2], pl[3], pl[4]);
 
-        case QMetaType::QUrl:   // TBD
-            return QUrl(T2V(pl[1]).toString());
+    case QMetaType::QDateTime:
+        return QDateTime(T2V(pl[1]).toDate(), T2V(pl[2]).toTime());
 
-        // TBD QLocale();
+    case QMetaType::QUrl:   // TBD
+        return QUrl(T2V(pl[1]).toString());
 
-        case QMetaType::QRect:
-            if (ar == 2) {
-                QVariant a[2] =  { T2V(pl[1]), T2V(pl[2]) };
-                if (a[0].type() == QVariant::Point && a[1].type() == QVariant::Point)
-                    return QRect(a[0].toPoint(), a[1].toPoint());
-                if (a[0].type() == QVariant::Point && a[1].type() == QVariant::Size)
-                    return QRect(a[0].toPoint(), a[1].toSize());
-                break;
-            }
-            return QRect(pl[1], pl[2], pl[3], pl[4]);
+    // TBD QLocale();
 
-        case QMetaType::QRectF:
-            if (ar == 2) {
-                QVariant a[2] =  { T2V(pl[1]), T2V(pl[2]) };
-                if (a[0].type() == QVariant::PointF && a[1].type() == QVariant::PointF)
-                    return QRectF(a[0].toPointF(), a[1].toPointF());
-                if (a[0].type() == QVariant::PointF && a[1].type() == QVariant::SizeF)
-                    return QRectF(a[0].toPointF(), a[1].toSizeF());
-                break;
-            }
-            return QRectF(pl[1], pl[2], pl[3], pl[4]);
-
-        case QMetaType::QLine:
-            return ar == 2 ? QLine(T2V(pl[1]).toPoint(), T2V(pl[2]).toPoint()) :
-                             QLine(pl[1], pl[2], pl[3], pl[4]);
-
-        case QMetaType::QLineF:
-            return ar == 2 ? QLineF(T2V(pl[1]).toPointF(), T2V(pl[2]).toPointF()) :
-                             QLineF(pl[1], pl[2], pl[3], pl[4]);
-
-        case QMetaType::QPoint:
-            return QPoint(pl[1], pl[2]);
-
-        case QMetaType::QPointF:
-            return QPointF(pl[1], pl[2]);
-            /*
-        case QMetaType::QBrush:
-            return QBrush();
-            */
+    case QMetaType::QRect:
+        if (ar == 2) {
+            QVariant a[2] =  { T2V(pl[1]), T2V(pl[2]) };
+            if (a[0].type() == QVariant::Point && a[1].type() == QVariant::Point)
+                return QRect(a[0].toPoint(), a[1].toPoint());
+            if (a[0].type() == QVariant::Point && a[1].type() == QVariant::Size)
+                return QRect(a[0].toPoint(), a[1].toSize());
+            break;
         }
-    } }
-    throw PlException("cannot convert PlTerm to QVariant");
+        return QRect(pl[1], pl[2], pl[3], pl[4]);
+
+    case QMetaType::QRectF:
+        if (ar == 2) {
+            QVariant a[2] =  { T2V(pl[1]), T2V(pl[2]) };
+            if (a[0].type() == QVariant::PointF && a[1].type() == QVariant::PointF)
+                return QRectF(a[0].toPointF(), a[1].toPointF());
+            if (a[0].type() == QVariant::PointF && a[1].type() == QVariant::SizeF)
+                return QRectF(a[0].toPointF(), a[1].toSizeF());
+            break;
+        }
+        return QRectF(pl[1], pl[2], pl[3], pl[4]);
+
+    case QMetaType::QLine:
+        return ar == 2 ? QLine(T2V(pl[1]).toPoint(), T2V(pl[2]).toPoint()) :
+                         QLine(pl[1], pl[2], pl[3], pl[4]);
+
+    case QMetaType::QLineF:
+        return ar == 2 ? QLineF(T2V(pl[1]).toPointF(), T2V(pl[2]).toPointF()) :
+                         QLineF(pl[1], pl[2], pl[3], pl[4]);
+
+    case QMetaType::QPoint:
+        return QPoint(pl[1], pl[2]);
+
+    case QMetaType::QPointF:
+        return QPointF(pl[1], pl[2]);
+
+    case QMetaType::QPolygonF: {
+        QPolygonF poly;
+        PlTail l(pl[1]); PlTerm pt;
+        while (l.next(pt))
+            poly << T2V(pt).value<QPointF>();
+        return poly;
+    }   break;
+
+    case QMetaType::QColor:
+        if (ar == 1) {
+            if (auto t2e = T2E<lqColor>(pl[1], "globalColor"))
+                return QColor(static_cast<Qt::GlobalColor>(t2e.second));
+            return QColor(t2w(pl[1]));
+        }
+        if (ar == 4)
+            return QColor(int(pl[1]),int(pl[2]),int(pl[3]),int(pl[4]));
+        break;
+
+    case QMetaType::QPen:
+        if (ar == 1)
+            if (auto t2e = T2E<lqPen>(pl[1], "penStyle"))
+                return QPen(static_cast<Qt::PenStyle>(t2e.second));
+        break;
+
+    case QMetaType::QBrush:
+        if (ar == 1) {
+            if (auto t2e = T2E<lqBrush>(pl[1], "brushStyle"))
+                return QBrush(static_cast<Qt::BrushStyle>(t2e.second));
+            if (auto e = T2ET<lqColor, Qt::GlobalColor>(pl[1], "globalColor"))
+                return QBrush(e.second);
+            /*
+            if (auto t2e = T2E<lqColor>(pl[1], "globalColor"))
+                return QBrush(static_cast<Qt::GlobalColor>(t2e.second));*/
+
+            QVariant c = F2V(pl[1]);
+            if (c.type() == QVariant::Color)
+                return QBrush(c.value<QColor>());
+            if (c.type() == QVariant::Pixmap)
+                return QBrush(c.value<QPixmap>());
+        }
+        break;
+
+    case QMetaType::QFont:
+        if (ar == 1)
+            return QFont(t2w(pl[1]));
+        if (ar == 2)
+            return QFont(t2w(pl[1]), int(pl[2]));
+        if (ar == 3)
+            return QFont(t2w(pl[1]), int(pl[2]), int(pl[3]));
+        if (ar == 4)
+            return QFont(t2w(pl[1]), int(pl[2]), int(pl[3]), bool(int(pl[4])));
+        break;
+
+    case QMetaType::QPixmap:
+        if (ar == 1)
+            return QPixmap(t2w(pl[1]));
+    }
+
+    return QVariant();
+}
+
+//! term to QVariant
+static QVariant T2V(PlTerm pl, int match) {
+    QVariant v = C2V(pl, match);
+    if (!v.isValid())
+        throw PlException(A(QString("cannot convert PlTerm '%1' to QVariant").arg(t2w(pl))));
+    return v;
 }
 
 /** invoke(Object, Member, Args, Retv)
@@ -192,7 +265,7 @@ PREDICATE(invoke, 4) {
 
                         // optional return value
                         int trv = m.returnType();
-                        QVariant rv(trv);
+                        QVariant rv(trv, 0);
                         QGenericReturnArgument ra(rv.typeName(), rv.data());
 
                         if (trv == QMetaType::Void)
@@ -203,7 +276,7 @@ PREDICATE(invoke, 4) {
 
                             // fill missing arguments (instead of commented exception above)
                             for ( ; ipar < pl.size(); ipar++)
-                                vl << QVariant(pl[ipar]);
+                                vl << QVariant(m.parameterType(ipar), 0);
 
                             QList<QGenericArgument> va;
                             for (auto &v: vl)
@@ -271,11 +344,13 @@ PREDICATE(invoke, 4) {
                             case QMetaType::VoidStar:
                                 PL_A4 = rv.value<void*>();
                                 break;
-                            case QMetaType::PointerToQObject:
-                                PL_A4 = rv.value<QObject*>();
-                                break;
                             default:
-                                throw PlException("pqConsole::invoke unsupported return type");
+                                if (QMetaType::typeFlags(trv) & QMetaType::PointerToQObject)
+                                    PL_A4 = rv.value<QObject*>();
+                                else if (QMetaType::typeFlags(trv) & QMetaType::MovableType)
+                                    PL_A4 = rv.value<void*>();
+                                else
+                                    throw PlException("pqConsole::invoke unsupported return type");
                             }
                         }
 

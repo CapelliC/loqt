@@ -45,7 +45,7 @@ bool lqGraphixView::loadScript(QString script) {
     SwiPrologEngine::in_thread it;
     try {
         if (consult(A(script))) {
-            PlCall("list_metatypes");
+            //PlCall("list_metatypes");
             return true;
         }
         QMessageBox::warning(this,

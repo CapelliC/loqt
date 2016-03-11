@@ -1,0 +1,12 @@
+#ifndef LQSHAPES_GLOBAL_H
+#define LQSHAPES_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(LQSHAPES_LIBRARY)
+#  define LQSHAPESSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define LQSHAPESSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // LQSHAPES_GLOBAL_H

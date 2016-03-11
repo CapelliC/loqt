@@ -24,6 +24,7 @@ SUBDIRS += \
     spqr \
     qPrologPad \
     testKeyboardMacros \
+    lqShapes \
     lqGraphix
 
 OTHER_FILES += \

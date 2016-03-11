@@ -19,15 +19,10 @@ unix {
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp \
-    lqGraphixView.cpp \
-    lqGraphixScene.cpp
+    mainwindow.cpp
 
 HEADERS += \
-    mainwindow.h \
-    lqGraphixView.h \
-    lqGraphixScene.h \
-    primitives.h
+    mainwindow.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty
@@ -42,3 +37,10 @@ else:unix: LIBS += -L$$OUT_PWD/../pqConsole/ -lpqConsole
 
 INCLUDEPATH += $$PWD/../pqConsole
 DEPENDPATH += $$PWD/../pqConsole
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqShapes/release/ -llqShapes
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqShapes/debug/ -llqShapes
+else:unix: LIBS += -L$$OUT_PWD/../lqShapes/ -llqShapes
+
+INCLUDEPATH += $$PWD/../lqShapes
+DEPENDPATH += $$PWD/../lqShapes

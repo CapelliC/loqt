@@ -1,5 +1,5 @@
 /*
-    lqGraphix    : SWI-Prolog and Qt Graphics Framework
+    lqShapes    : SWI-Prolog and Qt Graphics Framework
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
@@ -26,7 +26,7 @@
 #include <QMainWindow>
 #include <QSplitter>
 
-#include "lqGraphixView.h"
+#include "lqShapesView.h"
 #include "ConsoleEdit.h"
 
 class MainWindow : public QMainWindow
@@ -39,7 +39,7 @@ public:
     MainWindow(int argc, char **argv, QWidget *parent = 0);
     ~MainWindow();
 
-    lqGraphixView* view() const { return qobject_cast<lqGraphixView*>(splitter()->widget(0)); }
+    lqShapesView* view() const { return qobject_cast<lqShapesView*>(splitter()->widget(0)); }
     ConsoleEdit* console() const { return qobject_cast<ConsoleEdit*>(splitter()->widget(1)); }
 };
 

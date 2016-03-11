@@ -1,5 +1,5 @@
 /*
-    lqGraphix    : SWI-Prolog and Qt Graphics Framework
+    lqShapes    : SWI-Prolog and Qt Graphics Framework
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
@@ -21,15 +21,13 @@
 */
 
 #include "mainwindow.h"
-#include "lqGraphixView.h"
-#include "primitives.h"
+#include "lqShapesView.h"
+#include "lqShapes.h"
 #include "PREDICATE.h"
 
 #include <QMenuBar>
 #include <QApplication>
 #include <QFileDialog>
-
-static QMap<QString, int> metatypes;
 
 static MainWindow *mainWindow() {
     for (auto w: qApp->topLevelWidgets())
@@ -55,26 +53,13 @@ PREDICATE(scene, 1) {
 MainWindow::MainWindow(int argc, char **argv, QWidget *parent)
     : QMainWindow(parent)
 {
-    if (1) { // metatypes.empty()) {
-        Q_ASSERT(metatypes.empty());
-        #define reg(T) metatypes[#T "*"] = qRegisterMetaType<T*>(#T "*");
-        reg(lqGraphixView)
-        reg(lqGraphixScene)
-        reg(lqGraphixEllipseItem)
-        reg(lqGraphixPathItem)
-        reg(lqGraphixRectItem)
-        reg(lqGraphixPolygonItem)
-        reg(lqGraphixSimpleTextItem)
-        reg(lqGraphixLineItem)
-        reg(lqGraphixPixmapItem)
-        #undef reg
-    }
+    LqShapes shapes;
 
     auto s = new QSplitter(Qt::Vertical);
     setCentralWidget(s);
     s->setHandleWidth(3);
 
-    s->addWidget(new lqGraphixView);
+    s->addWidget(new lqShapesView);
     s->addWidget(new ConsoleEdit(argc, argv));
 
     s->setSizes({s->height() / 4 * 3, s->height() / 4 * 1});

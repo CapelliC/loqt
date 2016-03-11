@@ -33,7 +33,6 @@ SOURCES += \
     FlushOutputEvents.cpp \
     pqApplication.cpp \
     win_builtins.cpp \
-    reflexive.cpp \
     pqMiniSyntax.cpp \
     pqMeta.cpp
 

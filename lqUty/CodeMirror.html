@@ -3,7 +3,7 @@
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
-    Copyright (C): 2013,2014 Carlo Capelli
+    Copyright (C): 2013,2014,2015,2016 Carlo Capelli
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -46,9 +46,22 @@
    body { margin: 0 }
    .CodeMirror { height: 100% }
   </style>
+  <!-- QWebEngine support -->
+  <script src="qwebchannel.js"></script>
  </head>
  <body>
   <script>
+  var proxy;
+  console.log("before QWebChannel");
+  new QWebChannel(qt.webChannelTransport,
+    function(channel) {
+      proxy = channel.objects.proxy;
+      //updateText(content.text);
+      //content.textChanged.connect(updateText);
+      console.log("in QWebChannel");
+    }
+  );
+  console.log("after QWebChannel");
   var editor = CodeMirror(document.body,{
    mode:"prolog",
    //theme:"3024-day",

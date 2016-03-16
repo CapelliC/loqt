@@ -24,25 +24,29 @@
 #include "file2string.h"
 #ifndef QT_WEBENGINE_LIB
     #include <QWebFrame>
+#else
+    #include <QWebChannel>
 #endif
 #include <QDebug>
 
 void CodeMirror::initialize() {
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
 
-    #ifndef QT_WEBENGINE_LIB
+#ifndef QT_WEBENGINE_LIB
     page()->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
-    #endif
+#else
+    QWebChannel *channel = new QWebChannel(this);
+    channel->registerObject(QStringLiteral("proxy"), this);
+    page()->setWebChannel(channel);
+#endif
 
     // initialize with a simple HTML template - a full textarea controlled by CodeMirror library
     setHtml(file2string(":/CodeMirror.html"), QUrl("qrc:/"));
 }
 
-CodeMirror::CodeMirror(QWidget *parent) : WEB_VIEW_BASE(parent)
-{
+CodeMirror::CodeMirror(QWidget *parent) : WEB_VIEW_BASE(parent) {
     initialize();
 }
-
 CodeMirror::CodeMirror(const CodeMirror &e) : WEB_VIEW_BASE(e.parentWidget()) {
     initialize();
 }

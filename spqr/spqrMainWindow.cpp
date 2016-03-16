@@ -67,6 +67,9 @@ spqrMainWindow::spqrMainWindow(int argc, char *argv[], QWidget *parent)
     m->addSeparator();
     m->addAction(tr("&Quit"), qApp, SLOT(quit()), QKeySequence::Quit)->setStatusTip(tr("Exit the application"));
 
+    // detach the background processor to avoid a random GPF exiting the program
+    connect(qApp, &QApplication::aboutToQuit, []() { SwiPrologEngine::quit_request(); });
+
     menuBar()->addSeparator();
     menuBar()->addAction("&Exec", this, SLOT(execSource()))->setStatusTip(tr("Run Prolog Source code"));
     menuBar()->addAction("&Source", this, SLOT(viewSource()))->setStatusTip(tr("Show the Prolog source window"));

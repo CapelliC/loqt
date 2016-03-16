@@ -95,3 +95,6 @@ OTHER_FILES += \
 
 RESOURCES += \
     lqUty.qrc
+
+DISTFILES += \
+    qwebchannel.js

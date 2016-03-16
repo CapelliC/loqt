@@ -10,21 +10,21 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    fdqueens \
     lqUty \
     lqXDot \
-    lqXDot_test \
     pqConsole \
-    lq3d \
-    lq3d_test \
     pqGraphviz \
     pqXml \
     pqSource \
-    pqSourceTest \
-    spqr \
-    qPrologPad \
-    testKeyboardMacros \
+    lq3d \
     lqShapes \
+    lqXDot_test \
+    lq3d_test \
+    pqSourceTest \
+    testKeyboardMacros \
+    fdqueens \
+    qPrologPad \
+    spqr \
     lqGraphix
 
 OTHER_FILES += \

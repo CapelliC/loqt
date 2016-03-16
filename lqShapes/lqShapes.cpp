@@ -21,18 +21,61 @@
 */
 
 #include "lqShapesView.h"
+#include <QDebug>
 
 LqShapes::LqShapes()
 {
     #define reg(T) metatypes[#T "*"] = qRegisterMetaType<T*>(#T "*");
     reg(lqShapesView)
     reg(lqShapesScene)
+
+    reg(lqShapesRectItem)
     reg(lqShapesEllipseItem)
     reg(lqShapesPathItem)
-    reg(lqShapesRectItem)
     reg(lqShapesPolygonItem)
     reg(lqShapesSimpleTextItem)
     reg(lqShapesLineItem)
     reg(lqShapesPixmapItem)
+
+    reg(lqShapesItemGroup)
+    reg(lqShapesTextItem)
+    reg(lqShapesProxyWidget)
+
+    reg(lqShapesProxyWidget)
+
+    metatypes["lqPushButton"] = qRegisterMetaType<lqPushButton>("lqPushButton");
+
     #undef reg
+}
+
+lqShapesRectItem::lqShapesRectItem() {
+    item = new QGraphicsRectItem;
+}
+lqShapesRectItem::~lqShapesRectItem() {
+    delete item;
+}
+
+QRectF lqShapesRectItem::rect() const {
+    return item->rect();
+}
+void lqShapesRectItem::setRect(QRectF r) {
+    item->setRect(r);
+}
+QRectF lqShapesRectItem::boundingRect() const {
+    return item->boundingRect();
+}
+void lqShapesRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+    item->paint(painter, option, widget);
+}
+
+lqPushButton::lqPushButton() {
+    qDebug() << "lqPushButton::lqPushButton()";
+    pushButton = new QPushButton;
+}
+lqPushButton::lqPushButton(const lqPushButton &other) : QObject() {
+    qDebug() << "lqPushButton::lqPushButton(const lqPushButton &other)" << other.pushButton;
+}
+lqPushButton::~lqPushButton() {
+    qDebug() << "lqPushButton::~lqPushButton()";
+    delete pushButton;
 }

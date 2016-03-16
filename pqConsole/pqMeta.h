@@ -66,8 +66,9 @@ struct T2E : QPair<bool, int> {
     operator bool() const { return first; }
 };
 
+/*
 template <typename C, typename ENUM>
-struct T2ET : QPair<bool, int> {
+struct T2ET : QPair<bool, ENUM> {
     T2ET(PlTerm key, QString prop) {
         const QMetaObject &mo = C::staticMetaObject;
         int prop_index = mo.indexOfProperty(prop.toUtf8());
@@ -80,5 +81,6 @@ struct T2ET : QPair<bool, int> {
     }
     operator bool() const { return first; }
 };
+*/
 
 #endif // PQMETA_H

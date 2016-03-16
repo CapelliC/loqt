@@ -42,6 +42,8 @@ lqShapesView::~lqShapesView() {
 predicate1(consult)
 
 bool lqShapesView::loadScript(QString script) {
+    scene()->clear();
+
     SwiPrologEngine::in_thread it;
     try {
         if (consult(A(script))) {

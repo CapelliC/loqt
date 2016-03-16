@@ -35,10 +35,11 @@ lqShapesScene::~lqShapesScene() {
 
 lqShapesRectItem *lqShapesScene::addRect(const QRectF &rect, const QPen &pen, const QBrush &brush)
 {
+    qDebug() << "addRect" << rect << pen << brush;
     auto r = new lqShapesRectItem;
-    r->setRect(rect);
-    r->setPen(pen);
-    r->setBrush(brush);
+    r->item->setRect(rect);
+    r->item->setPen(pen);
+    r->item->setBrush(brush);
     addItem(r);
     return r;
 }
@@ -103,4 +104,25 @@ lqShapesSimpleTextItem *lqShapesScene::addSimpleText(const QString &text, const 
     t->setFont(font);
     addItem(t);
     return t;
+}
+
+lqShapesItemGroup *lqShapesScene::addGroup() {
+    qDebug() << "addGroup";
+    auto g = new lqShapesItemGroup;
+    addItem(g);
+    return g;
+}
+lqShapesTextItem *lqShapesScene::addText(const QString &text, const QFont &font) {
+    auto t = new lqShapesTextItem;
+    t->setPlainText(text);
+    t->setFont(font);
+    addItem(t);
+    return t;
+}
+
+lqShapesProxyWidget *lqShapesScene::addProxyWidget(QWidget *widget) {
+    auto w = new lqShapesProxyWidget;
+    w->setWidget(widget);
+    addItem(w);
+    return w;
 }

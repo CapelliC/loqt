@@ -185,11 +185,10 @@ static QVariant F2V(PlTerm pl) {
         if (ar == 1) {
             if (auto t2e = T2E<lqBrush>(pl[1], "brushStyle"))
                 return QBrush(static_cast<Qt::BrushStyle>(t2e.second));
-            if (auto e = T2ET<lqColor, Qt::GlobalColor>(pl[1], "globalColor"))
-                return QBrush(e.second);
-            /*
+            //if (auto e = T2ET<lqColor, Qt::GlobalColor>(pl[1], "globalColor"))
+            //    return QBrush(e.second);
             if (auto t2e = T2E<lqColor>(pl[1], "globalColor"))
-                return QBrush(static_cast<Qt::GlobalColor>(t2e.second));*/
+                return QBrush(static_cast<Qt::GlobalColor>(t2e.second));
 
             QVariant c = F2V(pl[1]);
             if (c.type() == QVariant::Color)

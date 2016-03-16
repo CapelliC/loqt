@@ -34,13 +34,18 @@ public:
     lqShapesScene(const lqShapesScene &other);
     ~lqShapesScene();
 
+    Q_INVOKABLE lqShapesRectItem *addRect(const QRectF &rect, const QPen &pen, const QBrush &brush);
+
     Q_INVOKABLE lqShapesEllipseItem *addEllipse(const QRectF &rect, const QPen &pen, const QBrush &brush);
     Q_INVOKABLE lqShapesLineItem *addLine(const QLineF &line, const QPen &pen);
     Q_INVOKABLE lqShapesPathItem *addPath(const QPainterPath &path, const QPen &pen, const QBrush &brush);
     Q_INVOKABLE lqShapesPixmapItem *addPixmap(const QPixmap &pixmap);
     Q_INVOKABLE lqShapesPolygonItem *addPolygon(const QPolygonF &polygon, const QPen &pen, const QBrush &brush);
-    Q_INVOKABLE lqShapesRectItem *addRect(const QRectF &rect, const QPen &pen, const QBrush &brush);
     Q_INVOKABLE lqShapesSimpleTextItem *addSimpleText(const QString &text, const QFont &font);
+
+    Q_INVOKABLE lqShapesItemGroup *addGroup();
+    Q_INVOKABLE lqShapesTextItem *addText(const QString &text, const QFont &font);
+    Q_INVOKABLE lqShapesProxyWidget *addProxyWidget(QWidget *widget);
 };
 
 #endif // LQSHAPESSCENE_H

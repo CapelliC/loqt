@@ -25,8 +25,12 @@
 
 #include "lqShapes_global.h"
 
-#include <QGraphicsItem>
 #include <QMap>
+#include <QGraphicsItem>
+#include <QGraphicsProxyWidget>
+
+#include <QPointer>
+#include <QPushButton>
 
 class LQSHAPESSHARED_EXPORT LqShapes
 {
@@ -35,28 +39,53 @@ public:
     QMap<QString, int> metatypes;
 };
 
-#define meta(Cla) class lqShapes##Cla : public QGraphics##Cla { \
+#define meta(Cla) class LQSHAPESSHARED_EXPORT  lqShapes##Cla : public QGraphics##Cla { \
     public: \
         lqShapes##Cla() {} \
         lqShapes##Cla(const lqShapes##Cla &) : QGraphics##Cla() {} \
         ~lqShapes##Cla() {} \
+    }; \
+    Q_DECLARE_METATYPE(lqShapes##Cla*)
+
+//meta(RectItem)
+class lqShapesRectItem : public QGraphicsObject {
+    Q_OBJECT
+    Q_PROPERTY(QRectF rect READ rect WRITE setRect)
+public:
+    QGraphicsRectItem *item;
+
+    lqShapesRectItem();
+    ~lqShapesRectItem();
+
+    QRectF rect() const;
+    void setRect(QRectF r);
+
+
+    virtual QRectF boundingRect() const;
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
 };
 
-meta(RectItem)
-/*
-class lqShapesRectItem : public QGraphicsRectItem, public QGraphicsObject {
-    Q_OBJECT
-    public:
-        lqShapesRectItem() {}
-        lqShapesRectItem(const lqShapesRectItem &) : QGraphicsRectItem() {}
-        ~lqShapesRectItem() {}
-};
-*/
 meta(EllipseItem)
 meta(PathItem)
 meta(PolygonItem)
 meta(SimpleTextItem)
 meta(LineItem)
 meta(PixmapItem)
+
+meta(ItemGroup)
+meta(TextItem)
+meta(ProxyWidget)
+
+class LQSHAPESSHARED_EXPORT lqPushButton : public QObject {
+    Q_OBJECT
+public:
+
+    lqPushButton();
+    lqPushButton(const lqPushButton &other);
+    ~lqPushButton();
+
+    QPointer<QPushButton> pushButton;
+};
+Q_DECLARE_METATYPE(lqPushButton)
 
 #endif // LQSHAPES_H

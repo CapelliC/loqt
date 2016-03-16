@@ -73,7 +73,7 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent)
         if (qApp->arguments().size() == 2)
             cscript = qApp->arguments()[1];
         auto script = QFileDialog::getOpenFileName(this, "Select script", cscript, "*.pl");
-        if (!script.isEmpty())
+        if (!script.isEmpty() && script != cscript)
             view()->loadScript(script);
     });
     file->addAction(open);

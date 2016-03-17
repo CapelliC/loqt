@@ -23,6 +23,9 @@ Logic Objecs and Qt
 + fdqueens: an example of multithreading GUI interface, with CLP(FD) processing.
   now entirely rewritten as a case study of SCXML, implemented with QStateMachine
 
++ lqShapes: Qt Graphics Framework available via reflection
+  switch from a text based workspace to a scene graph
+
 ==========
 
 lq3d components:
@@ -53,8 +56,19 @@ lqXDot components:
 
 spqr features:
 
-+ editing Prolog files via CodeMirror (requires QtWebKit)
++ editing Prolog files via CodeMirror, embedded in
 + pqConsole control
-+ inline plDoc help (requires QtWebKit)
-  sorry, with the transition from QtWebKit to QWebEngine this is currently not working...
-  to be fixed ASAP
++ inline plDoc help
+  the transition from QtWebKit to QWebEngine is done based on Qt versions. After Qt5.5 QWebEngine is used
+
+==========
+
+lqShapes features:
+
++ basic shapes and properties interfaced via reflection
+  Bidirectional interaction between SWI-prolog and Qt.
+  Computing graph layouts with CLP(FD).
+  Shaping terms as nested, foldable graphs, computations as term rewrite.
+
++ lqGraphix: minimal, simple applicative interface
+  Single script utility. A reactive GUI model to explore CLP interfaces.

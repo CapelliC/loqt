@@ -48,7 +48,7 @@ public:
     Q_DECLARE_METATYPE(lqShapes##Cla*)
 
 //meta(RectItem)
-class lqShapesRectItem : public QGraphicsObject {
+class LQSHAPESSHARED_EXPORT lqShapesRectItem : public QGraphicsObject {
     Q_OBJECT
     Q_PROPERTY(QRectF rect READ rect WRITE setRect)
 public:
@@ -78,6 +78,7 @@ meta(ProxyWidget)
 
 class LQSHAPESSHARED_EXPORT lqPushButton : public QObject {
     Q_OBJECT
+    Q_PROPERTY(QPushButton* button READ button)
 public:
 
     lqPushButton();
@@ -85,6 +86,7 @@ public:
     ~lqPushButton();
 
     QPointer<QPushButton> pushButton;
+    QPushButton* button() const;
 };
 Q_DECLARE_METATYPE(lqPushButton)
 

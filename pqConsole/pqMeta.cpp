@@ -362,17 +362,32 @@ PREDICATE(invoke, 4) {
     throw PlException("pqConsole::invoke failed");
 }
 
+static T V2T(const QVariant &v) {
+    auto n = v.typeName();
+    auto t = v.type();
+    switch (t) {
+    default:
+        return v.value<QObject*>();
+    }
+}
+
 /** property(Object, Property, Value)
  *  read/write a property by name
  */
 PREDICATE(property, 3) {
     T ttype, tptr;
     PL_A1 = pqObj(ttype, tptr);
+
+    QString stype = t2w(ttype);
+    QString sptr = t2w(tptr);
+
+    CCP prop = t2w(PL_A2).toUtf8();
+
     QObject *obj = pq_cast<QObject>(tptr);
     if (obj) {
         // from actual class up to QObject
         for (const QMetaObject *meta = obj->metaObject(); meta; meta = meta->superClass()) {
-            int ip = meta->indexOfProperty(t2w(PL_A2).toUtf8());
+            int ip = meta->indexOfProperty(prop);
             if (ip >= 0) {
                 QMetaProperty p = meta->property(ip);
                 QVariant v;
@@ -382,6 +397,7 @@ PREDICATE(property, 3) {
                 pqConsole::gui_run([&]() {
                     if (isvar) {
                         v = p.read(obj);
+                        PL_A3 = V2T(v);
                         rc = true;
                     }
                     else {

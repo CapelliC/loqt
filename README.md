@@ -56,19 +56,20 @@ lqXDot components:
 
 spqr features:
 
-+ editing Prolog files via CodeMirror, embedded in
++ editing Prolog files via CodeMirror, with interface details embedded in Qt resources system (IDE handled qrc).
 + pqConsole control
 + inline plDoc help
-  the transition from QtWebKit to QWebEngine is done based on Qt versions. After Qt5.5 QWebEngine is used
+  + The transition from QtWebKit to QWebEngine is done based on Qt versions (after Qt5.5 QWebEngine is used).
 
 ==========
 
 lqShapes features:
 
 + basic shapes and properties interfaced via reflection
-  Bidirectional interaction between SWI-prolog and Qt.
-  Computing graph layouts with CLP(FD).
-  Shaping terms as nested, foldable graphs, computations as term rewrite.
+  + Bidirectional interaction between SWI-prolog and Qt.
+  + Computing graph layouts with CLP(FD).
+  + Shaping terms as nested, foldable graphs, computations as term rewrite.
 
 + lqGraphix: minimal, simple applicative interface
-  Single script utility. A reactive GUI model to explore CLP interfaces.
+  + Single script utility.
+  + GUI model to explore CLP applications.

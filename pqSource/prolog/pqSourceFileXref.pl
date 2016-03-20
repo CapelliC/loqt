@@ -9,7 +9,7 @@
  *  @author carlo
  *  @created Fri Nov 8 10:35:36 2013
  *  @version 0.9.9
- *  @copyright 2014 Carlo Capelli 
+ *  @copyright 2014 Carlo Capelli
  *  @license LGPL v2.1
  */
 

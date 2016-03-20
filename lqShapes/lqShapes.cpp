@@ -79,6 +79,8 @@ lqPushButton::~lqPushButton() {
     qDebug() << "lqPushButton::~lqPushButton()";
     delete pushButton;
 }
+/*
 QPushButton* lqPushButton::button() const {
     return pushButton;
 }
+*/

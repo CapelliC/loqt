@@ -78,7 +78,8 @@ meta(ProxyWidget)
 
 class LQSHAPESSHARED_EXPORT lqPushButton : public QObject {
     Q_OBJECT
-    Q_PROPERTY(QPushButton* button READ button)
+    //Q_PROPERTY(QPushButton* button READ button)
+    Q_PROPERTY(QPushButton* button MEMBER pushButton)
 public:
 
     lqPushButton();
@@ -86,7 +87,7 @@ public:
     ~lqPushButton();
 
     QPointer<QPushButton> pushButton;
-    QPushButton* button() const;
+    //QPushButton* button() const;
 };
 Q_DECLARE_METATYPE(lqPushButton)
 

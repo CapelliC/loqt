@@ -48,31 +48,21 @@ MainWindow::MainWindow(int, char *[], QWidget *parent)
 void MainWindow::newFile()
 {
     auto view = new lq3dView();
-    auto rootEntity = view->scene->rootEntity;
 
-    Qt3DRender::QCylinderMesh *cylinder = new Qt3DRender::QCylinderMesh();
-    cylinder->setRadius(1);
-    cylinder->setLength(3);
-    cylinder->setRings(100);
-    cylinder->setSlices(20);
+    static int t = 0;
+    if (t++ % 2 == 0) {
+        view->cylinderTest();
+        statusBar()->showMessage("Created new cylinderTest");
+    } else {
+        view->torusTest();
+        statusBar()->showMessage("Created new torusTest");
+    }
 
-    // CylinderMesh Transform
-    Qt3DCore::QTransform *cylinderTransform = new Qt3DCore::QTransform;
-    cylinderTransform->setScale(1.5f);
-    cylinderTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), 45.0f));
-
-    // Cylinder
-    Qt3DCore::QEntity *cylinderEntity = new Qt3DCore::QEntity(rootEntity);
-    cylinderEntity->addComponent(cylinder);
-    cylinderEntity->addComponent(cylinderTransform);
-
-    view->scene->cg->engine.setRootEntity(rootEntity);
-    auto w = QWidget::createWindowContainer(view); //, mdiArea()); //Qt::WindowType::ForeignWindow);
-    //auto w = new QPlainTextEdit;
+    auto w = QWidget::createWindowContainer(view);
     mdiArea()->addSubWindow(w);
     w->show();
 
-    statusBar()->showMessage("Created new File");
+    mdiArea()->tileSubWindows();
 }
 
 /** save settings

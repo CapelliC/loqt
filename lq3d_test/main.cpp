@@ -26,67 +26,24 @@
 #include "lq3dView.h"
 #include "lq3d_configure.h"
 
-void cylinderTest(lq3dView &view) {
-    auto rootEntity = view.scene->rootEntity;
-
-    Qt3DRender::QCylinderMesh *cylinder = new Qt3DRender::QCylinderMesh();
-    cylinder->setRadius(1);
-    cylinder->setLength(3);
-    cylinder->setRings(100);
-    cylinder->setSlices(20);
-
-    // CylinderMesh Transform
-    Qt3DCore::QTransform *cylinderTransform = new Qt3DCore::QTransform;
-    cylinderTransform->setScale(1.5f);
-    cylinderTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), 45.0f));
-
-    // Cylinder
-    Qt3DCore::QEntity *cylinderEntity = new Qt3DCore::QEntity(rootEntity);
-    cylinderEntity->addComponent(cylinder);
-    cylinderEntity->addComponent(cylinderTransform);
-
-    view.scene->cg->engine.setRootEntity(rootEntity);
-}
-
-void torusTest(lq3dView &view) {
-    auto rootEntity = view.scene->rootEntity;
-
-    Qt3DRender::QTorusMesh *torus = new Qt3DRender::QTorusMesh();
-    torus->setMinorRadius(1);
-    torus->setRadius(3);
-    torus->setRings(100);
-    torus->setSlices(20);
-
-    // CylinderMesh Transform
-    Qt3DCore::QTransform *torusTransform = new Qt3DCore::QTransform;
-    torusTransform->setScale(1.5f);
-    torusTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), 45.0f));
-
-    // Cylinder
-    Qt3DCore::QEntity *torusEntity = new Qt3DCore::QEntity(rootEntity);
-    torusEntity->addComponent(torus);
-    torusEntity->addComponent(torusTransform);
-
-    view.scene->cg->engine.setRootEntity(rootEntity);
-}
-
 int main(int argc, char *argv[])
 {
     //QGuiApplication app(argc, argv);
     QApplication app(argc, argv);
 
+    /*
     lq3dView c_view, t_view;
-
-    cylinderTest(c_view);
-    torusTest(t_view);
+    c_view.cylinderTest();
+    t_view.torusTest();
 
     // Show window
     c_view.show();
     t_view.show();
+    */
 
-    /* on Ubuntu, I get a GPF from QWidget::createWindowContainer
+    //* on Ubuntu, I get a GPF from QWidget::createWindowContainer
     MainWindow w(argc, argv);
     w.show();
-    */
+    //*/
     return app.exec();
 }

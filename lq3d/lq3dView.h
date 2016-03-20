@@ -42,6 +42,9 @@ public:
 
     lq3dScene *scene = 0;
 
+    void cylinderTest();
+    void torusTest();
+
 signals:
 
 protected:

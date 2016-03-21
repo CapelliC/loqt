@@ -201,9 +201,6 @@ protected:
     int history_next;
     QString history_spare;
 
-    /** count output before setting cursor at end */
-    int count_output;
-
     /** interval on count_output, determine how often to force output flushing */
     int update_refresh_rate;
 

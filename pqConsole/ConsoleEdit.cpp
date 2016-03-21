@@ -59,7 +59,7 @@ bool ConsoleEdit::color_term = true;
  *  this start the *primary* console
  */
 ConsoleEdit::ConsoleEdit(int argc, char **argv, QWidget *parent)
-    : ConsoleEditBase(parent), io(0)
+    : ConsoleEditBase(parent), io(0), fixedPosition(0)
 {
     qApp->setWindowIcon(QIcon(":/swipl.png"));
 
@@ -144,10 +144,9 @@ void ConsoleEdit::setup() {
     promptPosition = -1;
 
     // added to handle reactive actions
-    parsedStart = 0; //parsedLimit = -1;
+    parsedStart = 0;
 
     qApp->installEventFilter(this);
-    count_output = 0;
     update_refresh_rate = 100;
     preds = 0;
 
@@ -177,9 +176,9 @@ void ConsoleEdit::setup() {
 void ConsoleEdit::keyPressEvent(QKeyEvent *event) {
 
     using namespace Qt;
-    //qDebug() << "keyPressEvent" << event;
-
     QTextCursor c = textCursor();
+
+    qDebug() << "keyPressEvent" << event << c.position() << fixedPosition << promptPosition << parsedStart;
 
     bool on_completion = preds && preds->popup()->isVisible();
     if (on_completion) {
@@ -661,7 +660,6 @@ void ConsoleEdit::linkto_message_source() {
     // scan blocks looking for error messages
     for (QTextBlock block = c.document()->findBlockByNumber(parsedStart);
          block.blockNumber() < c.document()->blockCount() - 1; block = block.next()) {
-         //block != c.document()->end(); block = block.next()) {
 
         QString text = block.text();
         ++parsedStart;
@@ -794,12 +792,20 @@ bool ConsoleEdit::can_close() {
  */
 void ConsoleEdit::onCursorPositionChanged() {
     QTextCursor c = textCursor();
-//qDebug() << "ConsoleEdit::onCursorPositionChanged()" << c.anchor();
+    qDebug() << "ConsoleEdit::onCursorPositionChanged()" << c.anchor() << fixedPosition << c.position();
     set_cursor_tip(c);
     if (fixedPosition > c.position()) {
-        viewport()->setCursor(Qt::OpenHandCursor);
-        set_editable(false);
-        clickable_message_line(c, true);
+        if (c.atEnd()) {
+            fixedPosition = promptPosition = c.position();
+            parsedStart = 0;
+            set_editable(true);
+            viewport()->setCursor(Qt::IBeamCursor);
+        }
+        else {
+            viewport()->setCursor(Qt::OpenHandCursor);
+            set_editable(false);
+            clickable_message_line(c, true);
+        }
     } else {
         set_editable(true);
         viewport()->setCursor(Qt::IBeamCursor);
@@ -1083,12 +1089,12 @@ void ConsoleEdit::html_write(QString html) {
 }
 
 void ConsoleEdit::set_editable(bool allow) {
-    //qDebug() << "set_editable" << allow << "before" << textInteractionFlags();
+    qDebug() << "set_editable" << allow << "before" << textInteractionFlags();
     if (allow)
         setTextInteractionFlags(Qt::TextEditorInteraction | Qt::TextBrowserInteraction);
     else
         setTextInteractionFlags((Qt::TextEditorInteraction | Qt::TextBrowserInteraction) & ~Qt::TextEditable);
-    //qDebug() << "after" << textInteractionFlags();
+    qDebug() << "after" << textInteractionFlags();
 }
 
 void ConsoleEdit::selectionChanged()

@@ -61,7 +61,6 @@ void pqProofView::wheelEvent(QWheelEvent *event)
  */
 void pqProofView::scale_view(qreal scaleFactor)
 {
-
     qreal f = sqrt(matrix().determinant());
 
     if (scaleFactor * f > 8.0)

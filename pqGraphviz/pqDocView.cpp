@@ -155,6 +155,7 @@ void pqDocView::loadFinished(bool yn)
     statusBar->showMessage(tr("load %1 [%2]").arg(url().toString(), yn ? "ok" : "ko"));
     if (yn)
         setWindowTitle(url().toString());
+    update();
 }
 
 void pqDocView::loadProgress(int perc)

@@ -112,7 +112,6 @@ OTHER_FILES += \
     images/debug-step-into-instruction.png \
     images/debug-step-into.png \
     images/debug-step-instruction.png \
-    ../../../.config/SWI-Prolog/pqConsole.conf \
     prolog/res/pllisting.css \
     images/wmaker_apps.png \
     prolog/pldoc/h2-bg.png \
@@ -164,3 +163,6 @@ else:unix: LIBS += -L$$OUT_PWD/../pqXml/ -lpqXml
 
 INCLUDEPATH += $$PWD/../pqXml
 DEPENDPATH += $$PWD/../pqXml
+
+DISTFILES += \
+    ../../../.config/SWI-Prolog/pqConsole.conf

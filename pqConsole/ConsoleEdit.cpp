@@ -795,9 +795,8 @@ void ConsoleEdit::onCursorPositionChanged() {
     qDebug() << "ConsoleEdit::onCursorPositionChanged()" << c.anchor() << fixedPosition << c.position();
     set_cursor_tip(c);
     if (fixedPosition > c.position()) {
-        if (c.atEnd()) {
-            fixedPosition = promptPosition = c.position();
-            parsedStart = 0;
+        if (c.atEnd() && c.position() == 0) {
+            fixedPosition = promptPosition = parsedStart = 0;
             set_editable(true);
             viewport()->setCursor(Qt::IBeamCursor);
         }

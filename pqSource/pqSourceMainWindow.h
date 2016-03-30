@@ -108,6 +108,7 @@ public slots:
     void viewInclusions();
 
     void commentClause();
+    void newPublicPred();
     void requestHelp(QString cursorWord);
 
     void viewSWIPrologPref();

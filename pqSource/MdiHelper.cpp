@@ -169,40 +169,7 @@ void MdiHelper::createActions() {
     separatorAct = new QAction(this);
     separatorAct->setSeparator(true);
 
-    /*/ help
-    helpStartAct = new QAction(tr("Help..."), this);
-    helpStartAct->setStatusTip(tr("Start PlDoc server and display documentation"));
-    connect(helpStartAct, SIGNAL(triggered()), this, SLOT(helpStart()));
-
-    helpDocAct = new QAction(tr("Preview &Documentation"), this);
-    helpDocAct->setStatusTip(tr("Show the PlDoc HTML for the script"));
-    connect(helpDocAct, SIGNAL(triggered()), this, SLOT(helpDoc()));
-
-    viewGraphAct = new QAction(tr("View G&raph"), this);
-    viewGraphAct->setShortcut(QKeySequence("Ctrl+R"));
-    viewGraphAct->setStatusTip(tr("Display the XREF graph of current source"));
-    connect(viewGraphAct, SIGNAL(triggered()), this, SLOT(viewGraph()));
-
-    viewGraphIncl = new QAction(tr("View &Inclusions"), this);
-    viewGraphIncl->setShortcut(QKeySequence("Ctrl+I"));
-    viewGraphIncl->setStatusTip(tr("Display the XREF inclusions graph of current source"));
-    connect(viewGraphIncl, SIGNAL(triggered()), this, SLOT(viewInclusions()));
-
-    commentClauseAct = new QAction(tr("Comment &Predicate"), this);
-    commentClauseAct->setShortcut(QKeySequence("Ctrl+P"));
-    commentClauseAct->setStatusTip(tr("Write a structured plDoc comment for current predicate head"));
-    connect(commentClauseAct, SIGNAL(triggered()), this, SLOT(commentClause()));
-
-    aboutAct = new QAction(tr("&About"), this);
-    aboutAct->setStatusTip(tr("Show the application's About box"));
-    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
-
-    aboutQtAct = new QAction(tr("About &Qt"), this);
-    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
-    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
-
-    cmd(mdiArea, previousAct,               tr("Pre&vious"),        SLOT(activatePreviousSubWindow()),  __::PreviousChild,  0, tr("Move the focus to the previous window"));
-    */
+    // help
     cmd(this, helpStartAct,     tr("Help..."),                  SLOT(helpStart()),      __::HelpContents,   0, tr("Start PlDoc server and display documentation"));
     cmd(this, helpDocAct,       tr("Preview &Documentation"),   SLOT(helpDoc()),        __(),               0, tr("Show the PlDoc HTML for the script"));
     cmd(this, viewGraphAct,     tr("View G&raph"),              SLOT(viewGraph()),      __("Ctrl+R"),       0, tr("Display the XREF graph of current source"));
@@ -210,6 +177,7 @@ void MdiHelper::createActions() {
     cmd(this, commentClauseAct, tr("Comment &Predicate"),       SLOT(commentClause()),  __("Ctrl+P"),       0, tr("Write a structured plDoc comment for current predicate head"));
     cmd(this, aboutAct,         tr("&About"),                   SLOT(about()),          __(),               0, tr("Show the application's About box"));
     cmd(qApp, aboutQtAct,       tr("About &Qt"),                SLOT(aboutQt()),        __(),               0, tr("Show the Qt library's About box"));
+    cmd(this, newPublicPredAct, tr("Add P&ublic..."),           SLOT(newPublicPred()),  __("Ctrl+Shift+P"), 0, tr("Ask functor/arity and publish in module public declaration"));
 
     // debugger
     cmd(this, makeAct,          tr("&Make"),                SLOT(make()),       __("Ctrl+M"),   "wmaker_apps",      tr("Save all modified files and call make"));
@@ -221,61 +189,6 @@ void MdiHelper::createActions() {
     cmd(this, stepOverAct,      tr("Step Over (&leap)"),    SLOT(stepOver()),   __("F10"),      "debug-step-over",  tr("Run current goal to termination"));
     cmd(this, toggleBPAct,      tr("&Toggle Spy"),          SLOT(toggleBP()),   __("F9"),       "media-record-2",   tr("Toggle Spy on current symbol"));
     cmd(this, watchBPAct,       tr("Var &Watch"),           SLOT(watchVar()),   __("Shift+F9"), "zoom-3",           tr("Add/remove variable to Watch set"));
-    /*
-    makeAct = new QAction(png("wmaker_apps"), tr("&Make"), this);
-    makeAct->setShortcut(QKeySequence::fromString("Ctrl+M"));
-    makeAct->setStatusTip(tr("Save all modified files and call make"));
-    makeAct->setIconVisibleInMenu(true);
-    connect(makeAct, SIGNAL(triggered()), this, SLOT(make()));
-
-    consultAct = new QAction(png("document-import-2"), tr("&Consult"), this);
-    consultAct->setShortcut(QKeySequence::fromString("Ctrl+F5"));
-    consultAct->setStatusTip(tr("Consult current saved file"));
-    consultAct->setIconVisibleInMenu(true);
-    connect(consultAct, SIGNAL(triggered()), this, SLOT(consult()));
-
-    runAct = new QAction(png("run"), tr("&Run"), this);
-    runAct->setShortcut(QKeySequence::fromString("F5"));
-    runAct->setStatusTip(tr("Run current goal to completion"));
-    runAct->setIconVisibleInMenu(true);
-    connect(runAct, SIGNAL(triggered()), this, SLOT(run()));
-
-    stopAct = new QAction(png("process-stop-6"), tr("&Stop (break)"), this);
-    stopAct->setShortcut(QKeySequence::fromString("Shift+F5"));
-    stopAct->setStatusTip(tr("Interrupt current goal"));
-    stopAct->setIconVisibleInMenu(true);
-    connect(stopAct, SIGNAL(triggered()), this, SLOT(stop()));
-
-    stepInAct = new QAction(png("debug-step-into"), tr("Step &In (creep)"), this);
-    stepInAct->setShortcut(QKeySequence::fromString("F11"));
-    stepInAct->setStatusTip(tr("Run current goal"));
-    stepInAct->setIconVisibleInMenu(true);
-    connect(stepInAct, SIGNAL(triggered()), this, SLOT(stepIn()));
-
-    stepOutAct = new QAction(png("debug-step-out"), tr("Step &Out"), this);
-    stepOutAct->setShortcut(QKeySequence::fromString("Shift+F11"));
-    stepOutAct->setStatusTip(tr("Run current goal to caller"));
-    stepOutAct->setIconVisibleInMenu(true);
-    connect(stepOutAct, SIGNAL(triggered()), this, SLOT(stepOut()));
-
-    stepOverAct = new QAction(png("debug-step-over"), tr("Step Over (&leap)"), this);
-    stepOverAct->setShortcut(QKeySequence::fromString("F10"));
-    stepOverAct->setStatusTip(tr("Run current goal to termination"));
-    stepOverAct->setIconVisibleInMenu(true);
-    connect(stepOverAct, SIGNAL(triggered()), this, SLOT(stepOver()));
-
-    toggleBPAct = new QAction(png("media-record-2"), tr("&Toggle Spy"), this);
-    toggleBPAct->setShortcut(QKeySequence::fromString("F9"));
-    toggleBPAct->setStatusTip(tr("Toggle Spy on current symbol"));
-    toggleBPAct->setIconVisibleInMenu(true);
-    connect(toggleBPAct, SIGNAL(triggered()), this, SLOT(toggleBP()));
-
-    watchBPAct = new QAction(png("zoom-3"), tr("Var &Watch"), this);
-    watchBPAct->setShortcut(QKeySequence::fromString("Shift+F9"));
-    watchBPAct->setStatusTip(tr("Add/remove variable to Watch set"));
-    watchBPAct->setIconVisibleInMenu(true);
-    connect(watchBPAct, SIGNAL(triggered()), this, SLOT(watchVar()));
-    */
 }
 
 void MdiHelper::createMenus() {
@@ -348,6 +261,7 @@ void MdiHelper::createMenus() {
     helpMenu->addAction(viewGraphAct);
     helpMenu->addAction(viewGraphIncl);
     helpMenu->addAction(commentClauseAct);
+    helpMenu->addAction(newPublicPredAct);
     helpMenu->addSeparator();
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
@@ -406,7 +320,7 @@ void MdiHelper::createStatusBar() {
 
 void MdiHelper::subWindowActivated(QMdiSubWindow *w) {
     if (w) {
-        qDebug() << "subWindowActivated" << w->widget()->metaObject()->className() << w->windowTitle();
+        //qDebug() << "subWindowActivated" << w->widget()->metaObject()->className() << w->windowTitle();
         setWindowTitle(w->windowTitle());
         cursorIndicator.showCursorPosition(w->widget());
     }

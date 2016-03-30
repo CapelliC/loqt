@@ -40,6 +40,7 @@ typedef void* VP;
 #define CT QThread::currentThread()
 
 #include <QString>
+#include <QVector>
 
 inline CCP S(const PlTerm &T) { return T; }
 
@@ -78,6 +79,14 @@ inline PlTerm empty_list() {
     PlTail EL(el);
     EL.close();
     return el;
+}
+
+inline PlTerm build_list(PlTerm host, QVector<PlTerm> ts) {
+    PlTail l(host);
+    for (auto x: ts)
+        l.append(x);
+    l.close();
+    return host;
 }
 
 /** get back an object passed by pointer to Prolog */

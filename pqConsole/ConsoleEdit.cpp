@@ -178,7 +178,7 @@ void ConsoleEdit::keyPressEvent(QKeyEvent *event) {
     using namespace Qt;
     QTextCursor c = textCursor();
 
-    qDebug() << "keyPressEvent" << event << c.position() << fixedPosition << promptPosition << parsedStart;
+    //qDebug() << "keyPressEvent" << event << c.position() << fixedPosition << promptPosition << parsedStart;
 
     bool on_completion = preds && preds->popup()->isVisible();
     if (on_completion) {
@@ -792,7 +792,7 @@ bool ConsoleEdit::can_close() {
  */
 void ConsoleEdit::onCursorPositionChanged() {
     QTextCursor c = textCursor();
-    qDebug() << "ConsoleEdit::onCursorPositionChanged()" << c.anchor() << fixedPosition << c.position();
+    //qDebug() << "ConsoleEdit::onCursorPositionChanged()" << c.anchor() << fixedPosition << c.position();
     set_cursor_tip(c);
     if (fixedPosition > c.position()) {
         if (c.atEnd() && c.position() == 0) {
@@ -1088,12 +1088,12 @@ void ConsoleEdit::html_write(QString html) {
 }
 
 void ConsoleEdit::set_editable(bool allow) {
-    qDebug() << "set_editable" << allow << "before" << textInteractionFlags();
+    //qDebug() << "set_editable" << allow << "before" << textInteractionFlags();
     if (allow)
         setTextInteractionFlags(Qt::TextEditorInteraction | Qt::TextBrowserInteraction);
     else
         setTextInteractionFlags((Qt::TextEditorInteraction | Qt::TextBrowserInteraction) & ~Qt::TextEditable);
-    qDebug() << "after" << textInteractionFlags();
+    //qDebug() << "after" << textInteractionFlags();
 }
 
 void ConsoleEdit::selectionChanged()

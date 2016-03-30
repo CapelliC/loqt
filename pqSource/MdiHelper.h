@@ -129,6 +129,7 @@ protected:
         viewGraphAct,
         viewGraphIncl,
         commentClauseAct,
+        newPublicPredAct,
 
         foldClauseAct,
         unfoldClauseAct,

@@ -112,7 +112,7 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     connect(findReplace, SIGNAL(outcome(QString)), statusBar(), SLOT(showMessage(QString)));
 
     //QTimer::singleShot(0, this, SLOT(fixGeometry()));
-    if (debugMenu) {
+    if (false && debugMenu) {
         debugMenu->addSeparator();
         pqWebScriptAct = new QAction("&Web Script", this);
         pqWebScriptAct->setShortcut(QKeySequence("Ctrl+Shift+W"));
@@ -854,6 +854,10 @@ void pqSourceMainWindow::commentClause()
 {
     if (auto s = activeChild<pqSource>())
         s->commentClause();
+}
+void pqSourceMainWindow::newPublicPred() {
+    if (auto s = activeChild<pqSource>())
+        s->newPublicPred();
 }
 
 // from :/prolog/pqSourceFileXref.pl

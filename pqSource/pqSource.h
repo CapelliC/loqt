@@ -204,6 +204,8 @@ public slots:
     void onRenderView();
     void onRenderClause();
     void onRenderPredicate();
+
+    void newPublicPred();
 };
 
 #endif // PQSOURCE_H

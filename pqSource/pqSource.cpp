@@ -638,6 +638,33 @@ void pqSource::completerInit(QTextCursor c) {
     reportUser(tr("completion available, %1 items").arg(sorted.size()));
 }
 
+predicate3(read_term_from_atom)
+structure1(subterm_positions)
+structure1(variable_names)
+
+void pqSource::newPublicPred() {
+    if (hl->sem_info_avail()) {
+        QString c = QInputDialog::getText(this, tr("Enter your public predicate"), tr("Head"));
+        if (!c.isEmpty()) {
+            SwiPrologEngine::in_thread _;
+            T Parsed, Options, Subterm_positions, Variable_names;
+
+            if (read_term_from_atom(A(c), Parsed, build_list(Options, {
+                subterm_positions(Subterm_positions),
+                variable_names(Variable_names)
+            }))) {
+                qDebug() << t2w(Parsed) << t2w(Options);
+
+                auto C = textCursor();
+                C.movePosition(C.End);
+                C.insertText(c + " :-\n  true.");
+                return;
+            }
+        }
+    }
+    reportUser(tr("cannot add the declaration now"));
+}
+
 void pqSource::commentClause()
 {
     if (hl->sem_info_avail()) {

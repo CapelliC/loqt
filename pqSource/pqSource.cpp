@@ -673,11 +673,11 @@ void pqSource::commentClause()
         if (hl->getPredicateHead(ph, c)) {
             QStringList vars;
             foreach(QString v, ph.vars)
-                vars << QString("%  @arg %1 describe %1").arg(v);
+                vars << QString("%\t@arg %1 describe %1").arg(v);
             QStringList comment;
-            comment << QString("%% %1 is det.").arg(QString(ph.arity ? "%1(%2)" : "%1").arg(ph.functor, ph.vars.join(", ")))
+            comment << QString("%%\t%1 is det.").arg(QString(ph.arity ? "%1(%2)" : "%1").arg(ph.functor, ph.vars.join(", ")))
                     << "%"
-                    << QString("%  describe %1").arg(ph.functor)
+                    << QString("%\tdescribe %1").arg(ph.functor)
                     << "%"
                     << vars
                     << "%\n";

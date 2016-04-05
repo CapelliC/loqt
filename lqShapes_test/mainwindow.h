@@ -1,5 +1,6 @@
 /*
-    lqGraphix    : SWI-Prolog and Qt Graphics Framework
+    lqShapes_test: SWI-Prolog and Qt Graphics Framework
+
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
     Copyright (C): 2016
@@ -19,16 +20,27 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "mainwindow.h"
-#include <QApplication>
-#include "CenterWidgets.h"
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
-int main(int argc, char *argv[])
+#include <QMainWindow>
+#include <QSplitter>
+
+#include "lqShapesView.h"
+#include "ConsoleEdit.h"
+
+class MainWindow : public QMainWindow
 {
-    QApplication a(argc, argv);
-    MainWindow w(1, argv);
-    w.resize(1024, 800);
-    CenterWidgets(&w);
-    w.show();
-    return a.exec();
-}
+    Q_OBJECT
+
+    QSplitter *splitter() const { return qobject_cast<QSplitter*>(centralWidget()); }
+
+public:
+    MainWindow(int argc, char **argv, QWidget *parent = 0);
+    ~MainWindow();
+
+    lqShapesView* view() const { return qobject_cast<lqShapesView*>(splitter()->widget(0)); }
+    ConsoleEdit* console() const { return qobject_cast<ConsoleEdit*>(splitter()->widget(1)); }
+};
+
+#endif // MAINWINDOW_H

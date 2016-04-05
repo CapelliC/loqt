@@ -39,7 +39,8 @@ SUBDIRS += \
     fdqueens \
     qPrologPad \
     spqr \
-    lqGraphix
+    lqGraphix \
+    lqShapes_test
 
 OTHER_FILES += \
     loqt.pri \

@@ -70,6 +70,9 @@ lqShapes features:
   + Computing graph layouts with CLP(FD).
   + Shaping terms as nested, foldable graphs, computations as term rewrite.
 
++ lqShapes_test: minimal, simple applicative test interface for lqShapes
+  + Single script utility.
+
 + lqGraphix: minimal, simple applicative interface
   + Single script utility.
   + GUI model to explore CLP applications.

@@ -3,7 +3,7 @@
  *  Describe your module.
  *  --------
  *
- *  source file /home/carlo/prolog/lqGraphix.pl
+ *  source file /home/carlo/develop/loqt/lqGraphix/lqGraphix.pl
  *  created at gio mar 3 23:41:45 2016
  *
  *  @author carlo

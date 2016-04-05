@@ -1,5 +1,6 @@
 /*
-    lqGraphix    : SWI-Prolog and Qt Graphics Framework
+    lqShapes_test: SWI-Prolog and Qt Graphics Framework
+
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
     Copyright (C): 2016

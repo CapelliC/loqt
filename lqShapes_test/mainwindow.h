@@ -23,24 +23,31 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
 #include <QSplitter>
+#include <QTextEdit>
+#include <QMainWindow>
+#include <QStackedWidget>
 
-#include "lqShapesView.h"
 #include "ConsoleEdit.h"
+#include "lqShapesView.h"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-    QSplitter *splitter() const { return qobject_cast<QSplitter*>(centralWidget()); }
+    QSplitter* splitter() const;
+    QStackedWidget* stacked() const;
 
 public:
+
     MainWindow(int argc, char **argv, QWidget *parent = 0);
     ~MainWindow();
 
-    lqShapesView* view() const { return qobject_cast<lqShapesView*>(splitter()->widget(0)); }
-    ConsoleEdit* console() const { return qobject_cast<ConsoleEdit*>(splitter()->widget(1)); }
+    lqShapesView* view() const;
+    ConsoleEdit* console() const;
+    QTextEdit* script() const;
+
+    void setScript(QString file);
 };
 
 #endif // MAINWINDOW_H

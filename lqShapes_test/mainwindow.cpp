@@ -79,22 +79,35 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent)
 {
     LqShapes shapes;
 
+    // setup overall layout:
+    //
+    //  - commands
+    //  - a large graphic view
+    //  - overlapped views on script,console
+    //
+
+    // experiment removing title bar - to spare valuable space
     QWidget::setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
     auto s = new QSplitter(Qt::Vertical);
     setCentralWidget(s);
     s->setHandleWidth(3);
 
+    // large graphic view
     s->addWidget(new lqShapesView);
+
+    // overlapped views
     auto S = new QStackedWidget_KeybTabs();
     s->addWidget(S);
 
+    // views on script,console
     S->addWidget(new ConsoleEdit(argc, argv));
     S->addWidget(new QTextEdit);
     new pqMiniSyntax(script());
 
     s->setSizes({s->height() / 4 * 3, s->height() / 4 * 1});
 
+    // commands
     auto file = menuBar()->addMenu("&File");
 
     auto open = new QAction(QIcon::fromTheme("document-open"), tr("&Open script"), this);
@@ -116,19 +129,17 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent)
     connect(quit, &QAction::triggered, [&]() { qApp->quit(); });
     file->addAction(quit);
 
-    connect(qApp, &QApplication::aboutToQuit, []() { SwiPrologEngine::quit_request(); });
+    // properly load a script from command line
     if (qApp->arguments().size() == 2)
         connect(console(), &ConsoleEdit::engine_ready, [&]() {
             setScript(qApp->arguments()[1]);
         });
+
+    // depending on engine state, this attempts to avoid termination GPF
+    connect(qApp, &QApplication::aboutToQuit, []() { SwiPrologEngine::quit_request(); });
 }
 
 void MainWindow::setScript(QString file) {
     view()->loadScript(file);
     script()->setPlainText(file2string(file));
-}
-
-MainWindow::~MainWindow()
-{
-
 }

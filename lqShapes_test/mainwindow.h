@@ -31,6 +31,13 @@
 #include "ConsoleEdit.h"
 #include "lqShapesView.h"
 
+/**
+ *  @brief The MainWindow class
+ *  setup overall layout:
+ *  - commands
+ *  - a large graphic view
+ *  - overlapped views on script,console
+*/
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -41,7 +48,6 @@ class MainWindow : public QMainWindow
 public:
 
     MainWindow(int argc, char **argv, QWidget *parent = 0);
-    ~MainWindow();
 
     lqShapesView* view() const;
     ConsoleEdit* console() const;

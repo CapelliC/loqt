@@ -130,7 +130,7 @@ make_node(G, P, As, N) :-
 %
 %  build a node with integer identifier - global nodes counter
 %
-%  @arg G describe G
+%  @arg G graph context
 %  @arg Attrs describe Attrs
 %  @arg Nptr describe Nptr
 %
@@ -141,7 +141,12 @@ make_node_id(G, Attrs, Nptr) :-
 
 %%  find_node(+G, +P, -N)
 %
-%   search
+%  search by name for a node in graph, fails if not found
+%
+%  @arg G graph context
+%  @arg P name to search
+%  @arg N pointer to found node
+%
 find_node(G, P, N) :-
         pqGraphviz:agnode(G, P, 0, N).
 
@@ -222,7 +227,7 @@ find_edge(G, NodeSource, NodeTarget, EdgePtr) :-
 %%  make_edges(+Graph, +Arrow) is det.
 %%  make_edges(+Graph, +List:list) is det.
 %
-%   given a directed chain of nodes, build correspoing edges
+%   given a directed chain of nodes, build corresponding edges
 %
 make_edges(G, X->(Y->Z)) :-
         new_edge(G, X, Y),
@@ -289,7 +294,7 @@ set_attrs(O, As) :-
 %   defaulting nodes attributes required to call agset
 %
 use_node_attrs(G, Defaults) :-
-    default_attrs(G, 'AGNODE', Defaults).
+        default_attrs(G, 'AGNODE', Defaults).
 
 %%  use_edge_attrs(+G, +Defaults)
 %
@@ -299,7 +304,7 @@ use_edge_attrs(G, Defaults) :-
         default_attrs(G, 'AGEDGE', Defaults).
 
 default_attrs(G, Kind, Defaults) :-
-    debug(gv_uty, '~w', [default_attrs(G, Kind, Defaults)]),
+        debug(gv_uty, '~w', [default_attrs(G, Kind, Defaults)]),
         forall(member(K=V, Defaults), pqGraphviz:agattr(G, Kind, K, V, _)).
 
 object_reference(Graph, ObjectSource, NodeSource) :-

@@ -61,6 +61,7 @@
         ,pq_method_context_graph_layout(+atom)
         ,pq_instance_class(+atom)
         ,pq_instance_module(+atom)
+        ,pq_mdi_child(boolean)
         ]).
 
 :-  meta_predicate graph_window(1, +).
@@ -110,7 +111,10 @@ graph_window(Pred, G, Opts) :-
 	pqConsole:invoke(V, MCGL, [C, G, Layout], _),
 	pqConsole:property(V, size, 'QSize'(800,600)),
 	option(window_title(Title), Opts, 'a graph'),
-	pqConsole:property(V, windowTitle, Title).
+	pqConsole:property(V, windowTitle, Title),
+        option(pq_mdi_child(MdiChild), Opts, false),
+        debug(gv_uty, 'MdiChild:~w', MdiChild),
+        ( MdiChild -> pqConsole:pq_mdi_child(V) ; true ).
 
 %%  make_node(+Graph, +Name, -NodePtr)
 %

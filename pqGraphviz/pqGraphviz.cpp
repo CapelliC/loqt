@@ -37,7 +37,6 @@ void pqGraphviz::setup() {
     lqXDot::registerMetaTypes();
 
     SwiPrologEngine::in_thread t;
-    //foreach (auto s, QString("gv_uty,termtree").split(','))
     for (auto s: QStringList {"gv_uty", "termtree"})
         if (!t.resource_module(s))
             QMessageBox::critical(0, "error", QString("cannot load %1").arg(s));

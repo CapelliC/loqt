@@ -34,6 +34,9 @@
 #include <QTime>
 #include <QDateTime>
 #include <QPixmap>
+#include <QApplication>
+#include <QMdiArea>
+#include <QMdiSubWindow>
 
 //! collect all registered Qt types
 PREDICATE(types, 1) {
@@ -363,7 +366,7 @@ PREDICATE(invoke, 4) {
 }
 
 static T V2T(const QVariant &v) {
-    auto n = v.typeName();
+    //auto n = v.typeName();
     auto t = v.type();
     switch (t) {
     default:
@@ -512,4 +515,33 @@ QString pqConsole::unify(CCP name, QObject *o, PlTerm v) {
     if (pid >= 0)
         return unify(o->metaObject()->property(pid), o, v);
     return o->tr("property %1: not found").arg(name);
+}
+
+/** looks for an MDI area where to attach its argument
+ */
+PREDICATE(pq_mdi_child, 1) {
+    T ttype, tptr;
+    PL_A1 = pqObj(ttype, tptr);
+    if (auto w = pq_cast<QWidget>(tptr)) {
+        qDebug() << "pq_mdi_child" << w;
+        for (auto t : QApplication::topLevelWidgets()) {
+            QList<QWidget*> stack;
+            stack << t;
+            while (!stack.isEmpty()) {
+                auto s = stack.takeFirst();
+                for (auto c: s->children()) {
+                    if (auto m = qobject_cast<QMdiArea*>(c)) {
+                        pqConsole::gui_run([&]{
+                            auto g = m->addSubWindow(w);
+                            g->show();
+                        });
+                        return true;
+                    }
+                    if (auto z = qobject_cast<QWidget*>(c))
+                        stack << z;
+                }
+            }
+        }
+    }
+    return false;
 }

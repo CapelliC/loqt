@@ -1,5 +1,5 @@
 /*
-    pqSource     : interfacing SWI-Prolog source files and Qt
+    pqConsole    : interfacing SWI-Prolog and Qt
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
@@ -20,27 +20,30 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef PQSDLTREE_H
-#define PQSDLTREE_H
-
-#include "pqSource_global.h"
+#ifndef PQPROOFVIEW_H
+#define PQPROOFVIEW_H
 
 #include <QGraphicsView>
-#include "XDotScene.h"
-#include "GraphvizView.h"
+#include <QMouseEvent>
+#include "pqProofScene.h"
 
-/** use Graphviz dot layout to show a browsable SDL tree
-  */
-class PQSOURCESHARED_EXPORT pqSDLTree : public GraphvizView
+/**
+ * @brief The pqProofView class
+ *  display a Prolog proof tree
+ */
+class PQCONSOLESHARED_EXPORT pqProofView : public QGraphicsView
 {
     Q_OBJECT
+
 public:
-    explicit pqSDLTree(QWidget *parent = 0);
-    
-signals:
-    
-public slots:
-    
+    pqProofView();
+    ~pqProofView();
+
+    pqProofScene* scene() const { return qobject_cast<pqProofScene*>(QGraphicsView::scene()); }
+
+protected:
+    void wheelEvent(QWheelEvent* event);
+    void scale_view(qreal scaleFactor);
 };
 
-#endif // PQSDLTREE_H
+#endif // PQPROOFVIEW_H

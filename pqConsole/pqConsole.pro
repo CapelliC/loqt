@@ -48,7 +48,10 @@ SOURCES += \
     pqApplication.cpp \
     win_builtins.cpp \
     pqMiniSyntax.cpp \
-    pqMeta.cpp
+    pqMeta.cpp \
+    pqProofScene.cpp \
+    pqProofView.cpp \
+    pqProof.cpp
 
 HEADERS += \
     pqConsole.h \
@@ -64,7 +67,10 @@ HEADERS += \
     FlushOutputEvents.h \
     pqApplication.h \
     pqMiniSyntax.h \
-    pqMeta.h
+    pqMeta.h \
+    pqProofScene.h \
+    pqProofView.h \
+    pqProof.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

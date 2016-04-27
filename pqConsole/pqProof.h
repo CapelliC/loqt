@@ -1,5 +1,5 @@
 /*
-    pqSource     : interfacing SWI-Prolog source files and Qt
+    pqConsole    : interfacing SWI-Prolog and Qt
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
@@ -20,9 +20,21 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "pqSDLTree.h"
+#ifndef PQPROOF_H
+#define PQPROOF_H
 
-pqSDLTree::pqSDLTree(QWidget *parent) :
-    GraphvizView(parent)
+#include <QObject>
+
+class pqProof : public QObject
 {
-}
+    Q_OBJECT
+public:
+    explicit pqProof(QObject *parent = 0);
+    static void installView();
+
+signals:
+
+public slots:
+};
+
+#endif // PQPROOF_H

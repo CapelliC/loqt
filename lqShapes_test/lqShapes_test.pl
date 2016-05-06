@@ -23,14 +23,15 @@ lqShapes_test :-
 	% pqConsole:types(T),maplist(writeln,T),
 	current_predicate(scene/1)
 	-> scene(S),
-        rect(S, [qRectF(810,20,30,40),qPen('DashDotDotLine'),qBrush(darkRed)], _),
+        rect(S, [qRectF(10,20,30,40),qPen('DashDotDotLine'),qBrush(darkRed)], _),
 /*
 	pqConsole:create(lqPushButton, B),
 	pqConsole:property(B, button, X),
 	pqConsole:property(pqObj(_, X), text, pippo),
 	pqConsole:invoke(S, addProxyWidget, [X], _)
 */
-        pushButton(S, [pippo], _)
+        pushButton(S, [hello], Make_Red),
+        connect(Make_Red, clicked, on_make_red)
 /*
         rect(S, [qRectF(810,20,30,40),qPen('DashDotDotLine'),qBrush(darkRed)], R),
         ellipse(S, [qRectF(30,40,50,60)], E),
@@ -50,6 +51,9 @@ pushButton(S, [P], B) :-
     pqConsole:property(B, button, X),
     pqConsole:property(pqObj(_, X), text, P),
     pqConsole:invoke(S, addProxyWidget, [X], _).
+
+connect(PQObj, Signal, Slot) :-
+    pqConsole:connect(PQObj, Signal, Slot).
 
 rect(S, D, R) :-
 	lit(D,D1),

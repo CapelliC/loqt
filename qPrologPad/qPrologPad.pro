@@ -57,14 +57,14 @@ DEPENDPATH += $$PWD/../lqUty
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqConsole/release/ -lpqConsole
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqConsole/debug/ -lpqConsole
-else:unix:!symbian: LIBS += -L$$OUT_PWD/../pqConsole/ -lpqConsole
+else:unix: LIBS += -L$$OUT_PWD/../pqConsole/ -lpqConsole
 
 INCLUDEPATH += $$PWD/../pqConsole
 DEPENDPATH += $$PWD/../pqConsole
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqGraphviz/release/ -lpqGraphviz
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqGraphviz/debug/ -lpqGraphviz
-else:unix:!symbian: LIBS += -L$$OUT_PWD/../pqGraphviz/ -lpqGraphviz
+else:unix: LIBS += -L$$OUT_PWD/../pqGraphviz/ -lpqGraphviz
 
 INCLUDEPATH += $$PWD/../pqGraphviz
 DEPENDPATH += $$PWD/../pqGraphviz

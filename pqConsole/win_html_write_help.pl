@@ -25,6 +25,9 @@
 :- module(win_html_write_help, [win_html_write_help/1]).
 :- use_module(library(http/html_write)).
 
+:- meta_predicate win_html_write(0).
+:- meta_predicate win_html_write_help(0).
+
 %% win_html_write_help(+D) is det.
 %
 %  expand HTML DCG output to win console

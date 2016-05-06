@@ -38,9 +38,7 @@ SOURCES += \
     symclass.cpp \
     pqSourceMainWindow.cpp \
     MdiChildWithCheck.cpp \
-    pqWebScript.cpp \
-    pqProofView.cpp \
-    pqProofScene.cpp
+    pqWebScript.cpp
 
 HEADERS += \
     pqSource.h \
@@ -53,9 +51,7 @@ HEADERS += \
     pqSyntaxData.h \
     symclass.h \
     MdiChildWithCheck.h \
-    pqWebScript.h \
-    pqProofView.h \
-    pqProofScene.h
+    pqWebScript.h
 
 unix {
 

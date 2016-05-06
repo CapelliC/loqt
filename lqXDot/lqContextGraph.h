@@ -150,7 +150,7 @@ public:
     //! report error handling: GV error callback *must* be a pointer to function
     static bool run_with_error_report(std::function<QString()> worker);
 
-    //! check allocation for futher processing
+    //! check allocation for further processing
     bool in_context();
 
     //! perform gvLayout(algo)
@@ -227,7 +227,7 @@ public:
     bool oktrace(trace_flags t) { return (trace_control & (1 << t)) == (1 << t); }
 
 signals:
-    
+
 public slots:
 
 private:

@@ -452,17 +452,16 @@ PREDICATE(win_html_write, 1) {
                 s.go();
             });
             s.stop();
+            return TRUE;
         }
-        /*
-        else {
-            SwiPrologEngine::in_thread in;
-            in.named_load("win_html_write_help");
+
+        SwiPrologEngine::in_thread in;
+        if (in.resource_module("win_html_write_help")) {
             // accept a DCG to format to buffer
             bool rc = win_html_write_help(PL_A1);
             qDebug() << "win_html_write" << rc;
+            return rc;
         }
-        */
-        return TRUE;
     }
     return FALSE;
 }

@@ -257,8 +257,18 @@ void pqSource::loadSource(int line, int linepos)
          * at unpredictable times - I guess it's because of formatting,
          * but seems it's impossible to overcome the problem, given that QAbstractTextDocumentLayout
          * it's useless, and QTextDocumentLayout it's not accessible
-        */
+         */
         //connect(document(), SIGNAL(contentsChange(int,int,int)), /*this,*/ SLOT(contentsChange(int,int,int)));
+
+        // trying to reintroduce behaviour, and temporally filtering meaningful events...
+        connect(document(), &QTextDocument::contentsChange, this, [&](int,int,int) {
+            bool s = skip_changes;
+            if (!s) {
+                skip_changes = true;
+                set_modified(true);
+                skip_changes = false;
+            }
+        });
     }
     catch(std::exception &e) {
         reportUser(tr("exception: %1").arg(e.what()));

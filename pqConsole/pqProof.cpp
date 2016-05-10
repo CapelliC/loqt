@@ -43,10 +43,10 @@ void pqProof::installView() {
 
 }
 
-PREDICATE(qtrace, 0) {
+PREDICATE(pq_trace, 0) {
     Q_UNUSED(PL_av)
     pqProof::installView();
-    return false;
+    return true;
 }
 PREDICATE(pq_trace, 1) {
     qDebug() << QTime::currentTime() << t2w(PL_A1);

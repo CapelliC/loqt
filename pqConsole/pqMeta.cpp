@@ -68,7 +68,7 @@ PREDICATE(create, 2) {
 }
 
 static QVariant C2V(PlTerm pl, int match = 0);
-static QVariant F2V(PlTerm pl);
+static QVariant F2V(PlTerm pl, int match = 0);
 static QVariant T2V(PlTerm pl, int match = 0);
 
 static QVariant C2V(PlTerm pl, int match) {
@@ -90,15 +90,18 @@ static QVariant C2V(PlTerm pl, int match) {
         return QVariant(t2w(pl));
 
     case PL_TERM:
-        return F2V(pl);
+        return F2V(pl, match);
     }
     return QVariant();
 }
-static QVariant F2V(PlTerm pl) {
+static QVariant F2V(PlTerm pl, int match) {
     Q_ASSERT(pl.type() == PL_TERM);
 
     int ty = QMetaType::type(pl.name()),
         ar = pl.arity();
+
+    if (match && ty != match)
+        throw PlException(A(QString("type mismatch (expected %1, found %2)").arg(QMetaType::typeName(match), QMetaType::typeName(ty))));
 
     switch (ty) {
 
@@ -544,4 +547,20 @@ PREDICATE(pq_mdi_child, 1) {
         }
     }
     return false;
+}
+
+PREDICATE(connect, 3) {
+    QString a = t2w(PL_A1), b = t2w(PL_A2), c = t2w(PL_A3);
+
+    T ttype, tptr;
+    PL_A1 = pqObj(ttype, tptr);
+
+    QString stype = t2w(ttype);
+    QString sptr = t2w(tptr);
+
+    qDebug() << "connect" << a << b << c << stype << sptr;
+    if (auto w = pq_cast<QWidget>(tptr)) {
+        qDebug() << "widget" << w->metaObject()->className();
+    }
+    return true;
 }

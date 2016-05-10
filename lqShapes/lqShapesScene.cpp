@@ -33,8 +33,7 @@ lqShapesScene::~lqShapesScene() {
     qDebug() << "~lqShapesScene";
 }
 
-lqShapesRectItem *lqShapesScene::addRect(const QRectF &rect, const QPen &pen, const QBrush &brush)
-{
+lqShapesRectItem *lqShapesScene::addRect(const QRectF &rect, const QPen &pen, const QBrush &brush) {
     qDebug() << "addRect" << rect << pen << brush;
     auto r = new lqShapesRectItem;
     r->item->setRect(rect);
@@ -44,8 +43,7 @@ lqShapesRectItem *lqShapesScene::addRect(const QRectF &rect, const QPen &pen, co
     return r;
 }
 
-lqShapesEllipseItem *lqShapesScene::addEllipse(const QRectF &rect, const QPen &pen, const QBrush &brush)
-{
+lqShapesEllipseItem *lqShapesScene::addEllipse(const QRectF &rect, const QPen &pen, const QBrush &brush) {
     qDebug() << "addEllipse" << rect << pen << brush;
     auto e = new lqShapesEllipseItem;
     e->setRect(rect);
@@ -55,8 +53,7 @@ lqShapesEllipseItem *lqShapesScene::addEllipse(const QRectF &rect, const QPen &p
     return e;
 }
 
-lqShapesLineItem *lqShapesScene::addLine(const QLineF &line, const QPen &pen)
-{
+lqShapesLineItem *lqShapesScene::addLine(const QLineF &line, const QPen &pen) {
     qDebug() << "addLine" << line << pen;
     auto l = new lqShapesLineItem;
     l->setLine(line);
@@ -65,8 +62,7 @@ lqShapesLineItem *lqShapesScene::addLine(const QLineF &line, const QPen &pen)
     return l;
 }
 
-lqShapesPathItem *lqShapesScene::addPath(const QPainterPath &path, const QPen &pen, const QBrush &brush)
-{
+lqShapesPathItem *lqShapesScene::addPath(const QPainterPath &path, const QPen &pen, const QBrush &brush) {
     qDebug() << "addPath" << path << pen << brush;
     auto p = new lqShapesPathItem;
     p->setPath(path);
@@ -76,8 +72,7 @@ lqShapesPathItem *lqShapesScene::addPath(const QPainterPath &path, const QPen &p
     return p;
 }
 
-lqShapesPixmapItem *lqShapesScene::addPixmap(const QPixmap &pixmap)
-{
+lqShapesPixmapItem *lqShapesScene::addPixmap(const QPixmap &pixmap) {
     qDebug() << "addPixmap" << pixmap;
     auto p = new lqShapesPixmapItem;
     p->setPixmap(pixmap);
@@ -85,8 +80,7 @@ lqShapesPixmapItem *lqShapesScene::addPixmap(const QPixmap &pixmap)
     return p;
 }
 
-lqShapesPolygonItem *lqShapesScene::addPolygon(const QPolygonF &polygon, const QPen &pen, const QBrush &brush)
-{
+lqShapesPolygonItem *lqShapesScene::addPolygon(const QPolygonF &polygon, const QPen &pen, const QBrush &brush) {
     qDebug() << "addPolygon" << polygon << pen << brush;
     auto p = new lqShapesPolygonItem;
     p->setPolygon(polygon);
@@ -96,8 +90,7 @@ lqShapesPolygonItem *lqShapesScene::addPolygon(const QPolygonF &polygon, const Q
     return p;
 }
 
-lqShapesSimpleTextItem *lqShapesScene::addSimpleText(const QString &text, const QFont &font)
-{
+lqShapesSimpleTextItem *lqShapesScene::addSimpleText(const QString &text, const QFont &font) {
     qDebug() << "addText" << text << font;
     auto t = new lqShapesSimpleTextItem;
     t->setText(text);
@@ -112,6 +105,7 @@ lqShapesItemGroup *lqShapesScene::addGroup() {
     addItem(g);
     return g;
 }
+
 lqShapesTextItem *lqShapesScene::addText(const QString &text, const QFont &font) {
     auto t = new lqShapesTextItem;
     t->setPlainText(text);

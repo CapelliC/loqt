@@ -20,27 +20,28 @@
 %   setup the initial scene
 %
 lqShapes_test :-
-	% pqConsole:types(T),maplist(writeln,T),
+	% pqConsole:types(Types), maplist(writeln,Types),
+
 	current_predicate(scene/1)
 	-> scene(S),
+        text(S, ['hello world'], T), pqConsole:property(T, brush, 'QBrush'(green)),
         rect(S, [qRectF(10,20,30,40),qPen('DashDotDotLine'),qBrush(darkRed)], _),
-/*
-	pqConsole:create(lqPushButton, B),
-	pqConsole:property(B, button, X),
-	pqConsole:property(pqObj(_, X), text, pippo),
-	pqConsole:invoke(S, addProxyWidget, [X], _)
-*/
+
         pushButton(S, [hello], Make_Red),
-        connect(Make_Red, clicked, on_make_red)
-/*
+        connect(Make_Red, clicked, on_make_red),
+
         rect(S, [qRectF(810,20,30,40),qPen('DashDotDotLine'),qBrush(darkRed)], R),
         ellipse(S, [qRectF(30,40,50,60)], E),
-        text(S, ['hello world'], T),
-        line(S, [qLineF(qPointF(200,200),qPointF(400,400))] ,L),
+        line(S, [qLineF(qPointF(200,200),qPointF(400,400))], L),
 	polygon(S, [qPolygonF([qPointF(30,40),qPointF(200,300),qPointF(500,300),qPointF(200,30)])], P),
         format('hello by lqShapes_test [scene ~w] ~w ~w ~w ~w ~w ~n', [S, R,E,T,L,P])
-*/
+
     ;   true.
+
+on_make_red :-
+    writeln(on_make_red),
+    scene(S),
+    text(S, ['make_red button hit',qBrush(red)], _).
 
 list_metatypes :-
 	pqConsole:types(Ts),
@@ -51,6 +52,8 @@ pushButton(S, [P], B) :-
     pqConsole:property(B, button, X),
     pqConsole:property(pqObj(_, X), text, P),
     pqConsole:invoke(S, addProxyWidget, [X], _).
+
+:- meta_predicate connect(+,+,0).
 
 connect(PQObj, Signal, Slot) :-
     pqConsole:connect(PQObj, Signal, Slot).

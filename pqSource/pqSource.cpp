@@ -24,7 +24,7 @@
 #include "pqSource.h"
 #include "PREDICATE.h"
 #include "pqSourceMainWindow.h"
-#include "pqTrace.h"
+//#include "pqTrace.h"
 #include "pqTextAttributes.h"
 #include "do_events.h"
 #include "file2string.h"
@@ -42,6 +42,8 @@
 #include <QFutureWatcher>
 #include <QInputDialog>
 #include <QStringListModel>
+
+#include <QCryptographicHash>
 
 // from :/prolog/syncol.pl
 predicate2(syncol)
@@ -260,7 +262,7 @@ void pqSource::loadSource(int line, int linepos)
          */
         //connect(document(), SIGNAL(contentsChange(int,int,int)), /*this,*/ SLOT(contentsChange(int,int,int)));
 
-        // trying to reintroduce behaviour, and temporally filtering meaningful events...
+        /*/ trying to reintroduce behaviour, and temporally filtering meaningful events...
         connect(document(), &QTextDocument::contentsChange, this, [&](int,int,int) {
             bool s = skip_changes;
             if (!s) {
@@ -269,6 +271,24 @@ void pqSource::loadSource(int line, int linepos)
                 skip_changes = false;
             }
         });
+        */
+        connect(document(), &QTextDocument::contentsChanged, this, [&]() {
+            bool s = skip_changes;
+            if (!s) {
+                skip_changes = true;
+                QByteArray h;
+                h = QCryptographicHash::hash(document()->toPlainText().toUtf8(), QCryptographicHash::Md5);
+                if (content_hash.isEmpty()) {
+                    content_hash = h;
+                }
+                else if (content_hash != h) {
+                    set_modified(true);
+                    content_hash = h;
+                }
+                skip_changes = false;
+            }
+        });
+
     }
     catch(std::exception &e) {
         reportUser(tr("exception: %1").arg(e.what()));

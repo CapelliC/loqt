@@ -375,5 +375,5 @@ pqSyntaxData::range pqSyntaxData::clause_extent(int position) const {
 }
 
 void pqSyntaxData::fold(range r) {
-
+    Q_UNUSED(r)
 }

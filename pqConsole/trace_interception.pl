@@ -29,7 +29,10 @@
 %   see http://www.swi-prolog.org/pldoc/doc_for?object=prolog_trace_interception/4
 %
 user:prolog_trace_interception(Port, Frame, Choice, Action) :-
-    current_prolog_flag(pq_tracer, true), !,
+    current_prolog_flag(pq_tracer, F),
+    writeln(prolog_trace_interception(F)),
+    F=true,
+writeln(ok),
     pq_trace_interception(Port, Frame, Choice, Action).
 
 %%  goal_source_position(+Port, +Frame, -Clause, -File, -Position) is det
@@ -38,25 +41,25 @@ user:prolog_trace_interception(Port, Frame, Choice, Action) :-
 %   source characters position
 %
 goal_source_position(_Port, Frame, Clause, File, A-Z) :-
-    %pq_trace(1:Port),
+ %pq_trace(1:Port),
     prolog_frame_attribute(Frame, hidden, false),
-    %pq_trace(2:Frame),
+ pq_trace(2:Frame),
     prolog_frame_attribute(Frame, parent, Parent),
-    %pq_trace(3:Clause),
+ pq_trace(3:Clause),
     prolog_frame_attribute(Frame, pc, Pc),
-    %pq_trace(4:File),
+ pq_trace(4:File),
     prolog_frame_attribute(Parent, clause, Clause),
-    %pq_trace(5:(A-Z)),
+ pq_trace(5:(A-Z)),
     clause_info(Clause, File, TermPos, _VarOffsets),
-    %pq_trace(6),
+ pq_trace(6),
     locate_vm(Clause, 0, Pc, Pc1, VM),
-    %pq_trace(7:locate_vm(Clause, 0, Pc, Pc1, VM)),
+ pq_trace(7:locate_vm(Clause, 0, Pc, Pc1, VM)),
     '$clause_term_position'(Clause, Pc1, TermPos1),
-    %pq_trace(8:'$clause_term_position'(Clause, Pc1, TermPos1)),
+ pq_trace(8:'$clause_term_position'(Clause, Pc1, TermPos1)),
     ( VM = i_depart(_) -> append(TermPos2, [_], TermPos1) ; TermPos2 = TermPos1 ),
-    %pq_trace(9:(TermPos2, TermPos)),
+ pq_trace(9:(TermPos2, TermPos)),
     range(TermPos2, TermPos, A, Z).
-    %pq_trace(10:(range(TermPos2, TermPos, A, Z))).
+ %pq_trace(10:(range(TermPos2, TermPos, A, Z))).
 
 locate_vm(Clause, X, Pc, Pc1, VM) :-
     '$fetch_vm'(Clause, X, Y, T),

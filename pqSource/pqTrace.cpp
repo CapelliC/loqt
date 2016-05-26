@@ -36,7 +36,7 @@
 
 typedef QPair<QObject*, pqTrace::callback> t_callback;
 static QList<t_callback> debug_callbacks;
-
+/*
 PREDICATE(pq_trace_interception, 4) {
     const PlTerm
         &Port = PL_A1,
@@ -53,6 +53,7 @@ PREDICATE(pq_trace_interception, 4) {
     //qDebug() << "false";
     return FALSE;
 }
+*/
 
 QString pqTrace::newFileHeader(QString path) {
     QString name = QFileInfo(path).baseName();
@@ -67,8 +68,9 @@ void pqTrace::add_debug_callback(QObject* target, callback func) {
             return;
     debug_callbacks.append(t_callback(target, func));
 }
-
+/*
 PREDICATE(pq_trace, 1) {
     qDebug() << QTime::currentTime() << t2w(PL_A1);
     return TRUE;
 }
+*/

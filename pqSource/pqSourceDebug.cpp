@@ -23,7 +23,7 @@
 #include "pqSource.h"
 #include "PREDICATE.h"
 #include "pqSourceMainWindow.h"
-#include "pqTrace.h"
+//#include "pqTrace.h"
 #include "blockSig.h"
 
 #include <QDebug>
@@ -50,7 +50,7 @@ void pqSource::entry_debug_mode(QString query, DebugCommand mode)
     Q_UNUSED(mode)
     if (debugStatus == no_Debug) {
 
-        pqTrace::add_debug_callback(this, Trace_);
+        //pqTrace::add_debug_callback(this, Trace_);
 
         if (query.isEmpty() || query == pqSourceMainWindow::emptyQuery())
             query = QFileInfo(file).baseName();

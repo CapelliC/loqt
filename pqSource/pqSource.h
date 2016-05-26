@@ -168,6 +168,9 @@ private:
     QPointer<foldedTextAttr> folded_handler;
     bool check_avail();
 
+    QByteArray content_hash;
+    QElapsedTimer last_modification;
+
 signals:
 
     void reportInfo(QString info);

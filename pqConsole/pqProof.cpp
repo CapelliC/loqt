@@ -22,9 +22,14 @@
 
 #include "PREDICATE.h"
 #include "pqProof.h"
+#include "pqProofView.h"
+
+#include <QTime>
+#include <QStack>
+#include <QMdiArea>
+#include <QApplication>
 
 #include <QDebug>
-#include <QTime>
 
 /** from trace_interception.pl */
 predicate5(goal_source_position)
@@ -35,12 +40,37 @@ predicate1(prolog_current_choice)
 predicate3(prolog_frame_attribute)
 predicate3(prolog_choice_attribute)
 
-pqProof::pqProof(QObject *parent) : QObject(parent)
-{
+predicate2(set_prolog_flag)
+predicate0(trace)
+
+template <class W>
+static W* searchApplicationNestedWidget() {
+    for (auto t : QApplication::topLevelWidgets()) {
+        QStack<QWidget*> stack;
+        stack.push(t);
+        while (!stack.isEmpty()) {
+            auto s = stack.pop();
+            for (auto c: s->children()) {
+                if (auto m = qobject_cast<W*>(c))
+                    return m;
+                if (auto z = qobject_cast<QWidget*>(c))
+                    stack.push(z);
+            }
+        }
+    }
+    return 0;
+}
+
+pqProof::pqProof(QObject *parent) : QObject(parent) {
 
 }
 void pqProof::installView() {
-
+    auto v = new pqProofView;
+    if (auto a = searchApplicationNestedWidget<QMdiArea>())
+        a->addSubWindow(v);
+    v->show();
+    set_prolog_flag(A("pq_tracer"), A("true"));
+    trace();
 }
 
 PREDICATE(pq_trace, 0) {
@@ -51,4 +81,22 @@ PREDICATE(pq_trace, 0) {
 PREDICATE(pq_trace, 1) {
     qDebug() << QTime::currentTime() << t2w(PL_A1);
     return TRUE;
+}
+PREDICATE(pq_trace_interception, 4) {
+    const PlTerm
+        &Port = PL_A1,
+        &Frame = PL_A2,
+        &Choice = PL_A3;
+    qDebug() << "pq_trace_interception" << t2w(Port) << t2w(Frame) << t2w(Choice);
+    /*
+    PlTerm Action = PL_A4;
+    foreach(t_callback c, debug_callbacks)
+        if (c.second(c.first, Port, Frame, Choice, Action)) {
+            qDebug() << "action:" << t2w(Action);
+            return TRUE;
+            //break;
+        }
+    //qDebug() << "false";
+    */
+    return FALSE;
 }

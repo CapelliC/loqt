@@ -33,3 +33,7 @@ greaterThan(QT_VERSION, "5.5.0"): {
 } else {
     QT += webkitwidgets
 }
+
+greaterThan(QT_VERSION, "5.7.0"): {
+    DEFINES += PL_SAFE_ARG_MACROS
+}

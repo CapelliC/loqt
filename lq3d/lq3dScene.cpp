@@ -36,8 +36,9 @@
 lq3dScene::lq3dScene(lq3dContext *cg) : cg(cg)
 {
     rootEntity = new Qt3DCore::QEntity;
-
+#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
     cameraEntity = new Qt3DCore::QCamera(rootEntity);
+#endif
     cameraEntity->setObjectName(QStringLiteral("cameraEntity"));
 
     cameraEntity->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
@@ -47,15 +48,18 @@ lq3dScene::lq3dScene(lq3dContext *cg) : cg(cg)
     //input->setCamera(cameraEntity);
 
     // FrameGraph
+#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
     frameGraph = new Qt3DRender::QFrameGraph();
-    forwardRenderer = new Qt3DRender::QForwardRenderer();
+    /*forwardRenderer = new Qt3DRender::QForwardRenderer();
 
     // TechiqueFilter and renderPassFilter are not implement yet
     forwardRenderer->setCamera(cameraEntity);
     forwardRenderer->setClearColor(Qt::black);
 
     frameGraph->setActiveFrameGraph(forwardRenderer);
+    */
 
     // Setting the FrameGraph
     rootEntity->addComponent(frameGraph);
+#endif
 }

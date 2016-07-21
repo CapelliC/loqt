@@ -28,8 +28,7 @@
 #include <QHash>
 #include <QTextCharFormat>
 
-#define PL_ARITY_AS_SIZE
-#include <SWI-cpp.h>
+#include "swi.h"
 
 /** decode syntax highlighting attributes
   * this is meant to be used as a static member cache, because those values are fixed on startup

@@ -43,9 +43,15 @@ public:
 
     lq3dContext *cg = 0;
     Qt3DCore::QEntity *rootEntity = 0;
+#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
     Qt3DCore::QCamera *cameraEntity = 0;
     Qt3DRender::QFrameGraph *frameGraph = 0;
     Qt3DRender::QForwardRenderer *forwardRenderer = 0;
+#else
+    Qt3DRender::QCamera *cameraEntity = 0;
+    Qt3DRender::QFrameGraphNode *frameGraph = 0;
+    //Qt3DRender::QForwardRenderer *forwardRenderer = 0;
+#endif
 };
 
 #endif // LQ3DSCENE_H

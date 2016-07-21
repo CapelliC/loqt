@@ -24,8 +24,7 @@
 #define PQTERM_H
 
 #include "pqConsole_global.h"
-#define PL_ARITY_AS_SIZE
-#include <SWI-cpp.h>
+#include "swi.h"
 #include <QVariant>
 
 #define X PQCONSOLESHARED_EXPORT

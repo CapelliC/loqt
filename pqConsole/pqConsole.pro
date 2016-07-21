@@ -30,9 +30,6 @@ DEFINES += PQCONSOLE_LIBRARY
 # moved where the class is defined
 # DEFINES += PQCONSOLE_BROWSER
 
-# prevent symbol/macro clashes with Qt
-DEFINES += PL_SAFE_ARG_MACROS
-
 CONFIG += C++11
 
 SOURCES += \
@@ -70,7 +67,8 @@ HEADERS += \
     pqMeta.h \
     pqProofScene.h \
     pqProofView.h \
-    pqProof.h
+    pqProof.h \
+    swi.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

@@ -1,9 +1,9 @@
 /*
-    lq3D         : interfacing Qt3D
+    pqConsole    : interfacing SWI-Prolog and Qt
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
-    Copyright (C): 2016
+    Copyright (C): 2013,2014,2015,2016
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -20,29 +20,12 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "lq3dContext.h"
-#include "lq3dScene.h"
-#include "lq3d_configure.h"
+#ifndef SWI_H
+#define SWI_H
 
-#include <Qt3DRender>
+#define PL_ARITY_AS_SIZE
+#define PL_SAFE_ARG_MACROS
 
-/** allocate empty
- */
-lq3dContext::lq3dContext(QObject *parent) :
-    QObject(parent)
-{
-    engine.registerAspect(new Qt3DRender::QRenderAspect);
-}
+#include <SWI-cpp.h>
 
-Qt3DInput::QInputAspect* lq3dContext::registerView(QWindow* view)
-{
-    Qt3DInput::QInputAspect *input = new Qt3DInput::QInputAspect;
-    engine.registerAspect(input);
-    QVariantMap data;
-    data.insert(QStringLiteral("surface"), QVariant::fromValue(static_cast<QSurface *>(view)));
-    data.insert(QStringLiteral("eventSource"), QVariant::fromValue(view));
-#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
-    engine.setData(data);
-#endif
-    return input;
-}
+#endif // SWI_H

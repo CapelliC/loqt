@@ -180,6 +180,7 @@ void MdiHelper::createActions() {
     cmd(this, newPublicPredAct, tr("Add P&ublic..."),           SLOT(newPublicPred()),  __("Ctrl+Shift+P"), 0, tr("Ask functor/arity and publish in module public declaration"));
 
     // debugger
+    /*
     cmd(this, makeAct,          tr("&Make"),                SLOT(make()),       __("Ctrl+M"),   "wmaker_apps",      tr("Save all modified files and call make"));
     cmd(this, consultAct,       tr("&Consult"),             SLOT(consult()),    __("Ctrl+F5"),  "document-import-2",tr("Consult current saved file"));
     cmd(this, runAct,           tr("&Run"),                 SLOT(run()),        __("F5"),       "run",              tr("Run current goal to completion"));
@@ -189,6 +190,8 @@ void MdiHelper::createActions() {
     cmd(this, stepOverAct,      tr("Step Over (&leap)"),    SLOT(stepOver()),   __("F10"),      "debug-step-over",  tr("Run current goal to termination"));
     cmd(this, toggleBPAct,      tr("&Toggle Spy"),          SLOT(toggleBP()),   __("F9"),       "media-record-2",   tr("Toggle Spy on current symbol"));
     cmd(this, watchBPAct,       tr("Var &Watch"),           SLOT(watchVar()),   __("Shift+F9"), "zoom-3",           tr("Add/remove variable to Watch set"));
+    */
+    cmd(this, enableDebugAct,   tr("Enable &Debug"),        SLOT(enableDebug()),__("Shift+F9"), 0,               tr("Enable debugging on next call"));
 }
 
 void MdiHelper::createMenus() {
@@ -235,6 +238,7 @@ void MdiHelper::createMenus() {
     prefMenu->addAction(switchViewModeAct);
 
     debugMenu = menuBar()->addMenu(tr("&Debug"));
+    /*
     debugMenu->addAction(makeAct);
     debugMenu->addAction(consultAct);
     debugMenu->addAction(runAct);
@@ -246,6 +250,8 @@ void MdiHelper::createMenus() {
     debugMenu->addAction(stepOutAct);
     debugMenu->addAction(stepOverAct);
     debugMenu->addAction(toggleBPAct);
+    */
+    debugMenu->addAction(enableDebugAct);
 
     windowMenu = menuBar()->addMenu(tr("&Window"));
     updateWindowMenu();
@@ -292,6 +298,7 @@ void MdiHelper::createToolBars() {
     editToolBar->addAction(unfoldAllAct);
 
     debugToolBar = addToolBar(tr("Debug"));
+    /*
     debugToolBar->addAction(makeAct);
     debugToolBar->addAction(consultAct);
     debugToolBar->addAction(runAct);
@@ -303,6 +310,8 @@ void MdiHelper::createToolBars() {
     debugToolBar->addAction(stepOutAct);
     debugToolBar->addAction(stepOverAct);
     debugToolBar->addAction(toggleBPAct);
+    */
+    debugToolBar->addAction(enableDebugAct);
 
     queriesBox = new QComboBox;
     queriesBox->setMinimumContentsLength(40);

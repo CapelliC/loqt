@@ -111,6 +111,7 @@ protected:
         stepOverAct,
         toggleBPAct,
         watchBPAct,
+        enableDebugAct,
 
         closeAct,
         closeAllAct,

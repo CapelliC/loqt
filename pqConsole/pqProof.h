@@ -24,8 +24,12 @@
 #define PQPROOF_H
 
 #include <QObject>
+#include "pqConsole_global.h"
 
-class pqProof : public QObject
+/**
+ * @brief The pqProof class
+ */
+class PQCONSOLESHARED_EXPORT pqProof : public QObject
 {
     Q_OBJECT
 public:

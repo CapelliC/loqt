@@ -82,6 +82,7 @@ PREDICATE(pq_trace, 1) {
     qDebug() << QTime::currentTime() << t2w(PL_A1);
     return TRUE;
 }
+
 PREDICATE(pq_trace_interception, 4) {
     const PlTerm
         &Port = PL_A1,
@@ -98,5 +99,6 @@ PREDICATE(pq_trace_interception, 4) {
         }
     //qDebug() << "false";
     */
-    return FALSE;
+    return TRUE;
 }
+

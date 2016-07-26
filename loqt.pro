@@ -35,7 +35,6 @@ SUBDIRS += \
     lqXDot_test \
     lq3d_test \
     pqSourceTest \
-    testKeyboardMacros \
     fdqueens \
     qPrologPad \
     spqr \

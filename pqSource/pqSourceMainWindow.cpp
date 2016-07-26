@@ -36,6 +36,7 @@
 #include "maplist.h"
 #include "pqWebScript.h"
 #include "pqXmlView.h"
+#include "proofGraph.h"
 
 #include <QDebug>
 #include <QStatusBar>
@@ -76,7 +77,7 @@ predicate2(with_output_to)
  *  needed by Qt widgets hierarchy
  */
 pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
-    : MdiHelper(parent), gui_thread_engine(0)
+    : MdiHelper(parent), gui_thread_engine(0) /*, debugStatus(ds_idle)*/
 {
     qDebug() << "pqSourceMainWindow" << CT;
 
@@ -633,6 +634,11 @@ void pqSourceMainWindow::watchVar() {
     if (auto e = activeChild<pqSource>())
         e->watchVar();
 }
+void pqSourceMainWindow::enableDebug() {
+    if (!proof)
+        proof = new proofGraph(this);
+}
+
 QString pqSourceMainWindow::currentQuery() const {
     return queriesBox->currentText();
 }

@@ -34,6 +34,7 @@
 class pqSource;
 class pqDocView;
 class FindReplace;
+class proofGraph;
 
 class PQSOURCESHARED_EXPORT pqSourceMainWindow : public MdiHelper
 {
@@ -81,6 +82,9 @@ protected:
     pqDocView *helpView();
 
     QPointer<KeyboardMacros> macs;
+
+    // only an engine at time, please
+    proofGraph* proof = 0;
 
 public slots:
 
@@ -137,6 +141,8 @@ protected slots:
     void stepOver();
     void toggleBP();
     void watchVar();
+
+    void enableDebug();
 
     void engine_ready();
 

@@ -1,4 +1,4 @@
-#    pqSourceTest : interfacing SWI-Prolog source files and Qt
+#    pqSource_test: interfacing SWI-Prolog source files and Qt
 #
 #    Author       : Carlo Capelli
 #    E-mail       : cc.carlo.cap@gmail.com
@@ -20,7 +20,7 @@
 
 include(../loqt.pri)
 
-TARGET = pqSourceTest
+TARGET = pqSource_test
 TEMPLATE = app
 
 unix {
@@ -37,7 +37,6 @@ HEADERS +=
 RESOURCES +=
 
 OTHER_FILES += \
-    screenshots/pqSourceTest.jpg \
     screenshots/eldest.jpg
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqSource/release/ -lpqSource
@@ -81,3 +80,6 @@ else:unix: LIBS += -L$$OUT_PWD/../pqXml/ -lpqXml
 
 INCLUDEPATH += $$PWD/../pqXml
 DEPENDPATH += $$PWD/../pqXml
+
+DISTFILES += \
+    screenshots/pqSource_test.jpg

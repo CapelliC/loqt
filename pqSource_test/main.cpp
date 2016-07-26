@@ -1,5 +1,5 @@
 /*
-    pqSourceTest : interfacing SWI-Prolog source files and Qt
+    pqSource_test: interfacing SWI-Prolog source files and Qt
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com

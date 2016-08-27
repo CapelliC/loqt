@@ -21,7 +21,6 @@ Logic Objecs and Qt
   Graphviz rendering by Prolog.
 
 + fdqueens: an example of multithreading GUI interface, with CLP(FD) processing.
-  now entirely rewritten as a case study of SCXML, implemented with QStateMachine
 
 + lqShapes: Qt Graphics Framework available via reflection
   switch from a text based workspace to a scene graph
@@ -72,7 +71,3 @@ lqShapes features:
 
 + lqShapes_test: minimal, simple applicative test interface for lqShapes
   + Single script utility.
-
-+ lqGraphix: minimal, simple applicative interface
-  + Single script utility.
-  + GUI model to explore CLP applications.

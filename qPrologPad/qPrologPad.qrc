@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>prolog/newFileDefaultScript.pl</file>
-    </qresource>
-</RCC>

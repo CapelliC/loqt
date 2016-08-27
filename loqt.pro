@@ -36,7 +36,6 @@ SUBDIRS += \
     lq3d_test \
     pqSource_test \
     fdqueens \
-    qPrologPad \
     spqr \
     lqGraphix \
     lqShapes_test

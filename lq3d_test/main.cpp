@@ -28,22 +28,26 @@
 
 int main(int argc, char *argv[])
 {
-    //QGuiApplication app(argc, argv);
     QApplication app(argc, argv);
 
-    /*
-    lq3dView c_view, t_view;
-    c_view.cylinderTest();
-    t_view.torusTest();
+    if (1) {
+        auto c_view = new lq3dView;
+        QWidget *container = QWidget::createWindowContainer(c_view);
+        c_view->cylinderTest();
+        container->show();
+        return app.exec();
+    }
 
-    // Show window
-    c_view.show();
-    t_view.show();
-    */
+    if (0) {
+        lq3dView c_view, t_view;
+        c_view.cylinderTest();
+        t_view.torusTest();
+        c_view.show();
+        t_view.show();
+        return app.exec();
+    }
 
-    //* on Ubuntu, I get a GPF from QWidget::createWindowContainer
     MainWindow w(argc, argv);
     w.show();
-    //*/
     return app.exec();
 }

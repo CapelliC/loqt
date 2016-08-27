@@ -21,7 +21,8 @@
 #    License along with this library; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-QT += core gui widgets 3dcore 3drender 3dinput
+QT += core gui widgets
+QT += 3dcore 3drender 3dinput 3dextras
 
 TARGET = lq3d_test
 TEMPLATE = app

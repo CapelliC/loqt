@@ -28,16 +28,17 @@
 #include "lq3dScene.h"
 
 #include <QWindow>
+#include <Qt3DExtras/Qt3DWindow>
 
 /** Graphviz library rendering using Qt Graphics View Framework
  */
-class LQ3DSHARED_EXPORT lq3dView : public QWindow {
+class LQ3DSHARED_EXPORT lq3dView : public Qt3DExtras::Qt3DWindow  {
 
     Q_OBJECT
 
 public:
 
-    lq3dView(QScreen* screen = 0);
+    lq3dView(QScreen* screen = nullptr);
     virtual ~lq3dView();
 
     lq3dScene *scene = 0;

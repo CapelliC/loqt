@@ -25,15 +25,19 @@
 #include <QKeyEvent>
 #include <QGuiApplication>
 #include <QOpenGLContext>
+#include <Qt3DExtras/QFirstPersonCameraController>
+#include <Qt3DExtras/QCylinderMesh>
+#include <Qt3DExtras/QTorusMesh>
 
 /** actual constructor, make an empty view
  */
 lq3dView::lq3dView(QScreen *screen)
-    : QWindow(screen)
+    : Qt3DExtras::Qt3DWindow(screen)
 {
-    setSurfaceType(QSurface::OpenGLSurface);
-
+    defaultFramegraph()->setClearColor(QColor(QRgb(0x4d4d4f)));
     resize(800, 600);
+    /*
+    setSurfaceType(QSurface::OpenGLSurface);
 
     QSurfaceFormat format;
     if (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGL) {
@@ -45,12 +49,12 @@ lq3dView::lq3dView(QScreen *screen)
     format.setStencilBufferSize(8);
     setFormat(format);
     create();
+    */
 
     scene = new lq3dScene(new lq3dContext);
-    auto input = scene->cg->registerView(this);
-#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
-    input->setCamera(scene->cameraEntity);
-#endif
+
+    Qt3DExtras::QFirstPersonCameraController *camController = new Qt3DExtras::QFirstPersonCameraController(scene->rootEntity);
+    camController->setCamera(scene->cameraEntity);
 }
 
 lq3dView::~lq3dView()
@@ -71,46 +75,40 @@ void lq3dView::keyPressEvent(QKeyEvent* e)
 
 void lq3dView::cylinderTest() {
     auto rootEntity = scene->rootEntity;
-#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
-    Qt3DRender::QCylinderMesh *cylinder = new Qt3DRender::QCylinderMesh();
+
+    auto cylinder = new Qt3DExtras::QCylinderMesh;
     cylinder->setRadius(1);
     cylinder->setLength(3);
     cylinder->setRings(100);
     cylinder->setSlices(20);
 
     // CylinderMesh Transform
-    Qt3DCore::QTransform *cylinderTransform = new Qt3DCore::QTransform;
+    auto cylinderTransform = new Qt3DCore::QTransform;
     cylinderTransform->setScale(1.5f);
     cylinderTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), 45.0f));
 
     // Cylinder
-    Qt3DCore::QEntity *cylinderEntity = new Qt3DCore::QEntity(rootEntity);
+    auto cylinderEntity = new Qt3DCore::QEntity(rootEntity);
     cylinderEntity->addComponent(cylinder);
     cylinderEntity->addComponent(cylinderTransform);
-
-    scene->cg->engine.setRootEntity(rootEntity);
-#endif
 }
 
 void lq3dView::torusTest() {
     auto rootEntity = scene->rootEntity;
-#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
-    Qt3DRender::QTorusMesh *torus = new Qt3DRender::QTorusMesh();
+
+    auto torus = new Qt3DExtras::QTorusMesh;
     torus->setMinorRadius(1);
     torus->setRadius(3);
     torus->setRings(100);
     torus->setSlices(20);
 
     // CylinderMesh Transform
-    Qt3DCore::QTransform *torusTransform = new Qt3DCore::QTransform;
+    auto torusTransform = new Qt3DCore::QTransform;
     torusTransform->setScale(1.5f);
     torusTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), 45.0f));
 
     // Cylinder
-    Qt3DCore::QEntity *torusEntity = new Qt3DCore::QEntity(rootEntity);
+    auto torusEntity = new Qt3DCore::QEntity(rootEntity);
     torusEntity->addComponent(torus);
     torusEntity->addComponent(torusTransform);
-
-    scene->cg->engine.setRootEntity(rootEntity);
-#endif
 }

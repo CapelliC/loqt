@@ -1,7 +1,10 @@
-loqt
-====
+loqt: Logic Objecs and Qt
+==========
 
-Logic Objecs and Qt
++ build SWI-Prolog from source (see http://www.swi-prolog.org/build/Debian.html)
++ install Graphviz libraries *graphviz-dev*
+
+==========
 
 + pqSource: the main IDE component.
   Integrate the console, editing with semantic highlighting, inline help,
@@ -13,7 +16,6 @@ Logic Objecs and Qt
 + lq3d: merging Qt3D and SWI-Prolog powers
 
 + lqXDot: just a rendering of Graphviz (via library cgraph,xdot) to Qt Graphic Scene.
-  Such rendering plays a role in my next project (to be published), showcasing (SWI)Prolog direct control of Qt via reflection.
 
 + pqGraphviz: a component to bridge Prolog to Graphviz, built upon lqXDot
 
@@ -22,10 +24,6 @@ Logic Objecs and Qt
 
 + lqShapes: Qt Graphics Framework available via reflection
   switch from a text based workspace to a scene graph
-
-==========
-
-On Debian: install Graphviz libraries *graphviz-dev*
 
 ==========
 

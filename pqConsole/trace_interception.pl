@@ -40,8 +40,8 @@ writeln(ok),
 %   access internal frame/clause information to get the
 %   source characters position
 %
-goal_source_position(_Port, Frame, Clause, File, A-Z) :-
- %pq_trace(1:Port),
+goal_source_position(Port, Frame, Clause, File, A-Z) :-
+ pq_trace(1:Port),
     prolog_frame_attribute(Frame, hidden, false),
  pq_trace(2:Frame),
     prolog_frame_attribute(Frame, parent, Parent),
@@ -58,8 +58,8 @@ goal_source_position(_Port, Frame, Clause, File, A-Z) :-
  pq_trace(8:'$clause_term_position'(Clause, Pc1, TermPos1)),
     ( VM = i_depart(_) -> append(TermPos2, [_], TermPos1) ; TermPos2 = TermPos1 ),
  pq_trace(9:(TermPos2, TermPos)),
-    range(TermPos2, TermPos, A, Z).
- %pq_trace(10:(range(TermPos2, TermPos, A, Z))).
+    range(TermPos2, TermPos, A, Z),
+ pq_trace(10:(range(TermPos2, TermPos, A, Z))).
 
 locate_vm(Clause, X, Pc, Pc1, VM) :-
     '$fetch_vm'(Clause, X, Y, T),

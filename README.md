@@ -20,10 +20,12 @@ Logic Objecs and Qt
 + spqr: a basic SWI-Prolog Graphviz interface (WIP).
   Graphviz rendering by Prolog.
 
-+ fdqueens: an example of multithreading GUI interface, with CLP(FD) processing.
-
 + lqShapes: Qt Graphics Framework available via reflection
   switch from a text based workspace to a scene graph
+
+==========
+
+On Debian: install Graphviz libraries *graphviz-dev*
 
 ==========
 
@@ -71,3 +73,4 @@ lqShapes features:
 
 + lqShapes_test: minimal, simple applicative test interface for lqShapes
   + Single script utility.
+

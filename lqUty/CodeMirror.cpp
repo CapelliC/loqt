@@ -29,19 +29,19 @@
 #endif
 #include <QDebug>
 
+// initialize with a simple HTML template - a full textarea controlled by CodeMirror library
 void CodeMirror::initialize() {
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
 
 #ifndef QT_WEBENGINE_LIB
     page()->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    setHtml(file2string(":/CodeMirror.html"), QUrl("qrc:/"));
 #else
     QWebChannel *channel = new QWebChannel(this);
     channel->registerObject(QStringLiteral("proxy"), this);
     page()->setWebChannel(channel);
+    load(QUrl("qrc:/CodeMirror.html"));
 #endif
-
-    // initialize with a simple HTML template - a full textarea controlled by CodeMirror library
-    setHtml(file2string(":/CodeMirror.html"), QUrl("qrc:/"));
 }
 
 CodeMirror::CodeMirror(QWidget *parent) : WEB_VIEW_BASE(parent) {

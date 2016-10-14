@@ -35,7 +35,6 @@ SUBDIRS += \
     lqXDot_test \
     lq3d_test \
     pqSource_test \
-    fdqueens \
     spqr \
     lqGraphix \
     lqShapes_test

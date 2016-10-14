@@ -22,10 +22,7 @@
 
 #include "CodeMirrorFile.h"
 #include "file2string.h"
-
 #include <QFileInfo>
-#include <QMessageBox>
-#include <stdexcept>
 
 CodeMirrorFile::CodeMirrorFile(QWidget *parent) : CodeMirror(parent), makeBackup_(true)
 {
@@ -40,10 +37,7 @@ CodeMirrorFile::CodeMirrorFile(const CodeMirrorFile &copy) : CodeMirror()
  */
 bool CodeMirrorFile::loadFile(QString fileName) {
     try {
-        path_ = fileName;
-        //setPlainText(file2string(fileName));  TBD put a tab at strat document - not good
-        text = file2string(fileName);
-        setHtml(file2string(":/CodeMirror.html"), QUrl("qrc:/"));
+        setPlainText(file2string(path_ = fileName));
     }
     catch(std::exception& e) {
         return error(e.what());

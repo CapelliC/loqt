@@ -58,6 +58,3 @@ else:unix: LIBS += -L$$OUT_PWD/../lqShapes/ -llqShapes
 
 INCLUDEPATH += $$PWD/../lqShapes
 DEPENDPATH += $$PWD/../lqShapes
-
-DISTFILES += \
-    lqGraphix.pl

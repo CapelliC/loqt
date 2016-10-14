@@ -79,7 +79,7 @@ DEPENDPATH += $$PWD/../lqXDot
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqConsole/release/ -lpqConsole
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqConsole/debug/ -lpqConsole
-else:unix:!symbian: LIBS += -L$$OUT_PWD/../pqConsole/ -lpqConsole
+else:unix: LIBS += -L$$OUT_PWD/../pqConsole/ -lpqConsole
 
 INCLUDEPATH += $$PWD/../pqConsole
 DEPENDPATH += $$PWD/../pqConsole
@@ -89,7 +89,7 @@ RESOURCES += \
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty
-else:unix:!symbian: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
+else:unix: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
 
 INCLUDEPATH += $$PWD/../lqUty
 DEPENDPATH += $$PWD/../lqUty

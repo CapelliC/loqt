@@ -37,6 +37,8 @@
 #include "MruHelper.h"
 #include "RowColIndicators.h"
 
+#include <functional>
+
 /** this class defines the IDE global layout
  *  create widgets for commanders and feedback
  */

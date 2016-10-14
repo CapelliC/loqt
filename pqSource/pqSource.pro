@@ -128,7 +128,7 @@ OTHER_FILES += \
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty
-else:unix:!symbian: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
+else:unix: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
 
 INCLUDEPATH += $$PWD/../lqUty
 DEPENDPATH += $$PWD/../lqUty
@@ -143,7 +143,7 @@ DEPENDPATH += $$PWD/../pqConsole
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqGraphviz/release/ -lpqGraphviz
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqGraphviz/debug/ -lpqGraphviz
-else:unix:!symbian: LIBS += -L$$OUT_PWD/../pqGraphviz/ -lpqGraphviz
+else:unix: LIBS += -L$$OUT_PWD/../pqGraphviz/ -lpqGraphviz
 
 INCLUDEPATH += $$PWD/../pqGraphviz
 DEPENDPATH += $$PWD/../pqGraphviz
@@ -161,6 +161,3 @@ else:unix: LIBS += -L$$OUT_PWD/../pqXml/ -lpqXml
 
 INCLUDEPATH += $$PWD/../pqXml
 DEPENDPATH += $$PWD/../pqXml
-
-DISTFILES += \
-    ../../../.config/SWI-Prolog/pqConsole.conf

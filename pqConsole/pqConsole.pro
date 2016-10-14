@@ -70,38 +70,7 @@ HEADERS += \
     pqProof.h \
     swi.h
 
-symbian {
-    MMP_RULES += EXPORTUNFROZEN
-    TARGET.UID3 = 0xE3F3BDE3
-    TARGET.CAPABILITY =
-    TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = pqConsole.dll
-    addFiles.path = !:/sys/bin
-    DEPLOYMENT += addFiles
-}
-
-macx {
-    QT_CONFIG -= no-pkg-config
-    # The mac build of qmake has pkg-config support disabled by default, see
-    # http://stackoverflow.com/a/16972067/1329652
-    !system(pkg-config --exists swipl):error("pkg-config indicates that swipl is missing.")
-    SWIPL_CXXFLAGS = $$system("pkg-config --cflags swipl")
-    # remove the macports include path since it'll interfere with Qt
-    SWIPL_CXXFLAGS = $$replace(SWIPL_CXXFLAGS, "-I/opt/local/include", "")
-    SWIPL_LFLAGS = $$system("pkg-config --libs-only-L --libs-only-l swipl")
-    QMAKE_CXXFLAGS += $$SWIPL_CXXFLAGS
-    QMAKE_LFLAGS += $$SWIPL_LFLAGS
-
-    greaterThan(QT_MAJOR_VERSION, 4): {
-        CONFIG += c++11
-        cache()
-    } else {
-        QMAKE_CXXFLAGS += -stdlib=libc++ -std=c++0x
-        QMAKE_LFLAGS += -stdlib=libc++
-    }
-}
-
-unix:!symbian:!macx {
+unix: {
     # because SWI-Prolog is built from source
     CONFIG += link_pkgconfig
     PKGCONFIG += swipl
@@ -113,24 +82,6 @@ unix:!symbian:!macx {
     }
 
     INSTALLS += target
-}
-
-win32 {
-    contains(QMAKE_HOST.arch, x86_64) {
-       SwiPl = "C:\Program Files\swipl"
-    } else {
-       SwiPl = "C:\Program Files (x86)\swipl"
-    }
-    INCLUDEPATH += $$SwiPl\include
-    LIBS += -L$$SwiPl\lib
-    win32-msvc*: {
-        CONFIG += c++11
-        DEFINES += ssize_t=intptr_t
-        QMAKE_LFLAGS += libswipl.dll.a
-    } else {
-        QMAKE_CXXFLAGS += -std=c++0x
-        LIBS += -lswipl
-    }
 }
 
 OTHER_FILES += \
@@ -145,7 +96,7 @@ RESOURCES += \
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty
-else:unix:!symbian: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
+else:unix: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
 
 INCLUDEPATH += $$PWD/../lqUty
 DEPENDPATH += $$PWD/../lqUty

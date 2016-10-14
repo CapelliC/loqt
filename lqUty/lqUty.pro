@@ -75,25 +75,6 @@ HEADERS += \
     foldedTextAttr.h \
     foldingQTextEdit.h
 
-symbian {
-    MMP_RULES += EXPORTUNFROZEN
-    TARGET.UID3 = 0xE3BE79CA
-    TARGET.CAPABILITY =
-    TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = lqUty.dll
-    addFiles.path = !:/sys/bin
-    DEPLOYMENT += addFiles
-}
-
-unix:!symbian {
-    maemo5 {
-        target.path = /opt/usr/lib
-    } else {
-        target.path = /usr/lib
-    }
-    INSTALLS += target
-}
-
 OTHER_FILES += \
     codemirror/lib/codemirror.js \
     codemirror/lib/codemirror.css \
@@ -109,6 +90,3 @@ OTHER_FILES += \
 
 RESOURCES += \
     lqUty.qrc
-
-DISTFILES += \
-    qwebchannel.js

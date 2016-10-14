@@ -48,7 +48,7 @@ HEADERS += \
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/release/ -llqXDot
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/debug/ -llqXDot
-else:unix:!symbian: LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
+else:unix: LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
 
 INCLUDEPATH += $$PWD/../lqXDot
 DEPENDPATH += $$PWD/../lqXDot
@@ -108,7 +108,6 @@ OTHER_FILES += \
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty
-else:symbian: LIBS += -llqUty
 else:unix: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
 
 INCLUDEPATH += $$PWD/../lqUty

@@ -55,21 +55,21 @@ DEPENDPATH += $$PWD/../pqConsole
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty
-else:unix:!symbian: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
+else:unix: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
 
 INCLUDEPATH += $$PWD/../lqUty
 DEPENDPATH += $$PWD/../lqUty
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqGraphviz/release/ -lpqGraphviz
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqGraphviz/debug/ -lpqGraphviz
-else:unix:!symbian: LIBS += -L$$OUT_PWD/../pqGraphviz/ -lpqGraphviz
+else:unix: LIBS += -L$$OUT_PWD/../pqGraphviz/ -lpqGraphviz
 
 INCLUDEPATH += $$PWD/../pqGraphviz
 DEPENDPATH += $$PWD/../pqGraphviz
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/release/ -llqXDot
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/debug/ -llqXDot
-else:unix:!symbian: LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
+else:unix: LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
 
 INCLUDEPATH += $$PWD/../lqXDot
 DEPENDPATH += $$PWD/../lqXDot
@@ -80,6 +80,3 @@ else:unix: LIBS += -L$$OUT_PWD/../pqXml/ -lpqXml
 
 INCLUDEPATH += $$PWD/../pqXml
 DEPENDPATH += $$PWD/../pqXml
-
-DISTFILES += \
-    screenshots/pqSource_test.jpg

@@ -206,57 +206,57 @@ void pqSourceMainWindow::fixGeometry() {
 void pqSourceMainWindow::closeEvent(QCloseEvent *e) {
     Q_UNUSED(e)
 
-    Preferences p;
-    storeMru(p);
+    {   Preferences p;
+        storeMru(p);
 
-    p.beginGroup("geometry");
-    p.remove("");
-    p.setValue(metaObject()->className(), saveGeometry());
+        p.beginGroup("geometry");
+        p.remove("");
+        p.setValue(metaObject()->className(), saveGeometry());
 
-    foreach (auto w, mdiArea()->subWindowList()) {
-        QString key = w->widget()->metaObject()->className();
-        if (auto s = qobject_cast<pqSource*>(w->widget())) {
-            // bind to MRU file entry
-            key = QString("%1/%2").arg(key).arg(files.indexOf(s->file));
+        foreach (auto w, mdiArea()->subWindowList()) {
+            QString key = w->widget()->metaObject()->className();
+            if (auto s = qobject_cast<pqSource*>(w->widget())) {
+                // bind to MRU file entry
+                key = QString("%1/%2").arg(key).arg(files.indexOf(s->file));
+            }
+            if (auto c = qobject_cast<ConsoleEdit*>(w->widget())) {
+                // bind to console Prolog thread id
+                key = QString("%1/%2").arg(key).arg(c->thread_id());
+            }
+            if (auto x = qobject_cast<pqXmlView*>(w->widget())) {
+                // bind to XML file name
+                key = QString("%1/%2").arg(key).arg(x->file);
+            }
+            p.setValue(key, w->saveGeometry());
         }
-        if (auto c = qobject_cast<ConsoleEdit*>(w->widget())) {
-            // bind to console Prolog thread id
-            key = QString("%1/%2").arg(key).arg(c->thread_id());
+        p.endGroup();
+
+        // save for later quit_request(), that issues a PL_halt, then issues a $rl_history
+        foreach (auto w, mdiArea()->subWindowList())
+            if (auto c = qobject_cast<ConsoleEdit*>(w->widget())) {
+                pqConsole::last_history_lines = c->history_lines();
+                qobject_cast<MdiChildWithCheck*>(w)->quitting = true;
+            }
+
+        mdiArea()->closeAllSubWindows();
+        if (mdiArea()->currentSubWindow()) {
+            e->ignore();
+            return;
         }
-        if (auto x = qobject_cast<pqXmlView*>(w->widget())) {
-            // bind to console Prolog thread id
-            key = QString("%1/%2").arg(key).arg(x->file);
+
+        foreach (auto w, mdiArea()->subWindowList())
+            if (qobject_cast<ConsoleEdit*>(w->widget()))
+                qobject_cast<MdiChildWithCheck*>(w)->quitting = false;
+
+        p.setValue("windowState", saveState());
+
+        if (queriesBox) {
+            QStringList l;
+            for (int i = 0; i < queriesBox->count(); ++i)
+                l.append(queriesBox->itemText(i));
+            p.setValue("queries", l);
         }
-        p.setValue(key, w->saveGeometry());
     }
-    p.endGroup();
-
-    // save for later quit_request(), that issues a PL_halt, then issues a $rl_history
-    foreach (auto w, mdiArea()->subWindowList())
-        if (auto c = qobject_cast<ConsoleEdit*>(w->widget())) {
-            pqConsole::last_history_lines = c->history_lines();
-            qobject_cast<MdiChildWithCheck*>(w)->quitting = true;
-        }
-
-    mdiArea()->closeAllSubWindows();
-    if (mdiArea()->currentSubWindow()) {
-        e->ignore();
-        return;
-    }
-
-    foreach (auto w, mdiArea()->subWindowList())
-        if (qobject_cast<ConsoleEdit*>(w->widget()))
-            qobject_cast<MdiChildWithCheck*>(w)->quitting = false;
-
-    p.setValue("windowState", saveState());
-
-    if (queriesBox) {
-        QStringList l;
-        for (int i = 0; i < queriesBox->count(); ++i)
-            l.append(queriesBox->itemText(i));
-        p.setValue("queries", l);
-    }
-
     if (!SwiPrologEngine::quit_request())
         e->ignore();
 }

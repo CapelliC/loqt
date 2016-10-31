@@ -236,6 +236,9 @@ void MdiHelper::createMenus() {
     prefMenu->addAction(incFontAct);
     prefMenu->addAction(decFontAct);
     prefMenu->addSeparator();
+    prefMenu->addAction(incTabsAct);
+    prefMenu->addAction(decTabsAct);
+    prefMenu->addSeparator();
     prefMenu->addAction(switchLayoutDirectionAct);
     prefMenu->addAction(switchViewModeAct);
 

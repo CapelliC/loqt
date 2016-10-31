@@ -253,6 +253,8 @@ void pqSource::loadSource(int line, int linepos)
         Preferences pref;
         setFont(pref.console_font);
 
+        setTabStopWidth(pref.tab_size);
+
         setPlainText(file2string(x));
         /* disable because I can't still figure out
          * why it's called with equals charsRemoved,charsAdded
@@ -815,6 +817,7 @@ bool pqSource::saveSource()
             QTextCharFormat tcf;
             tcf.setFont(p.console_font);
             c.setCharFormat(tcf);
+            p.tab_size = tabStopWidth();
         }
 
         if (hl->sem_info_avail()) {

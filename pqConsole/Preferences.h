@@ -69,6 +69,9 @@ public:
     void loadPosSizeState(QString key, QWidget *w);
     void savePosSizeState(QString key, QWidget *w);
 
+    /** only 1 tab size for all windows ! */
+    int tab_size;
+
 signals:
     
 public slots:

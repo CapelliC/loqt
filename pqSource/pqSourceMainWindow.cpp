@@ -782,6 +782,18 @@ void pqSourceMainWindow::decFont()
     }
 }
 
+void pqSourceMainWindow::incTabs()
+{
+    for (auto w: typedSubWindows<pqSource>())
+        w->setTabStopWidth(w->tabStopWidth() + 1);
+}
+
+void pqSourceMainWindow::decTabs()
+{
+    for (auto w: typedSubWindows<pqSource>())
+        w->setTabStopWidth(w->tabStopWidth() - 1);
+}
+
 void pqSourceMainWindow::markCursor(QTextCursor c)
 {
     FindReplace::showMatch(c);

@@ -120,6 +120,8 @@ public slots:
     void selectFont();
     void incFont();
     void decFont();
+    void incTabs();
+    void decTabs();
 
     void markCursor(QTextCursor c);
 

@@ -103,6 +103,8 @@ protected:
         selectFontAct,
         incFontAct,
         decFontAct,
+        incTabsAct,
+        decTabsAct,
 
         makeAct,
         consultAct,

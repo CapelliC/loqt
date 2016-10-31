@@ -156,6 +156,8 @@ void MdiHelper::createActions() {
     cmd(this,   selectFontAct,          tr("Select &Font..."),          SLOT(selectFont()),         __(), 0, tr("Choose the font used to display text"));
     cmd(this,   incFontAct,             tr("&Increase Font Size"),      SLOT(incFont()),    __("Ctrl++"), 0, tr("Make characters bigger (Increase Font size)"));
     cmd(this,   decFontAct,             tr("&Decrease Font Size"),      SLOT(decFont()),    __("Ctrl+-"), 0, tr("Make characters smaller (Decrease Font Size)"));
+    cmd(this,   incTabsAct,             tr("&Increase Tabs Size"),      SLOT(incTabs()),    __("Ctrl+Shift++"), 0, tr("Make Tabs width bigger (Increase TAB size)"));
+    cmd(this,   decTabsAct,             tr("&Decrease Tabs Size"),      SLOT(decTabs()),    __("Ctrl+Shift+-"), 0, tr("Make Tabs smaller (Decrease TAB Size)"));
 
     QMdiArea *mdiArea = this->mdiArea();
     cmd(mdiArea, closeAct,                  tr("Cl&ose"),           SLOT(closeActiveSubWindow()),       __(),               0, tr("Close the active window"));

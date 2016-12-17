@@ -46,7 +46,7 @@ Preferences::Preferences(QObject *parent) :
     console_inp_fore = value("console_inp_fore", 0).toInt();
     console_inp_back = value("console_inp_back", 15).toInt();
 
-    tab_size = value("tab_size", 80).toInt();
+    //tab_size = value("tab_size", 80).toInt();
 
     // selection from SVG named colors
     // see http://www.w3.org/TR/SVG/types.html#ColorKeywords
@@ -94,7 +94,7 @@ void Preferences::save() {
     SV(console_inp_fore);
     SV(console_inp_back);
 
-    SV(tab_size);
+    //SV(tab_size);
 
     #undef SV
 

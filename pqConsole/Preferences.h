@@ -70,7 +70,7 @@ public:
     void savePosSizeState(QString key, QWidget *w);
 
     /** only 1 tab size for all windows ! */
-    int tab_size;
+    //int tab_size;
 
 signals:
     

@@ -791,7 +791,8 @@ void pqSourceMainWindow::incTabs()
 void pqSourceMainWindow::decTabs()
 {
     for (auto w: typedSubWindows<pqSource>())
-        w->setTabStopWidth(w->tabStopWidth() - 1);
+        if (int s = w->tabStopWidth())
+            w->setTabStopWidth(s - 1);
 }
 
 void pqSourceMainWindow::markCursor(QTextCursor c)

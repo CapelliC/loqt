@@ -54,14 +54,15 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     lastMode = p.value("lastMode", "dot").toString();
 
     QMenu *m = menuBar()->addMenu("&File");
-    m->addAction(tr("&New..."), this, SLOT(newFile()), QKeySequence::New);
-    m->addAction(tr("&Open..."), this, SLOT(openFile()), QKeySequence::Open);
+    m->addAction(tr("&New..."), this, &MainWindow::newFile, QKeySequence::New);
+    //m->addAction(tr("&Open..."), this, &MainWindow::openFile, QKeySequence::Open);
+    m->addAction(tr("Open..."), this, &MainWindow::openFile, QKeySequence::Open);
     m->addMenu(mruMenu = new QMenu("Recent &Files..."));
     loadMru(p, this);
     m->addSeparator();
-    m->addAction(tr("&Save"), this, SLOT(saveFile()), QKeySequence::Save);
-    m->addAction(tr("Save &As..."), this, SLOT(saveFileAs()), QKeySequence::SaveAs);
-    m->addAction(tr("&Render..."), this, SLOT(renderFile()), tr("Ctrl+R"));
+    m->addAction(tr("&Save"), this, &MainWindow::saveFile, QKeySequence::Save);
+    m->addAction(tr("Save &As..."), this, &MainWindow::saveFileAs, QKeySequence::SaveAs);
+    m->addAction(tr("&Render..."), this, &MainWindow::renderFile, tr("Ctrl+R"));
 
     // layouts algorithm by name
     m->addSeparator();
@@ -201,7 +202,7 @@ void MainWindow::saveFileAs() {
 void MainWindow::renderFile() {
     if (view()->render_script(source()->toPlainText(), lastMode)) {
         makeSvg(QString());
-        tabs->setCurrentIndex(t_view);
+        tabs->setCurrentIndex(t_dot);
     }
 }
 
@@ -248,10 +249,22 @@ void MainWindow::viewDot() {
     QFile t(f);
     if (t.open(t.ReadOnly|t.Text)) {
         setCentralWidget(tabs = new QTabWidget);
+
+        auto s1 = new QSplitter();
+        s1->addWidget(new lqXDotView);
+        s1->addWidget(new QTextEdit);
+        tabs->addTab(s1, tr("&Dot view/source"));
+
+        auto s2 = new QSplitter();
+        s2->addWidget(new SvgView);
+        s2->addWidget(new QTextEdit);
+        tabs->addTab(s2, tr("&Svg view/source"));
+        /*
         tabs->addTab(new lqXDotView,    tr("lq&XDot view"));
         tabs->addTab(new SvgView,       tr("&Svg view"));
         tabs->addTab(new QTextEdit,     tr("&Dot source"));
         tabs->addTab(new QTextEdit,     tr("Svg Xml sourc&e"));
+        */
 
         lqPreferences p;
         //source()->setFont(p.console_font);

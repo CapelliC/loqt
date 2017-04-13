@@ -25,6 +25,7 @@
 
 #include <QMainWindow>
 #include <QTabWidget>
+#include <QSplitter>
 #include <QTextEdit>
 #include <QMessageBox>
 #include <QCloseEvent>
@@ -65,27 +66,42 @@ private:
     QString lastDir;
     QString lastMode;
 
-    enum t_kind { t_view, t_svgv, t_source, t_svgxml };
+    //enum t_kind { t_view, t_svgv, t_source, t_svgxml };
+    enum t_kind { t_dot, t_svg };
     QPointer<QTabWidget> tabs;
 
     typedef ParenMatching::range range;
     range paren;
 
-    template <class V> V* tab(t_kind t) const { return qobject_cast<V*>(tabs->widget(t)); }
+    //QSplitter* tab(t_kind t) const { return qobject_cast<V*>(tabs->widget(t)); }
+    //template <class V> V* tab(t_kind t) const { return qobject_cast<V*>(tabs->widget(t)); }
 
-    lqXDotView *view() const { return tab<lqXDotView>(t_view); }
-    SvgView *svgv() const { return tab<SvgView>(t_svgv); }
-    QTextEdit *source() const { return tab<QTextEdit>(t_source); }
-    QTextEdit *svgxml() const { return tab<QTextEdit>(t_svgxml); }
+    lqXDotView *view() const {
+        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_dot));
+        return qobject_cast<lqXDotView*>(s->widget(0));
+    }
+    QTextEdit *source() const {
+        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_dot));
+        return qobject_cast<QTextEdit*>(s->widget(1));
+    }
+    SvgView *svgv() const {
+        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_svg));
+        return qobject_cast<SvgView*>(s->widget(0));
+    }
+    QTextEdit *svgxml() const {
+        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_svg));
+        return qobject_cast<QTextEdit*>(s->widget(1));
+    }
 
     enum { highlighting, editing } mode;
     RowColIndicators rci;
 
-    void saveFile(QString file);
     void makeSvg(QString f = QString());
 
     typedef QMessageBox MB;
-    MB::StandardButton errbox(QString msg, QString info, MB::StandardButtons bnts = MB::Ok, MB::Icon icon = MB::Critical, QString title = QString());
+    MB::StandardButton errbox(QString msg, QString info,
+        MB::StandardButtons bnts = MB::Ok,
+        MB::Icon icon = MB::Critical, QString title = QString());
 
     QFileSystemWatcher monitorScript;
 

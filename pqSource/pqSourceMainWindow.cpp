@@ -149,7 +149,8 @@ void pqSourceMainWindow::engine_ready() {
     //QTimer::singleShot(10, this, SLOT(fixGeometry()));
     fixGeometry();
 
-    Completion::helpidx();
+    // does break initialization ?
+    //Completion::helpidx();
 }
 
 /**

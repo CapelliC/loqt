@@ -34,8 +34,9 @@
 lq3dView::lq3dView(QScreen *screen)
     : Qt3DExtras::Qt3DWindow(screen)
 {
-    defaultFramegraph()->setClearColor(QColor(QRgb(0x4d4d4f)));
+    //defaultFramegraph()->setClearColor(QColor(QRgb(0x404040)));
     resize(800, 600);
+
     /*
     setSurfaceType(QSurface::OpenGLSurface);
 

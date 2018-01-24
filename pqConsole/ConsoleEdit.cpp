@@ -1007,52 +1007,12 @@ void ConsoleEdit::query_run(QString module, QString call) {
         query_run(module + ":" + call);
 }
 
-#if 0
 ConsoleEdit::exec_sync::exec_sync(int timeout_ms) : timeout_ms(timeout_ms) {
-    stop_ = CT;
+    stop_ = QCT;
     go_ = 0;
 }
 void ConsoleEdit::exec_sync::stop() {
-    mutex.lock();
-    wait.wait(&mutex);
-    mutex.unlock();
-    //sync.lock();
-    //wait.wait(&sync);
-    /*
-    Q_ASSERT(CT == stop_);
-    for ( ; ; ) {
-        {   QMutexLocker lk(&sync);
-            if (go_)
-                break;
-        }
-        SwiPrologEngine::msleep(10);
-    }
-    */
-    //Q_ASSERT(go_ && go_ != stop_);
-
-}
-void ConsoleEdit::exec_sync::go() {
-    /*
-    Q_ASSERT(go_ == 0);
-    Q_ASSERT(stop_ != 0);
-    auto t = CT;
-    if (stop_ != t) {
-        QMutexLocker lk(&sync);
-        go_ = t;
-    }
-    else
-        go_ = t;
-    */
-    //wait.wakeAll();
-    wait.wakeOne();
-}
-#endif
-ConsoleEdit::exec_sync::exec_sync(int timeout_ms) : timeout_ms(timeout_ms) {
-    stop_ = CT;
-    go_ = 0;
-}
-void ConsoleEdit::exec_sync::stop() {
-    Q_ASSERT(CT == stop_);
+    Q_ASSERT(QCT == stop_);
     for ( ; ; ) {
         {   QMutexLocker lk(&sync);
             if (go_)
@@ -1065,7 +1025,7 @@ void ConsoleEdit::exec_sync::stop() {
 void ConsoleEdit::exec_sync::go() {
     Q_ASSERT(go_ == 0);
     Q_ASSERT(stop_ != 0);
-    auto t = CT;
+    auto t = QCT;
     if (stop_ != t) {
         QMutexLocker lk(&sync);
         go_ = t;

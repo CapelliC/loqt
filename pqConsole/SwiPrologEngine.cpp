@@ -149,7 +149,7 @@ void SwiPrologEngine::serve_query(query p) {
     catch(PlException ex) {
         QString detail = t2w(ex);
         QString message = QString::fromWCharArray(WCP(ex));
-        qDebug() << "PlException" << CT << n << t << detail << message;
+        qDebug() << "PlException" << QCT << n << t << detail << message;
         emit query_exception(t, QString("[%1]\n[%2]").arg(message, detail));
     }
 }
@@ -318,7 +318,7 @@ SwiPrologEngine::in_thread::in_thread()
         */
         attr.alias = (char*)"pq";
 
-        qDebug() << "in_thread:PL_thread_attach_engine" << CT;
+        qDebug() << "in_thread:PL_thread_attach_engine" << QCT;
 
         thid = PL_thread_attach_engine(&attr);
         Q_ASSERT(thid >= 0);			/* JW: Should throw exception */

@@ -40,7 +40,7 @@ typedef void* VP;
 #include <QVector>
 
 #include <QThread>
-#define CT QThread::currentThread()
+#define QCT QThread::currentThread()
 
 inline CCP S(const PlTerm &T) { return T; }
 

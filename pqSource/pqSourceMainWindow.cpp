@@ -79,7 +79,7 @@ predicate2(with_output_to)
 pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     : MdiHelper(parent), gui_thread_engine(0) /*, debugStatus(ds_idle)*/
 {
-    qDebug() << "pqSourceMainWindow" << CT;
+    qDebug() << "pqSourceMainWindow" << QCT;
 
     //pqGraphviz::registerMetaTypes();
 
@@ -133,7 +133,7 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
  *  as required for basic source tasks
  */
 void pqSourceMainWindow::engine_ready() {
-    qDebug() << "engine_ready" << CT;
+    qDebug() << "engine_ready" << QCT;
 
     // allocate at once an engine for GUI thread
     gui_thread_engine = new SwiPrologEngine::in_thread;

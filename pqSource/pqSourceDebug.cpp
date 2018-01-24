@@ -85,9 +85,9 @@ bool pqSource::Trace_(QObject *pThis, const T &Port, const T &Frame, const T &Ch
     return qobject_cast<pqSource*>(pThis)->Trace_(Port, Frame, Choice, Action);
 #else
     static int cTrace = 0;
-    qDebug() << "pqSource::Trace_" << CT << ++cTrace;
+    qDebug() << "pqSource::Trace_" << QCT << ++cTrace;
     auto rc = qobject_cast<pqSource*>(pThis)->Trace_(Port, Frame, Choice, Action);
-    qDebug() << "pqSource::Trace_" << CT << cTrace << "rc:" << rc;
+    qDebug() << "pqSource::Trace_" << QCT << cTrace << "rc:" << rc;
     return rc;
 #endif
 }
@@ -131,7 +131,7 @@ bool pqSource::Trace_(const T &Port, const T &Frame, const T &Choice, T &Action)
         }
     }
 
-    qDebug() << "pqSource::Trace_" << CT << source << level_curr << level_top << port << s_goal;
+    qDebug() << "pqSource::Trace_" << QCT << source << level_curr << level_top << port << s_goal;
 
     switch (debugCommand) {
 

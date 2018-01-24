@@ -24,16 +24,7 @@
 # please, an up-to-date compiler
 CONFIG += C++11
 
-QT += core gui widgets
-
 # switch to QWebEngine instead of QWebKit
-greaterThan(QT_VERSION, "5.5.0"): {
-    QT += webenginewidgets
-    DEFINES += QT_WEBENGINE_LIB
-} else {
-    QT += webkitwidgets
-}
+QT += core gui widgets webenginewidgets
 
-greaterThan(QT_VERSION, "5.7.0"): {
-#    DEFINES += PL_SAFE_ARG_MACROS
-}
+DEFINES += QT_WEBENGINE_LIB

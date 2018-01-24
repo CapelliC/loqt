@@ -36,10 +36,11 @@ typedef const void* CVP;
 typedef char* CP;
 typedef void* VP;
 
-#define CT QThread::currentThread()
-
 #include <QString>
 #include <QVector>
+
+#include <QThread>
+#define CT QThread::currentThread()
 
 inline CCP S(const PlTerm &T) { return T; }
 

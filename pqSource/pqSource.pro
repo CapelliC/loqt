@@ -1,8 +1,8 @@
-#    pqSource      : interfacing SWI-Prolog source files and Qt
+#    pqSource     : interfacing SWI-Prolog source files and Qt
 #
-#    E-mail        : cc.carlo.cap@gmail.com
-#    Author        : Carlo Capelli
-#    Copyright (C) : 2013,2014,2015,2016
+#    E-mail       : cc.carlo.cap@gmail.com
+#    Author       : Carlo Capelli
+#    Copyright (C): 2013,2014,2015,2016,2017,2018
 
 
 #    This library is free software; you can redistribute it and/or

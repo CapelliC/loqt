@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C): 2013,2014,2015,2016
+** Copyright (C): 2013,2014,2015,2016,2017,2018
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **

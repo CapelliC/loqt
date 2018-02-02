@@ -87,6 +87,8 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
         viewDot();
 
     connect(&monitorScript, SIGNAL(fileChanged(QString)), this, SLOT(scriptChanged(QString)));
+
+    qApp->setWindowIcon(QIcon(":/app.png"));
 }
 
 /** save settings

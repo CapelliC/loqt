@@ -112,3 +112,10 @@ else:unix: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
 
 INCLUDEPATH += $$PWD/../lqUty
 DEPENDPATH += $$PWD/../lqUty
+
+RESOURCES += \
+    lqxdot_test.qrc
+
+DISTFILES += \
+    app.png \
+    app.png

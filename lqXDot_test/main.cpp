@@ -28,7 +28,6 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    //a.setWindowIcon(QIcon(":images/lqXDot_test.png"));
 
     {   using namespace configure_behaviour;
         option_enable(move_Edges);

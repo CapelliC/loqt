@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>jquery.min.js</file>
         <file>codemirror/lib/codemirror.css</file>
         <file>codemirror/lib/codemirror.js</file>
         <file>codemirror/mode/clike/clike.js</file>
@@ -43,6 +42,5 @@
         <file>codemirror/theme/xq-dark.css</file>
         <file>codemirror/theme/xq-light.css</file>
         <file>CodeMirror.html</file>
-        <file>qwebchannel.js</file>
     </qresource>
 </RCC>

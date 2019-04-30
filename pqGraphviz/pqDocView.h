@@ -23,13 +23,8 @@
 #ifndef PQDOCVIEW_H
 #define PQDOCVIEW_H
 
-#ifdef QT_WEBENGINE_LIB
-    #include <QWebEngineView>
-    typedef QWebEngineView WEB_VIEW_BASE;
-#else
-    #include <QWebView>
-    typedef QWebView WEB_VIEW_BASE;
-#endif
+#include <QWebEngineView>
+typedef QWebEngineView WEB_VIEW_BASE;
 
 #include <QToolBar>
 #include <QStatusBar>

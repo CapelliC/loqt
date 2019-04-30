@@ -39,7 +39,7 @@ pqDocView::pqDocView(QWidget *parent) :
 
 bool pqDocView::startPlDoc()
 {
-#ifdef QT_WEBENGINE_LIB
+
     QTimer::singleShot(1, [this]() {
         QString msg;
         try {
@@ -56,42 +56,6 @@ bool pqDocView::startPlDoc()
         requests << QString("http://localhost:%1/doc_for?object=root").arg(helpDocPort);
         emit initUrl();
     });
-#else
-    // start from a background thread
-    auto f = [&]() {
-        QString msg;
-        SwiPrologEngine::in_thread _it;
-        try {
-            if (true) { //!PlCall("current_module(pldoc)")) {
-                if (!PlCall("use_module(library(pldoc))"))
-                    msg = tr("library(pldoc) not available");
-                else {
-                    //if (!PlCall("current_module(pldoc_http)"))
-                    if (!PlCall(QString("doc_server(%1)").arg(helpDocPort).toUtf8()))
-                        msg = tr("cannot start doc_server at port %1").arg(helpDocPort);
-                    /* seems useless by now
-                    else if (!PlCall("use_module(library(pldoc/doc_library))") || !PlCall("doc_load_library"))
-                        msg = tr("cannot doc_load_library"); */
-                }
-            }
-            else
-                msg = "pldoc already running";
-        }
-        catch(PlException e) {
-            msg = t2w(e);
-        }
-        qDebug() << "msg:" << msg;
-    };
-
-    //requests << QString("http://localhost:%1").arg(helpDocPort);
-    requests << QString("http://localhost:%1/doc_for?object=root").arg(helpDocPort);
-
-    auto w = new QFutureWatcher<void>;
-    connect(w, SIGNAL(finished()), this, SLOT(initUrl()));
-
-    // run the Prolog snippet in background
-    w->setFuture(QtConcurrent::run(f));
-#endif
 
     return true;
 }
@@ -126,17 +90,10 @@ void pqDocView::helpFile(QString file)
 void pqDocView::addFeedback(QToolBar *tbar, QStatusBar *sbar)
 {
     toolBar = tbar;
-#ifdef QT_WEBENGINE_LIB
     toolBar->addAction(pageAction(QWebEnginePage::Back));
     toolBar->addAction(pageAction(QWebEnginePage::Forward));
     toolBar->addAction(pageAction(QWebEnginePage::Reload));
     toolBar->addAction(pageAction(QWebEnginePage::Stop));
-#else
-    toolBar->addAction(pageAction(QWebPage::Back));
-    toolBar->addAction(pageAction(QWebPage::Forward));
-    toolBar->addAction(pageAction(QWebPage::Reload));
-    toolBar->addAction(pageAction(QWebPage::Stop));
-#endif
     //toolBar->addWidget(locationEdit);
 
     connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
@@ -144,10 +101,6 @@ void pqDocView::addFeedback(QToolBar *tbar, QStatusBar *sbar)
 
     statusBar = sbar;
     connect(this, SIGNAL(titleChanged(QString)), sbar, SLOT(showMessage(QString)));
-#ifndef QT_WEBENGINE_LIB
-    connect(page(), SIGNAL(linkHovered(QString,QString,QString)), SLOT(linkHovered(QString,QString,QString)));
-    connect(page(), SIGNAL(statusBarMessage(QString)), sbar, SLOT(showMessage(QString)));
-#endif
 }
 
 void pqDocView::loadFinished(bool yn)

@@ -90,3 +90,5 @@ OTHER_FILES += \
 
 RESOURCES += \
     lqUty.qrc
+
+# removed jquery.min.js and qwebchannel.js

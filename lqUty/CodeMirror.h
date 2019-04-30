@@ -23,13 +23,8 @@
 #ifndef CODEMIRROR_H
 #define CODEMIRROR_H
 
-#ifdef QT_WEBENGINE_LIB
-    #include <QWebEngineView>
-    typedef QWebEngineView WEB_VIEW_BASE;
-#else
-    #include <QWebView>
-    typedef QWebView WEB_VIEW_BASE;
-#endif
+#include <QWebEngineView>
+typedef QWebEngineView WEB_VIEW_BASE;
 
 #include "lqUty_global.h"
 
@@ -100,10 +95,6 @@ private slots:
     void loadFinished(bool);
 
 private:
-
-#ifndef QT_WEBENGINE_LIB
-    QWebFrame *frame() const { return page()->mainFrame(); }
-#endif
 
     void run(QString script) const;
     QVariant eval(QString script) const;

@@ -23,6 +23,22 @@
 
 TEMPLATE = subdirs
 
+#SUBDIRS += \
+#    lqUty \
+#    lqXDot \
+#    pqConsole \
+#    pqGraphviz \
+#    pqXml \
+#    pqSource \
+#    lq3d \
+#    lqShapes \
+#    lqXDot_test \
+#    lq3d_test \
+#    pqSource_test \
+#    spqr \
+#    lqGraphix \
+#    lqShapes_test
+
 SUBDIRS += \
     lqUty \
     lqXDot \
@@ -30,14 +46,8 @@ SUBDIRS += \
     pqGraphviz \
     pqXml \
     pqSource \
-    lq3d \
-    lqShapes \
     lqXDot_test \
-    lq3d_test \
-    pqSource_test \
-    spqr \
-    lqGraphix \
-    lqShapes_test
+    pqSource_test
 
 OTHER_FILES += \
     loqt.pri \

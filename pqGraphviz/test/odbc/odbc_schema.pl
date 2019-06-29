@@ -1,15 +1,21 @@
 /** <module> odbc_schema
  *
- *  build a schema out of ODBC connection, links by foreign keys or conventional identifier
+ *  build a schema out of ODBC connection,
+ *  links by foreign keys or conventional identifier
+ *
+ *  @author CapelliC
+ *  @version 0.9.9
+ *  @copyright CapelliC
+ *  @license LGPL v2.1
  */
 
 :- module(odbc_schema,
-        [show_schema/1
-	,connection_schema/2
-	,connect_db/4
-	,connect_db/5
-	,disconnect_db/1
-        ]).
+    [show_schema/1
+    ,connection_schema/2
+    ,connect_db/4
+    ,connect_db/5
+    ,disconnect_db/1
+    ]).
 
 :- use_module(library(odbc)).
 :- use_module(graph_schema).
@@ -19,8 +25,8 @@
 %	capture schema from connection, then create a graph window
 %
 show_schema(Connection) :-
-	connection_schema(Connection, Schema),
-	graph_schema(Schema).
+  connection_schema(Connection, Schema),
+  graph_schema(Schema).
 
 %% connection_schema(+Connection, -Schema:dict) is det.
 %
@@ -37,24 +43,24 @@ show_schema(Connection) :-
 %  @arg Schema		a schema{name, tables}
 %
 connection_schema(Connection, Schema) :-
-	odbc_get_connection(Connection, database_name(Db)),
-	(	schema(Db, Schema)
-	->	true
-	;	findall(table{name:Table, facets:Facets, columns:Columns, primaryKey:PrimaryKey, foreignKeys:ForeignKeys}, (
-			odbc_current_table(Connection, Table),
-			findall(Facet,
-				odbc_current_table(Connection, Table, Facet), Facets),
-			findall(column{name:Column, type:Type},
-				table_column(Connection, Table, Column, Type), Columns),
-			findall(Column,
-				odbc_table_primary_key(Connection, Table, Column), PrimaryKey),
-			findall(foreignKey{pkCol:PkCol, fkTable:FkTable, fkCol:FkCol},
-				odbc_table_foreign_key(Connection, Table, PkCol, FkTable, FkCol), ForeignKeys)
-		), Tables),
-		namedKeys(Tables, Named),
-		Schema = schema{name:Db, tables:Named},
-		assertz(schema(Db, Schema))
-	).
+  odbc_get_connection(Connection, database_name(Db)),
+  ( schema(Db, Schema)
+  ->true
+  ; findall(table{name:Table, facets:Facets, columns:Columns, primaryKey:PrimaryKey, foreignKeys:ForeignKeys}, (
+      odbc_current_table(Connection, Table),
+      findall(Facet,
+        odbc_current_table(Connection, Table, Facet), Facets),
+      findall(column{name:Column, type:Type},
+        table_column(Connection, Table, Column, Type), Columns),
+      findall(Column,
+        odbc_table_primary_key(Connection, Table, Column), PrimaryKey),
+      findall(foreignKey{pkCol:PkCol, fkTable:FkTable, fkCol:FkCol},
+        odbc_table_foreign_key(Connection, Table, PkCol, FkTable, FkCol), ForeignKeys)
+    ), Tables),
+    namedKeys(Tables, Named),
+    Schema = schema{name:Db, tables:Named},
+    assertz(schema(Db, Schema))
+  ).
 
 :- dynamic schema/2.
 
@@ -70,29 +76,29 @@ connection_schema(Connection, Schema) :-
 %  @arg Type		describe (Prolog Type)[sqltype]
 %
 table_column(Connection, Table, Column, TypeC) :-
-	odbc_table_column(Connection, Table, Column, type(Type)), term_to_atom(Type, TypeS),
-	% clean up some problem in metadata interface
-	(	sub_atom(TypeS,_,_,_,smallin)
-	->	TypeC = smallint
-	;	sub_atom(TypeS,_,_,_,datetim)
-	->	TypeC = datetime
-	;	TypeC = TypeS
-	).
+  odbc_table_column(Connection, Table, Column, type(Type)), term_to_atom(Type, TypeS),
+  % clean up some problem in metadata interface
+  ( sub_atom(TypeS,_,_,_,smallin)
+    ->TypeC = smallint
+    ; sub_atom(TypeS,_,_,_,datetim)
+    ->TypeC = datetime
+    ; TypeC = TypeS
+  ).
 
 namedKeys(Tables, Named) :-
-	maplist(namedKeys(Tables), Tables, Named).
+  maplist(namedKeys(Tables), Tables, Named).
 namedKeys(Tables, Table, Named) :-
-	findall(namedKey{key:Key, targetTable:TId}, (
-		member(C, Table.columns),
-		C >:< column{name:Key, type:integer},
-		sub_atom(Key, _, 3, 0, '_id'),
-		sub_atom(Key, _, _, 3, TId),
-		TId \= Table.name,
-		member(T, Tables),
-		T.name == TId,
-		memberchk(Key, T.primaryKey)
-	), NamedKeys),
-	Named = Table.put([namedKeys(NamedKeys)]).
+  findall(namedKey{key:Key, targetTable:TId}, (
+    member(C, Table.columns),
+    C >:< column{name:Key, type:integer},
+    sub_atom(Key, _, 3, 0, '_id'),
+    sub_atom(Key, _, _, 3, TId),
+    TId \= Table.name,
+    member(T, Tables),
+    T.name == TId,
+    memberchk(Key, T.primaryKey)
+    ), NamedKeys),
+  Named = Table.put([namedKeys(NamedKeys)]).
 
 %% connect_db(Db, Uid, Pwd, Connection) is det.
 %
@@ -104,7 +110,7 @@ namedKeys(Tables, Table, Named) :-
 %  @arg Connection	handler to opened ODBC connection
 %
 connect_db(Db, Uid, Pwd, Connection) :-
-	connect_db(mysql, Db, Uid, Pwd, Connection).
+  connect_db(mysql, Db, Uid, Pwd, Connection).
 
 %% connect_db(Driver, Db, Uid, Pwd, Connection) is det.
 %
@@ -117,8 +123,8 @@ connect_db(Db, Uid, Pwd, Connection) :-
 %  @arg Connection	handler to opened ODBC connection
 %
 connect_db(Driver, Db, Uid, Pwd, Connection) :-
-	format(atom(S), 'driver=~s;db=~s;uid=~s;pwd=~s', [Driver, Db, Uid, Pwd]),
-	odbc_driver_connect(S, Connection, []).
+  format(atom(S), 'driver=~s;db=~s;uid=~s;pwd=~s', [Driver, Db, Uid, Pwd]),
+  odbc_driver_connect(S, Connection, []).
 
 %% disconnect_db(C) is det.
 %
@@ -127,4 +133,4 @@ connect_db(Driver, Db, Uid, Pwd, Connection) :-
 %  @arg C a valid connection
 %
 disconnect_db(C) :-
-	odbc_disconnect(C).
+  odbc_disconnect(C).

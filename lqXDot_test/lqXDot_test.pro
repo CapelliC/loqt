@@ -5,7 +5,7 @@
 # interface logic languages
 #--------------------------------------------------
 # Author       : Carlo Capelli
-# Copyright (C): 2013,2014,2015,2016,2017,2018
+# Copyright (C): 2013,2014,2015,2016,2017,2018,2019
 
 #    This library is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser General Public
@@ -117,5 +117,4 @@ RESOURCES += \
     lqxdot_test.qrc
 
 DISTFILES += \
-    app.png \
     app.png

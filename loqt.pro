@@ -5,7 +5,7 @@
 # interface logic languages
 #--------------------------------------------------
 # Author       : Carlo Capelli
-# Copyright (C): 2013,2014,2015,2016,2017,2018
+# Copyright (C): 2013,2014,2015,2016,2017,2018,2019
 
 #    This library is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser General Public
@@ -23,30 +23,14 @@
 
 TEMPLATE = subdirs
 
-#SUBDIRS += \
-#    lqUty \
-#    lqXDot \
-#    pqConsole \
-#    pqGraphviz \
-#    pqXml \
-#    pqSource \
-#    lq3d \
-#    lqShapes \
-#    lqXDot_test \
-#    lq3d_test \
-#    pqSource_test \
-#    spqr \
-#    lqGraphix \
-#    lqShapes_test
-
 SUBDIRS += \
     lqUty \
     lqXDot \
+    lqXDot_test \
     pqConsole \
     pqGraphviz \
     pqXml \
     pqSource \
-    lqXDot_test \
     pqSource_test
 
 OTHER_FILES += \

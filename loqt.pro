@@ -54,7 +54,7 @@ pqSource.subdir = pqSource
 pqSource.depends = lqUty pqConsole pqGraphviz lqXDot pqXml
 
 pqSource_test.subdir = pqSource_test
-pqSource_test
+pqSource_test.depends = lqUty pqConsole pqGraphviz lqXDot pqXml pqSource
 
 OTHER_FILES += \
     loqt.pri \

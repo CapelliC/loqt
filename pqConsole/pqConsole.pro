@@ -20,17 +20,27 @@
 #    License along with this library; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-QT += core gui widgets
+include(../loqt.pri)
 
 TARGET = pqConsole
 TEMPLATE = lib
 
 DEFINES += PQCONSOLE_LIBRARY
 
+# enable dependency tracking
+CONFIG += create_prl
+
+unix: {
+    # because SWI-Prolog is built from source
+    CONFIG += link_pkgconfig
+    PKGCONFIG += swipl
+}
+
+INCLUDEPATH += $$PWD/../lqUty
+DEPENDPATH += $$PWD/../lqUty
+
 # moved where the class is defined
 # DEFINES += PQCONSOLE_BROWSER
-
-CONFIG += C++11
 
 SOURCES += \
     pqConsole.cpp \
@@ -70,20 +80,6 @@ HEADERS += \
     pqProof.h \
     swi.h
 
-unix: {
-    # because SWI-Prolog is built from source
-    CONFIG += link_pkgconfig
-    PKGCONFIG += swipl
-
-    maemo5 {
-        target.path = /opt/usr/lib
-    } else {
-        target.path = /usr/lib
-    }
-
-    INSTALLS += target
-}
-
 OTHER_FILES += \
     README.md \
     pqConsole.doxy \
@@ -93,10 +89,3 @@ OTHER_FILES += \
 
 RESOURCES += \
     pqConsole.qrc
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty
-else:unix: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
-
-INCLUDEPATH += $$PWD/../lqUty
-DEPENDPATH += $$PWD/../lqUty

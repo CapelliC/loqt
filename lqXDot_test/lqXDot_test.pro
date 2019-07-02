@@ -21,20 +21,29 @@
 #    License along with this library; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-QT += gui svg widgets
+include(../loqt.pri)
 
 TARGET = lqXDot_test
 TEMPLATE = app
-CONFIG += C++11
+
+# uses lqUty, lqXDot
+CONFIG += link_prl
+
+INCLUDEPATH += $$PWD/../lqUty
+DEPENDPATH += $$PWD/../lqUty
+LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
+
+INCLUDEPATH += $$PWD/../lqXDot
+DEPENDPATH += $$PWD/../lqXDot
+LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
 
 unix {
     CONFIG += link_pkgconfig
+    PKGCONFIG += libcgraph libgvc
 
     DEFINES += WITH_CGRAPH
     # latest download (2013/11/29) refuses to compile without this useless define
-    DEFINES += HAVE_STRING_H
-
-    PKGCONFIG += libcgraph libgvc
+    # DEFINES += HAVE_STRING_H
 }
 
 DEFINES += QT_NO_OPENGL
@@ -45,13 +54,6 @@ SOURCES += \
 
 HEADERS += \
     mainwindow.h
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/release/ -llqXDot
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/debug/ -llqXDot
-else:unix: LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
-
-INCLUDEPATH += $$PWD/../lqXDot
-DEPENDPATH += $$PWD/../lqXDot
 
 OTHER_FILES += \
     gallery/images/rosemary.jpg \
@@ -105,13 +107,6 @@ OTHER_FILES += \
     gallery/colors.gv \
     gallery/cluster_gradient.gv \
     gallery/tree test.gv
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty
-else:unix: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
-
-INCLUDEPATH += $$PWD/../lqUty
-DEPENDPATH += $$PWD/../lqUty
 
 RESOURCES += \
     lqxdot_test.qrc

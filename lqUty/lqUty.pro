@@ -28,6 +28,9 @@ TEMPLATE = lib
 
 DEFINES += LQUTY_LIBRARY
 
+# enable dependency tracking
+CONFIG += create_prl
+
 SOURCES += \
     lqUty.cpp \
     ParenMatching.cpp \

@@ -23,6 +23,9 @@ include(../loqt.pri)
 TARGET = pqSource_test
 TEMPLATE = app
 
+# uses lqUty etc
+CONFIG += link_prl
+
 unix {
     # because SWI-Prolog is built from source
     CONFIG += link_pkgconfig
@@ -39,44 +42,26 @@ RESOURCES +=
 OTHER_FILES += \
     screenshots/eldest.jpg
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqSource/release/ -lpqSource
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqSource/debug/ -lpqSource
-else:unix: LIBS += -L$$OUT_PWD/../pqSource -lpqSource
-
 INCLUDEPATH += $$PWD/../pqSource
 DEPENDPATH += $$PWD/../pqSource
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqConsole/release/ -lpqConsole
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqConsole/debug/ -lpqConsole
-else:unix: LIBS += -L$$OUT_PWD/../pqConsole/ -lpqConsole
+LIBS += -L$$OUT_PWD/../pqSource -lpqSource
 
 INCLUDEPATH += $$PWD/../pqConsole
 DEPENDPATH += $$PWD/../pqConsole
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty
-else:unix: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
+LIBS += -L$$OUT_PWD/../pqConsole/ -lpqConsole
 
 INCLUDEPATH += $$PWD/../lqUty
 DEPENDPATH += $$PWD/../lqUty
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqGraphviz/release/ -lpqGraphviz
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqGraphviz/debug/ -lpqGraphviz
-else:unix: LIBS += -L$$OUT_PWD/../pqGraphviz/ -lpqGraphviz
+LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
 
 INCLUDEPATH += $$PWD/../pqGraphviz
 DEPENDPATH += $$PWD/../pqGraphviz
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/release/ -llqXDot
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/debug/ -llqXDot
-else:unix: LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
+LIBS += -L$$OUT_PWD/../pqGraphviz/ -lpqGraphviz
 
 INCLUDEPATH += $$PWD/../lqXDot
 DEPENDPATH += $$PWD/../lqXDot
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqXml/release/ -lpqXml
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqXml/debug/ -lpqXml
-else:unix: LIBS += -L$$OUT_PWD/../pqXml/ -lpqXml
+LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
 
 INCLUDEPATH += $$PWD/../pqXml
 DEPENDPATH += $$PWD/../pqXml
+LIBS += -L$$OUT_PWD/../pqXml/ -lpqXml

@@ -23,7 +23,7 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS += \
+SUBDIRS = \
     lqUty \
     lqXDot \
     lqXDot_test \
@@ -32,6 +32,29 @@ SUBDIRS += \
     pqXml \
     pqSource \
     pqSource_test
+
+lqUty.subdir = lqUty
+
+lqXDot.subdir = lqXDot
+lqXDot.depends = lqUty
+
+lqXDot_test.subdir = lqXDot_test
+lqXDot_test.depends = lqUty lqXDot
+
+pqConsole.subdir = pqConsole
+pqConsole.depends = lqUty
+
+pqGraphviz.subdir = pqGraphviz
+pqGraphviz.depends = lqUty lqXDot pqConsole
+
+pqXml.subdir = pqXml
+pqXml.depends = lqUty pqConsole
+
+pqSource.subdir = pqSource
+pqSource.depends = lqUty pqConsole pqGraphviz lqXDot pqXml
+
+pqSource_test.subdir = pqSource_test
+pqSource_test
 
 OTHER_FILES += \
     loqt.pri \

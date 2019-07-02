@@ -21,22 +21,28 @@
 #    License along with this library; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-QT += core gui widgets svg
+include(../loqt.pri)
+
+QT += svg
 
 TARGET = lqXDot
 TEMPLATE = lib
-CONFIG += C++11
+
+# enable dependency tracking
+CONFIG += create_prl
+
+INCLUDEPATH += $$PWD/../lqUty
+DEPENDPATH += $$PWD/../lqUty
 
 DEFINES += LQXDOT_LIBRARY
 
 unix {
     CONFIG += link_pkgconfig
+    PKGCONFIG += libcgraph libgvc
 
     DEFINES += WITH_CGRAPH
     # latest download (2013/11/29) refuses to compile without this useless define
-    DEFINES += HAVE_STRING_H
-
-    PKGCONFIG += libcgraph libgvc
+    # DEFINES += HAVE_STRING_H
 }
 
 DEFINES += QT_NO_OPENGL
@@ -62,16 +68,3 @@ HEADERS += \
     lqXDot_configure.h \
     make_nop.h \
     SvgView.h
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty
-else:unix: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
-
-INCLUDEPATH += $$PWD/../lqUty
-DEPENDPATH += $$PWD/../lqUty
-
-OTHER_FILES +=
-
-RESOURCES +=
-
-DISTFILES +=

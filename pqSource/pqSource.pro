@@ -27,6 +27,36 @@ TEMPLATE = lib
 
 DEFINES += PQSOURCE_LIBRARY
 
+# enable dependency tracking
+CONFIG += create_prl
+
+unix {
+
+    # because SWI-Prolog is built from source
+    CONFIG += link_pkgconfig
+    PKGCONFIG += swipl
+
+    # Graphviz display of structured graphs
+    DEFINES += WITH_CGRAPH
+    PKGCONFIG += libcgraph libgvc
+}
+
+INCLUDEPATH += $$PWD/../lqUty
+DEPENDPATH += $$PWD/../lqUty
+
+INCLUDEPATH += $$PWD/../pqConsole
+DEPENDPATH += $$PWD/../pqConsole
+
+INCLUDEPATH += $$PWD/../pqGraphviz
+DEPENDPATH += $$PWD/../pqGraphviz
+
+INCLUDEPATH += $$PWD/../lqXDot
+DEPENDPATH += $$PWD/../lqXDot
+
+INCLUDEPATH += $$PWD/../pqXml
+DEPENDPATH += $$PWD/../pqXml
+
+
 SOURCES += \
     pqSource.cpp \
     pqHighlighter.cpp \
@@ -54,34 +84,6 @@ HEADERS += \
     MdiChildWithCheck.h \
     pqWebScript.h \
     proofGraph.h
-
-unix {
-
-    # because SWI-Prolog is built from source
-    CONFIG += link_pkgconfig
-    PKGCONFIG += swipl
-
-    # Graphviz display of structured graphs
-    DEFINES += WITH_CGRAPH
-    PKGCONFIG += libcgraph libgvc
-
-    # qwt installed from source
-#    QWT_ROOT = /usr/local/qwt-6.1.0
-#    include ( $$QWT_ROOT/features/qwt.prf )
-
-    maemo5 {
-        target.path = /opt/usr/lib
-    } else {
-        target.path = /usr/lib
-    }
-    INSTALLS += target
-}
-
-windows {
-    SwiPl = "C:\Program Files\pl"
-    INCLUDEPATH += $$SwiPl\include
-    LIBS += -L$$SwiPl\bin -lswipl
-}
 
 RESOURCES += \
     pqSource.qrc
@@ -125,39 +127,3 @@ OTHER_FILES += \
     prolog/pqSourceTemplate.pl \
     prolog/calledgraph.pl \
     prolog/pqSourceFileXref.pl
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqUty/release/ -llqUty
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqUty/debug/ -llqUty
-else:unix: LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
-
-INCLUDEPATH += $$PWD/../lqUty
-DEPENDPATH += $$PWD/../lqUty
-
-# include Prolog console
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqConsole/release/ -lpqConsole
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqConsole/debug/ -lpqConsole
-else:unix: LIBS += -L$$OUT_PWD/../pqConsole/ -lpqConsole
-
-INCLUDEPATH += $$PWD/../pqConsole
-DEPENDPATH += $$PWD/../pqConsole
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqGraphviz/release/ -lpqGraphviz
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqGraphviz/debug/ -lpqGraphviz
-else:unix: LIBS += -L$$OUT_PWD/../pqGraphviz/ -lpqGraphviz
-
-INCLUDEPATH += $$PWD/../pqGraphviz
-DEPENDPATH += $$PWD/../pqGraphviz
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/release/ -llqXDot
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lqXDot/debug/ -llqXDot
-else:unix: LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
-
-INCLUDEPATH += $$PWD/../lqXDot
-DEPENDPATH += $$PWD/../lqXDot
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pqXml/release/ -lpqXml
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pqXml/debug/ -lpqXml
-else:unix: LIBS += -L$$OUT_PWD/../pqXml/ -lpqXml
-
-INCLUDEPATH += $$PWD/../pqXml
-DEPENDPATH += $$PWD/../pqXml

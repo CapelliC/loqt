@@ -59,7 +59,7 @@ bool ConsoleEdit::color_term = true;
  *  this start the *primary* console
  */
 ConsoleEdit::ConsoleEdit(int argc, char **argv, QWidget *parent)
-    : ConsoleEditBase(parent), io(0), fixedPosition(0)
+    : ConsoleEditBase(parent), io(nullptr), fixedPosition(0)
 {
     qApp->setWindowIcon(QIcon(":/swipl.png"));
 
@@ -91,7 +91,7 @@ void ConsoleEdit::add_thread(int id) {
 /** this start an *interactor* console hosted in a QMainWindow
  */
 ConsoleEdit::ConsoleEdit(Swipl_IO* io, QString title)
-    : ConsoleEditBase(), eng(0), io(io)
+    : ConsoleEditBase(), eng(nullptr), io(io)
 {
     auto w = new QMainWindow();
     w->setCentralWidget(this);
@@ -104,7 +104,7 @@ ConsoleEdit::ConsoleEdit(Swipl_IO* io, QString title)
  *  no MainWindow to attach this
  */
 ConsoleEdit::ConsoleEdit(Swipl_IO* io)
-    : ConsoleEditBase(), eng(0), io(io)
+    : ConsoleEditBase(), eng(nullptr), io(io)
 {
     setup(io);
 }
@@ -148,7 +148,7 @@ void ConsoleEdit::setup() {
 
     qApp->installEventFilter(this);
     update_refresh_rate = 100;
-    preds = 0;
+    preds = nullptr;
 
     Preferences p;
 
@@ -245,6 +245,7 @@ void ConsoleEdit::keyPressEvent(QKeyEvent *event) {
             setTextCursor(c);
             return;
         }
+    [[clang::fallthrough]];
     case Key_End:
     case Key_Left:
     case Key_Right:
@@ -267,6 +268,7 @@ void ConsoleEdit::keyPressEvent(QKeyEvent *event) {
     case Key_Up:
         down = false;
         // fall throu
+    [[clang::fallthrough]];
     case Key_Down:
         if (ctrl) { //if (!ctrl) {
             // naive history handler
@@ -328,7 +330,7 @@ void ConsoleEdit::keyPressEvent(QKeyEvent *event) {
             PL_thread_raise(thids[0], SIGINT);
             return;
         }
-        // fall throu
+        [[clang::fallthrough]];
 
     default:
 
@@ -668,7 +670,7 @@ void ConsoleEdit::linkto_message_source() {
         if (jmsg.exactMatch(text)) {
             QStringList parts = jmsg.capturedTexts();
             QString path = parts[2].trimmed();
-            int opb = path.indexOf('['), clb;
+            int opb = path.indexOf('['), clb = int();
             if (opb >= 0 && (clb = path.indexOf(']', opb+1)) > opb)
                 path = path.mid(clb + 1).trimmed();
 
@@ -752,6 +754,7 @@ bool ConsoleEdit::event(QEvent *event) {
  */
 bool ConsoleEdit::eventFilter(QObject *obj, QEvent *event) {
     return ConsoleEditBase::eventFilter(obj, event);
+    #if 0
     //Q_UNUSED(obj)
     if (event->type() == QEvent::MouseMove) {
         QTextCursor c = cursorForPosition(static_cast<QMouseEvent*>(event)->pos());
@@ -761,6 +764,7 @@ bool ConsoleEdit::eventFilter(QObject *obj, QEvent *event) {
     return ConsoleEditBase::eventFilter(obj, event);
     //return false;
     //return QObject::eventFilter(obj, event);
+    #endif
 }
 
 /** the user identifying label is attached somewhere to parents chain
@@ -939,7 +943,7 @@ void ConsoleEdit::tty_clear() {
 /** issue instancing in GUI thread (cant moveToThread a Widget)
  */
 void ConsoleEdit::new_console(Swipl_IO *io, QString title) {
-    Q_ASSERT(io->target == 0);
+    Q_ASSERT(io->target == nullptr);
 
     auto r = new req_new_console(io, title);
     QApplication::instance()->postEvent(this, r);
@@ -954,7 +958,7 @@ void ConsoleEdit::customEvent(QEvent *event) {
     auto e = static_cast<req_new_console *>(event);
 
     // multi tabbed interface:
-    pqMainWindow *mw = 0;
+    pqMainWindow *mw = nullptr;
     for (QWidget *w = parentWidget(); w && !mw; w = w->parentWidget())
         mw = qobject_cast<pqMainWindow*>(w);
 
@@ -979,7 +983,7 @@ void ConsoleEdit::add_history_line(QString line)
  */
 void ConsoleEdit::eng_completed() {
     if (eng) {
-        eng = 0;
+        eng = nullptr;
         // qApp->quit();
         QApplication::postEvent(qApp, new QCloseEvent);
     }
@@ -1009,7 +1013,7 @@ void ConsoleEdit::query_run(QString module, QString call) {
 
 ConsoleEdit::exec_sync::exec_sync(int timeout_ms) : timeout_ms(timeout_ms) {
     stop_ = QCT;
-    go_ = 0;
+    go_ = nullptr;
 }
 void ConsoleEdit::exec_sync::stop() {
     Q_ASSERT(QCT == stop_);
@@ -1023,8 +1027,8 @@ void ConsoleEdit::exec_sync::stop() {
     //Q_ASSERT(go_ && go_ != stop_);
 }
 void ConsoleEdit::exec_sync::go() {
-    Q_ASSERT(go_ == 0);
-    Q_ASSERT(stop_ != 0);
+    Q_ASSERT(go_ == nullptr);
+    Q_ASSERT(stop_ != nullptr);
     auto t = QCT;
     if (stop_ != t) {
         QMutexLocker lk(&sync);

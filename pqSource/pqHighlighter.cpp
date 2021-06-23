@@ -294,7 +294,7 @@ QStringList pqHighlighter::vars(QTextCursor p) const
     itcs pp = position_path(p.position());
     if (!pp.isEmpty())
         topdown_preorder(*pp[0], [&](const cat &c) { if (c.desc == "var")  vs << text(&c); });
-    return vs.toList();
+    return vs.values();
 }
 
 /** get info of predicate head under cursor
@@ -312,9 +312,9 @@ bool pqHighlighter::getPredicateHead(pqHighlighter::predicateHead &ph, QTextCurs
                 if (V.arity() == 2) {
                     T F = V[2];
                     ph.functor = F.name();
-                    ph.arity = F.arity();
+                    ph.arity = int(F.arity());
                     for (int c = 1; c < ph.arity; ++c)
-                        ph.vars << t2w(F[c]);
+                        ph.vars << t2w(F[size_t(c)]);
                 }
         }
         catch(PlException ex) {

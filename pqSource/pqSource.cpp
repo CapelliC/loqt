@@ -643,7 +643,7 @@ void pqSource::completerInit(QTextCursor c) {
         foreach (QString s, hl->vars(c))
             syms.insert(s);
 
-    QStringList sorted = syms.toList();
+    QStringList sorted = syms.values();
     sorted.sort();
 
     if (!autocomp) {

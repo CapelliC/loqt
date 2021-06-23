@@ -169,7 +169,7 @@ QString pqSyntaxData::structure() const
  */
 void pqSyntaxData::apply_delta(t_nesting &c, int position, int delta)
 {
-    t_nesting::iterator p = qLowerBound(c.begin(), c.end(), cat(position, position));
+    t_nesting::iterator p = std::lower_bound(c.begin(), c.end(), cat(position, position));
     if (p != c.begin())
         --p;
     t_nesting::iterator q = p;
@@ -228,7 +228,7 @@ void pqSyntaxData::reconcile(int position, const pqSyntaxData &updated)
         range cb = clause_boundary(position);
         if (cb.size() > 0 && cb.beg < cats.size()) {
             int p = cats[cb.beg].beg;
-            Q_UNUSED(p);
+            Q_UNUSED(p)
             Q_ASSERT(p <= position);
             Q_ASSERT(cb.size() + 1 == updated.cats.size());
             int delta = cats[cb.beg].beg - uc.beg;
@@ -243,7 +243,7 @@ void pqSyntaxData::reconcile(int position, const pqSyntaxData &updated)
             cats.remove(cb.beg + uc.nesting.size(), cb.size() + 1);
         }
         else {
-            t_nesting::iterator p = qLowerBound(cats.begin(), cats.end(), cat(position, position));
+            t_nesting::iterator p = std::lower_bound(cats.begin(), cats.end(), cat(position, position));
             int q = p - cats.begin();
 
             for (int i = 0; i < uns; ++i) {
@@ -269,7 +269,7 @@ void pqSyntaxData::reconcile(int position, const pqSyntaxData &updated)
  */
 pqSyntaxData::range pqSyntaxData::clause_boundary(int position) const
 {
-    t_nesting::const_iterator p = qLowerBound(cats.begin(), cats.end(), cat(position, position));
+    t_nesting::const_iterator p = std::lower_bound(cats.begin(), cats.end(), cat(position, position));
     if (!p->contains(position) && p != cats.begin())
         --p;
     if (p != cats.end() && p->contains(position)) {
@@ -287,7 +287,7 @@ pqSyntaxData::itc pqSyntaxData::find_position(int position, const t_nesting &n)
 {
     if (!n.isEmpty()) {
         cat c(position, position);
-        t_nesting::const_iterator p = qLowerBound(n.begin(), n.end(), c);
+        t_nesting::const_iterator p = std::lower_bound(n.begin(), n.end(), c);
         if (p == n.end() || (p->beg > position && p != n.begin()))
             --p;
         if (p->contains(position))

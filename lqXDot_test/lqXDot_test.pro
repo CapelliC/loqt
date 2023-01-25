@@ -32,7 +32,6 @@ CONFIG += link_prl
 INCLUDEPATH += $$PWD/../lqUty
 DEPENDPATH += $$PWD/../lqUty/debug
 LIBS += -L$$OUT_PWD/../lqUty/debug -llqUty
-message(A $CONFIG)
 
 INCLUDEPATH += $$PWD/../lqXDot
 DEPENDPATH += $$PWD/../lqXDot/debug
@@ -43,12 +42,6 @@ DEFINES += WITH_CGRAPH GVDLL QT_NO_OPENGL
 unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += libcgraph libgvc
-}
-
-windows {
-    GRAPHVIZ = "C:/Program Files/Graphviz"
-    INCLUDEPATH += $$GRAPHVIZ/include
-    LIBS += -L$$GRAPHVIZ/lib -lgvc -lcgraph -lcdt
 }
 
 SOURCES += \

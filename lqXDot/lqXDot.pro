@@ -36,19 +36,12 @@ DEPENDPATH += $$PWD/../lqUty/debug
 LIBS += -L$$OUT_PWD/../lqUty/debug -llqUty
 
 DEFINES += LQXDOT_LIBRARY
-DEFINES += WITH_CGRAPH GVDLL
-DEFINES += QT_NO_OPENGL
 
 unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += libcgraph libgvc
     # latest download (2013/11/29) refuses to compile without this useless define
     # DEFINES += HAVE_STRING_H
-}
-
-windows {
-    INCLUDEPATH += "C:/Program Files/Graphviz/include"
-    LIBS += -L"C:/Program Files/Graphviz/lib" -lgvc -lcgraph -lcdt -lxdot
 }
 
 SOURCES += \

@@ -44,16 +44,16 @@ unix {
 }
 
 INCLUDEPATH += $$PWD/../lqUty
-DEPENDPATH += $$PWD/../lqUty
-#LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
+DEPENDPATH += $$PWD/../lqUty/debug
+LIBS += -L$$OUT_PWD/../lqUty/debug -llqUty
 
 INCLUDEPATH += $$PWD/../lqXDot
-DEPENDPATH += $$PWD/../lqXDot
-#LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
+DEPENDPATH += $$PWD/../lqXDot/debug
+LIBS += -L$$OUT_PWD/../lqXDot/debug -llqXDot
 
 INCLUDEPATH += $$PWD/../pqConsole
-DEPENDPATH += $$PWD/../pqConsole
-#LIBS += -L$$OUT_PWD/../pqConsole/ -lpqConsole
+DEPENDPATH += $$PWD/../pqConsole/debug
+LIBS += -L$$OUT_PWD/../pqConsole/debug -lpqConsole
 
 SOURCES += \
     pqGraphviz.cpp \

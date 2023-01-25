@@ -32,3 +32,13 @@ windows {
     INCLUDEPATH += $$SwiPl\include
     LIBS += -L$$SwiPl\bin -llibswipl
 }
+
+windows {
+    GRAPHVIZ = "C:/Program Files/Graphviz"
+    INCLUDEPATH += $$GRAPHVIZ/include
+    LIBS += -L$$GRAPHVIZ/lib -lgvc -lcgraph -lcdt -lxdot
+}
+
+DEFINES += WITH_CGRAPH
+DEFINES += GVDLL
+DEFINES += QT_NO_OPENGL

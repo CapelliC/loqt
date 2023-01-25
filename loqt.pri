@@ -25,5 +25,4 @@
 CONFIG += C++11
 
 # switch to QWebEngine instead of QWebKit
-QT += core gui widgets webenginewidgets
-
+QT += core gui widgets webenginewidgets statemachine

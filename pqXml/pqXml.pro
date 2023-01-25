@@ -23,7 +23,7 @@
 
 include(../loqt.pri)
 
-QT += svg xml xmlpatterns
+QT += svg xml
 
 TARGET = pqXml
 TEMPLATE = lib

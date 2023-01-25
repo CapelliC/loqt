@@ -38,7 +38,7 @@ void JSSyntax::setup() {
     QString charcode("0'.|0'\\t|0'\\n|0'\\r|0'\\u[0-9][0-9][0-9][0-9]");
     QString oper("[\\+\\-\\*\\/\\=\\^<>~:\\.,;\\?@#$\\\\&{}`]+");
 
-    tokens = QRegExp(QString("(%1)|(%2)|(%3)|(%4)|(%5)|(%6)|(%7)|(%8)").arg(number, symbol, var, quoted, atomq, atombackq, charcode, oper));
+    tokens = QRegularExpression(QString("(%1)|(%2)|(%3)|(%4)|(%5)|(%6)|(%7)|(%8)").arg(number, symbol, var, quoted, atomq, atombackq, charcode, oper));
 
     fmt[Comment].setForeground(Qt::darkGreen);
     fmt[Number].setForeground(QColor("blueviolet"));
@@ -78,9 +78,10 @@ void JSSyntax::highlightBlock(const QString &text)
             setFormat(i, j - i + (l = 2), fmt[Comment]);
             setCurrentBlockState(0);
         } else {
-            if ((j = tokens.indexIn(text, i)) == -1)
+            auto match = tokens.match(text, i);
+            if (!match.hasMatch())
                 break;
-            QStringList ml = tokens.capturedTexts();
+            QStringList ml = match.capturedTexts();
             Q_ASSERT(ml.length() == 8+1);
             if ((l = ml[1].length())) {  // number
                 setFormat(j, l, fmt[Number]); } else

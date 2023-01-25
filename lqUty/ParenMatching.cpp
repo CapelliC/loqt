@@ -73,9 +73,9 @@ QString ParenMatching::range::plainText(QTextDocument *doc) const
         e = doc->findBlock(end);
     QTextStream s(&x);
     if (b != e) {
-        s << b.text().mid(b.position() - beg) << endl;
+        s << b.text().mid(b.position() - beg) << Qt::endl;
         for (b = b.next(); b != e; b = b.next())
-            s << b.text() << endl;
+            s << b.text() << Qt::endl;
         s << b.text().left(end - b.position());
     }
     else
@@ -94,7 +94,7 @@ QString ParenMatching::range::linesText(QTextDocument *doc) const
     if (b != doc->end()) {
         QTextStream s(&x);
         for ( ; b != e; b = b.next())
-            s << b.text() << endl;
+            s << b.text() << Qt::endl;
         if (b != doc->end())
             s << b.text();
     }

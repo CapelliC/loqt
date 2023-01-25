@@ -40,6 +40,7 @@ KeyboardMacros::KeyboardMacros(QObject *parent) :
     connect(mapPlay, SIGNAL(mapped(QWidget*)), this, SLOT(Playback(QWidget*)));
 
     lqPreferences p;
+#if 0
     int n = p.beginReadArray(k_macros);
     for (int i = 0; i < n; ++i) {
         p.setArrayIndex(i);
@@ -50,11 +51,13 @@ KeyboardMacros::KeyboardMacros(QObject *parent) :
             m << s2e(s);
         macros[name] = m;
     }
+#endif
     p.endArray();
 }
 
 KeyboardMacros::~KeyboardMacros()
 {
+#if 0
     lqPreferences p;
 
     p.beginWriteArray(k_macros);
@@ -63,12 +66,14 @@ KeyboardMacros::~KeyboardMacros()
         { //if (name != defaultName()) {
             p.setArrayIndex(i);
             p.setValue(k_name, name);
+
             QStringList s;
-            foreach (QKeyEvent e, macros[name])
+            foreach (const QKeyEvent &e, macros[name])
                 s << e2s(e);
             p.setValue(k_strokes, s);
         }
     p.endArray();
+#endif
 }
 
 QKeySequence KeyboardMacros::start() { return QKeySequence("Ctrl+Shift+R"); }
@@ -148,13 +153,17 @@ void KeyboardMacros::storeEvent(QKeyEvent *e)
 {
     if (!lastRecorded.isEmpty()) {
         qDebug() << "storeEvent" << e;
+#if 0
         macros[lastRecorded].append(*e);
+#endif
     }
 }
 void KeyboardMacros::setLastRecordedName(QString name)
 {
+#if 0
     macros[name] = macros[lastRecorded];
     macros.remove(lastRecorded);
+#endif
     lastRecorded = name;
 }
 
@@ -188,8 +197,10 @@ void KeyboardMacros::startRecording(QWidget *ed)
     if (status == idle) {
         status = onRecord;
         lastRecorded = defaultName();
+#if 0
         macros[lastRecorded].clear();
         ed->installEventFilter(this);
+#endif
         emit feedback(tr("Keyboard Macro: Start registering '%1'").arg(currName()));
     }
     else
@@ -223,8 +234,10 @@ void KeyboardMacros::Playback(QWidget *ed)
     if (status == idle) {
         status = onPlayback;
         emit feedback(tr("Keyboard Macro: Playback '%1'").arg(currName()));
-        for (auto e: macros[defaultName()])
+#if 0
+        for (const QKeyEvent& e: macros[defaultName()])
             QCoreApplication::postEvent(ed, new QKeyEvent(e.type(), e.key(), e.modifiers(), e.text()));
+#endif
         status = idle;
         emit playbackCompleted();
     }

@@ -23,7 +23,7 @@
 #ifndef JSSYNTAX_H
 #define JSSYNTAX_H
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextEdit>
 #include <QElapsedTimer>
 #include <QPlainTextEdit>
@@ -65,7 +65,7 @@ private:
         Unknown
     };
     QTextCharFormat fmt[Unknown+1];
-    QRegExp tokens;
+    QRegularExpression tokens;
 
     void setup();
     QElapsedTimer startToEnd;

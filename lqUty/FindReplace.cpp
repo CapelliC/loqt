@@ -185,7 +185,7 @@ void FindReplace::do_replace(EditInterface i)
  */
 QTextDocument::FindFlags FindReplace::flags() const
 {
-    QTextDocument::FindFlags f = 0;
+    QTextDocument::FindFlags f;
     if (backward.isChecked())
         f |= QTextDocument::FindBackward;
     if (caseSensitive.isChecked())
@@ -202,7 +202,7 @@ QTextCursor FindReplace::start()
     QString s = to_search.currentText();
     QTextCursor c = ei.textCursor();
     if (regex.isChecked())
-        return ei.document()->find(QRegExp(s), c, flags());
+        return ei.document()->find(QRegularExpression(s), c, flags());
     else
         return ei.document()->find(s, c, flags());
 }

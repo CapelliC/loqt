@@ -60,7 +60,7 @@ foldedTextAttr::folding foldedTextAttr::fold(QTextCursor c) {
     QVariant v; v.setValue(s);
     f.setProperty(prop(), v);
     c.insertText(QString(QChar::ObjectReplacementCharacter), f);
-    return folding { s.toPlainText().length(), -1 };
+    return folding { static_cast<int>(s.toPlainText().length()), -1 };
 }
 
 QTextDocumentFragment foldedTextAttr::fragment(QTextCharFormat f) {

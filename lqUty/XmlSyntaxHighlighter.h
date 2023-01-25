@@ -44,6 +44,7 @@
 #include "lqUty_global.h"
 
 #include <QtGui/QSyntaxHighlighter>
+#include <QRegularExpression>
 
 /** adapted from Qt Nokia sample code
  */
@@ -58,13 +59,13 @@ class LQUTYSHARED_EXPORT XmlSyntaxHighlighter : public QSyntaxHighlighter
     private:
         struct HighlightingRule
         {
-            QRegExp pattern;
+            QRegularExpression pattern;
             QTextCharFormat format;
         };
         QVector<HighlightingRule> highlightingRules;
 
-        QRegExp commentStartExpression;
-        QRegExp commentEndExpression;
+        QRegularExpression commentStartExpression;
+        QRegularExpression commentEndExpression;
 
         QTextCharFormat tagFormat;
         QTextCharFormat attributeFormat;

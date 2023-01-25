@@ -86,10 +86,11 @@ public slots:
     void Playback(QWidget*);
 
 private:
-
+#if 0
     //! restrict to keyboard events by now
     typedef QList<QKeyEvent> macro;
     QMap<QString, macro> macros;
+#endif
 
     //! TBD allows to reference macros by name
     QString lastRecorded;

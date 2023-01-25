@@ -48,19 +48,19 @@ XmlSyntaxHighlighter::XmlSyntaxHighlighter(QTextDocument *parent)
     // tag format
     tagFormat.setForeground(QColor("brown"));
     tagFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("(<[a-zA-Z:]+\\b|<\\?[a-zA-Z:]+\\b|\\?>|>|/>|</[a-zA-Z:]+>)");
+    rule.pattern = QRegularExpression("(<[a-zA-Z:]+\\b|<\\?[a-zA-Z:]+\\b|\\?>|>|/>|</[a-zA-Z:]+>)");
     rule.format = tagFormat;
     highlightingRules.append(rule);
 
     // attribute format
     attributeFormat.setForeground(Qt::blue);
-    rule.pattern = QRegExp("[a-zA-Z:\\-]+=");
+    rule.pattern = QRegularExpression("[a-zA-Z:\\-]+=");
     rule.format = attributeFormat;
     highlightingRules.append(rule);
 
     // attribute content format
     attributeContentFormat.setForeground(Qt::darkMagenta);
-    rule.pattern = QRegExp("(\"[^\"]*\"|'[^']*')");
+    rule.pattern = QRegularExpression("(\"[^\"]*\"|'[^']*')");
     rule.format = attributeContentFormat;
     highlightingRules.append(rule);
 
@@ -68,17 +68,18 @@ XmlSyntaxHighlighter::XmlSyntaxHighlighter(QTextDocument *parent)
     commentFormat.setForeground(Qt::darkGreen);
     commentFormat.setFontItalic(true);
 
-    commentStartExpression = QRegExp("<!--");
-    commentEndExpression = QRegExp("-->");
+    commentStartExpression = QRegularExpression("<!--");
+    commentEndExpression = QRegularExpression("-->");
 }
 
 void XmlSyntaxHighlighter::highlightBlock(const QString &text)
 {
      foreach (const HighlightingRule &rule, highlightingRules) {
-         QRegExp expression(rule.pattern);
-         int index = text.indexOf(expression);
+         QRegularExpression expression(rule.pattern);
+         QRegularExpressionMatch rmatch;
+         int index = text.indexOf(expression, 0, &rmatch);
          while (index >= 0) {
-             int length = expression.matchedLength();
+             int length = rmatch.capturedLength();
              setFormat(index, length, rule.format);
              index = text.indexOf(expression, index + length);
          }
@@ -90,14 +91,15 @@ void XmlSyntaxHighlighter::highlightBlock(const QString &text)
          startIndex = text.indexOf(commentStartExpression);
 
      while (startIndex >= 0) {
-         int endIndex = text.indexOf(commentEndExpression, startIndex);
+         QRegularExpressionMatch rmatch;
+         int endIndex = text.indexOf(commentEndExpression, startIndex, &rmatch);
          int commentLength;
          if (endIndex == -1) {
              setCurrentBlockState(1);
              commentLength = text.length() - startIndex;
          } else {
              commentLength = endIndex - startIndex
-                             + commentEndExpression.matchedLength();
+                             + rmatch.capturedLength();
          }
          setFormat(startIndex, commentLength, commentFormat);
          startIndex = text.indexOf(commentStartExpression,

@@ -53,15 +53,14 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     lastMode = p.value("lastMode", "dot").toString();
 
     QMenu *m = menuBar()->addMenu("&File");
-    m->addAction(tr("&New..."), this, &MainWindow::newFile, QKeySequence::New);
-    //m->addAction(tr("&Open..."), this, &MainWindow::openFile, QKeySequence::Open);
-    m->addAction(tr("Open..."), this, &MainWindow::openFile, QKeySequence::Open);
+    m->addAction(tr("&New..."), QKeySequence::New, this, &MainWindow::newFile);
+    m->addAction(tr("Open..."), QKeySequence::Open, this, &MainWindow::openFile);
     m->addMenu(mruMenu = new QMenu("Recent &Files..."));
     loadMru(p, this);
     m->addSeparator();
-    m->addAction(tr("&Save"), this, &MainWindow::saveFile, QKeySequence::Save);
-    m->addAction(tr("Save &As..."), this, &MainWindow::saveFileAs, QKeySequence::SaveAs);
-    m->addAction(tr("&Render..."), this, &MainWindow::renderFile, tr("Ctrl+R"));
+    m->addAction(tr("&Save"), QKeySequence::Save, this, &MainWindow::saveFile);
+    m->addAction(tr("Save &As..."), QKeySequence::SaveAs, this, &MainWindow::saveFileAs);
+    m->addAction(tr("&Render..."), tr("Ctrl+R"), this, &MainWindow::renderFile);
 
     // layouts algorithm by name
     m->addSeparator();
@@ -77,7 +76,7 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     }
 
     m->addSeparator();
-    m->addAction(tr("E&xit"), qApp, SLOT(quit()), QKeySequence::Quit);
+    m->addAction(tr("E&xit"), QKeySequence::Quit, qApp, SLOT(quit()));
 
     if (argc >= 2)
         fileDot = argv[1];
@@ -134,7 +133,7 @@ void MainWindow::openFile() {
     QFileDialog d(this, tr("Open Dot Script"), lastDir, dotFiles());
     if (d.exec()) {
         lastDir = d.directory().path();
-        fileDot = d.selectedFiles()[0];
+        fileDot = d.selectedFiles().constFirst();
         viewDot();
     }
 }

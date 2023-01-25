@@ -128,12 +128,12 @@ QString pqSyntaxData::cat::structure(QString indent) const
     {   QTextStream s(&r);
         s << indent << '{' << beg << ' ' << end << ' '  << desc;
         if (nesting.isEmpty())
-            s << '}' << endl;
+            s << '}' << Qt::endl;
         else {
-            s << ' ' << nesting.size() << endl;
+            s << ' ' << nesting.size() << Qt::endl;
             foreach(auto n, nesting)
                 s << n.structure(indent + " ");
-            s << indent << '}' << endl;
+            s << indent << '}' << Qt::endl;
         }
     }
     return r;

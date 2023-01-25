@@ -48,7 +48,7 @@ class PQSOURCESHARED_EXPORT MdiHelper : public QMainWindow, protected MruHelper
 
 protected:
 
-    MdiHelper(QWidget *parent = 0, Qt::WindowFlags flags = 0) : QMainWindow(parent, flags) {}
+    MdiHelper(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags()) : QMainWindow(parent, flags) {}
     void setupMdi();
 
     // from MDI example

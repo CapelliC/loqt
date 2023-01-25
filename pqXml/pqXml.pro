@@ -50,9 +50,11 @@ unix {
 # include utilities
 
 INCLUDEPATH += $$PWD/../lqUty
-DEPENDPATH += $$PWD/../lqUty
+DEPENDPATH += $$PWD/../lqUty/debug
+LIBS += -L$$OUT_PWD/../lqUty/debug -llqUty
 
 # include Prolog console
 
 INCLUDEPATH += $$PWD/../pqConsole
-DEPENDPATH += $$PWD/../pqConsole
+DEPENDPATH += $$PWD/../pqConsole/debug
+LIBS += -L$$OUT_PWD/../pqConsole/debug -lpqConsole

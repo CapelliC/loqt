@@ -42,26 +42,26 @@ RESOURCES +=
 OTHER_FILES += \
     screenshots/eldest.jpg
 
-INCLUDEPATH += $$PWD/../pqSource
-DEPENDPATH += $$PWD/../pqSource
-LIBS += -L$$OUT_PWD/../pqSource -lpqSource
-
-INCLUDEPATH += $$PWD/../pqConsole
-DEPENDPATH += $$PWD/../pqConsole
-LIBS += -L$$OUT_PWD/../pqConsole/ -lpqConsole
-
 INCLUDEPATH += $$PWD/../lqUty
-DEPENDPATH += $$PWD/../lqUty
-LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
-
-INCLUDEPATH += $$PWD/../pqGraphviz
-DEPENDPATH += $$PWD/../pqGraphviz
-LIBS += -L$$OUT_PWD/../pqGraphviz/ -lpqGraphviz
+DEPENDPATH += $$PWD/../lqUty/debug
+LIBS += -L$$OUT_PWD/../lqUty/debug -llqUty
 
 INCLUDEPATH += $$PWD/../lqXDot
-DEPENDPATH += $$PWD/../lqXDot
-LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
+DEPENDPATH += $$PWD/../lqXDot/debug
+LIBS += -L$$OUT_PWD/../lqXDot/debug -llqXDot
+
+INCLUDEPATH += $$PWD/../pqGraphviz
+DEPENDPATH += $$PWD/../pqGraphviz/debug
+LIBS += -L$$OUT_PWD/../pqGraphviz/debug -lpqGraphviz
 
 INCLUDEPATH += $$PWD/../pqXml
-DEPENDPATH += $$PWD/../pqXml
-LIBS += -L$$OUT_PWD/../pqXml/ -lpqXml
+DEPENDPATH += $$PWD/../pqXml/debug
+LIBS += -L$$OUT_PWD/../pqXml/debug -lpqXml
+
+INCLUDEPATH += $$PWD/../pqConsole
+DEPENDPATH += $$PWD/../pqConsole/debug
+LIBS += -L$$OUT_PWD/../pqConsole/debug -lpqConsole
+
+INCLUDEPATH += $$PWD/../pqSource
+DEPENDPATH += $$PWD/../pqSource/debug
+LIBS += -L$$OUT_PWD/../pqSource/debug -lpqSource

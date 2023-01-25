@@ -677,7 +677,7 @@ void pqSourceMainWindow::reportToFile(QString msg) {
     }
 
     if (reportFile.isOpen())
-        QTextStream(&reportFile) << QTime::currentTime().toString() << ":" << msg << endl;
+        QTextStream(&reportFile) << QTime::currentTime().toString() << ":" << msg << Qt::endl;
 }
 
 /** display msg
@@ -785,15 +785,21 @@ void pqSourceMainWindow::decFont()
 
 void pqSourceMainWindow::incTabs()
 {
+    Q_ASSERT(false);
+    /*
     for (auto w: typedSubWindows<pqSource>())
         w->setTabStopWidth(w->tabStopWidth() + 1);
+        */
 }
 
 void pqSourceMainWindow::decTabs()
 {
+    Q_ASSERT(false);
+    /*
     for (auto w: typedSubWindows<pqSource>())
         if (int s = w->tabStopWidth())
             w->setTabStopWidth(s - 1);
+            */
 }
 
 void pqSourceMainWindow::markCursor(QTextCursor c)

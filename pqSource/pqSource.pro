@@ -42,20 +42,24 @@ unix {
 }
 
 INCLUDEPATH += $$PWD/../lqUty
-DEPENDPATH += $$PWD/../lqUty
-
-INCLUDEPATH += $$PWD/../pqConsole
-DEPENDPATH += $$PWD/../pqConsole
-
-INCLUDEPATH += $$PWD/../pqGraphviz
-DEPENDPATH += $$PWD/../pqGraphviz
+DEPENDPATH += $$PWD/../lqUty/debug
+LIBS += -L$$OUT_PWD/../lqUty/debug -llqUty
 
 INCLUDEPATH += $$PWD/../lqXDot
-DEPENDPATH += $$PWD/../lqXDot
+DEPENDPATH += $$PWD/../lqXDot/debug
+LIBS += -L$$OUT_PWD/../lqXDot/debug -llqXDot
+
+INCLUDEPATH += $$PWD/../pqConsole
+DEPENDPATH += $$PWD/../pqConsole/debug
+LIBS += -L$$OUT_PWD/../pqConsole/debug -lpqConsole
+
+INCLUDEPATH += $$PWD/../pqGraphviz
+DEPENDPATH += $$PWD/../pqGraphviz/debug
+LIBS += -L$$OUT_PWD/../pqGraphviz/debug -lpqGraphviz
 
 INCLUDEPATH += $$PWD/../pqXml
-DEPENDPATH += $$PWD/../pqXml
-
+DEPENDPATH += $$PWD/../pqXml/debug
+LIBS += -L$$OUT_PWD/../pqXml/debug -lpqXml
 
 SOURCES += \
     pqSource.cpp \

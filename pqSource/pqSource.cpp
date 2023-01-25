@@ -565,7 +565,7 @@ void pqSource::keyPressEvent(QKeyEvent *e)
                     c.setPosition(x.position());
                     if (e->key() == Key_Backtab) {
                         if (tab2chars == -1)
-                            tab2chars = tabStopWidth() / QFontMetrics(c.charFormat().font()).charWidth(" ", 0);
+                            tab2chars = 80; // /*tabStopWidth()*/ / QFontMetrics(c.charFormat().font()).charWidth(" ", 0);
                         QString l = x.text();
                         int p_del = 0;
                         while (p_del < tab2chars && p_del < l.length())

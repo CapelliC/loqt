@@ -31,7 +31,7 @@
 /** a class with the only purpose to display
  *  updated row/col number from QTextEditors cursor position
  */
-class LQUTYSHARED_EXPORT RowColIndicators : QObject
+class LQUTYSHARED_EXPORT RowColIndicators : public QObject
 {
     Q_OBJECT
 

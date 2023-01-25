@@ -35,7 +35,6 @@
 #include <QTemporaryFile>
 #include <QDateTime>
 #include <QApplication>
-#include <QTextCodec>
 #include <QTextStream>
 #include <QDebug>
 

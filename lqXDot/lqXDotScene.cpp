@@ -29,6 +29,7 @@
 #include "lqXDot_configure.h"
 int lqXDotScene::configure_behaviour;
 
+#include <QFile>
 #include <QTime>
 #include <QDebug>
 #include <QCheckBox>
@@ -613,11 +614,12 @@ protected:
     lqXDotScene *s;
     lqXDotView *v;
     QPointF p;
-    void onEntry(QEvent *event) {
-        v->setFoldedScene(s, p);
-        cleanUpState::onEntry(event);
-    }
+    void onEntry(QEvent *event);
 };
+void changeScene::onEntry(QEvent *event) {
+    v->setFoldedScene(s, p);
+    cleanUpState::onEntry(event);
+}
 
 /** compute scene animation to get a visible node <i> folded/unfolded
  */

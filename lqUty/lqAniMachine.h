@@ -39,7 +39,7 @@ class LQUTYSHARED_EXPORT lqAniMachine : public QStateMachine
 public:
 
     //! warning: delete machine utility - use with care
-    class cleanUpState : public QFinalState {
+    class LQUTYSHARED_EXPORT cleanUpState : public QFinalState {
     public:
         cleanUpState(QStateMachine *machine) : QFinalState(machine) {}
     protected:

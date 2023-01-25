@@ -161,14 +161,16 @@ void lqXDotView::keyPressEvent(QKeyEvent* event)
  */
 void lqXDotView::wheelEvent(QWheelEvent* event)
 {
-    qreal factor = qPow(1.2, event->delta() / 240.0);
-    scale(factor, factor);
+    //qreal factor = qPow(1.2, event->pixelDelta() / 240.0);
+    //scale(factor, factor);
+    auto delta = event->pixelDelta();
+    scale(delta.rx(), delta.ry());
     event->accept();
 }
 
 void lqXDotView::mousePressEvent(QMouseEvent *event)
 {
-    qDebug() << event->pos() << event->globalPos();
+    qDebug() << event->pos() << event->globalPosition();
 
     lqNode *lqit = ancestor<lqNode>(itemAt(event->pos()));
     if (lqit)
@@ -234,7 +236,7 @@ void lqXDotView::contextMenuEvent(QContextMenuEvent *event)
  */
 void lqXDotView::scale_view(qreal scaleFactor)
 {
-    qreal f = sqrt(matrix().determinant());
+    qreal f = sqrt(transform().determinant());
 
     if (scaleFactor * f > 8.0)
         scaleFactor = 8.0 / f;

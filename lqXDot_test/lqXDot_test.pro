@@ -30,23 +30,26 @@ TEMPLATE = app
 CONFIG += link_prl
 
 INCLUDEPATH += $$PWD/../lqUty
-DEPENDPATH += $$PWD/../lqUty
-LIBS += -L$$OUT_PWD/../lqUty/ -llqUty
+DEPENDPATH += $$PWD/../lqUty/debug
+LIBS += -L$$OUT_PWD/../lqUty/debug -llqUty
+message(A $CONFIG)
 
 INCLUDEPATH += $$PWD/../lqXDot
-DEPENDPATH += $$PWD/../lqXDot
-LIBS += -L$$OUT_PWD/../lqXDot/ -llqXDot
+DEPENDPATH += $$PWD/../lqXDot/debug
+LIBS += -L$$OUT_PWD/../lqXDot/debug -llqXDot
+
+DEFINES += WITH_CGRAPH GVDLL QT_NO_OPENGL
 
 unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += libcgraph libgvc
-
-    DEFINES += WITH_CGRAPH
-    # latest download (2013/11/29) refuses to compile without this useless define
-    # DEFINES += HAVE_STRING_H
 }
 
-DEFINES += QT_NO_OPENGL
+windows {
+    GRAPHVIZ = "C:/Program Files/Graphviz"
+    INCLUDEPATH += $$GRAPHVIZ/include
+    LIBS += -L$$GRAPHVIZ/lib -lgvc -lcgraph -lcdt
+}
 
 SOURCES += \
     main.cpp \

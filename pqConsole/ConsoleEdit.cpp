@@ -562,7 +562,7 @@ void ConsoleEdit::user_output(QString text) {
     if (pos >= 0) {
         int left = 0;
 
-        static QRegExp eseq("\x1B\\[(?:(3([0-7]);([01])m)|(0m)|(1m;)|1;3([0-7])m|(1m)|(?:3([0-7])m))");
+        static QRegularExpression eseq("\x1B\\[(?:(3([0-7]);([01])m)|(0m)|(1m;)|1;3([0-7])m|(1m)|(?:3([0-7])m))");
 
         forever {
             int pos1 = eseq.indexIn(text, pos);

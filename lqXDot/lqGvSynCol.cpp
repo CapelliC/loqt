@@ -22,7 +22,7 @@
 
 #include "lqGvSynCol.h"
 #include <QTextDocument>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSet>
 #include <QDebug>
 
@@ -233,8 +233,12 @@ void lqGvSynCol::highlightBlock(const QString &text)
     QString quoted("\"[^\"]*\"");
     QString edges("--|->");
 
-    QRegExp tokens(QString("(%1)|(%2)|(%3)|(%4)|(%5)|#").arg(begComm, number, symbol, quoted, edges));
-    QRegExp endComm("\\*/");
+    QRegularExpression
+            tokens(QString("(%1)|(%2)|(%3)|(%4)|(%5)|#").arg(begComm, number, symbol, quoted, edges)),
+            endComm("\\*/");
+    QRegularExpressionMatch
+            matchToken,
+            matchComm;
 
     // simple state machine
     if (currentBlock().blockNumber() > 0)
@@ -244,16 +248,16 @@ void lqGvSynCol::highlightBlock(const QString &text)
 
     for (int i = 0, j, l; ; i = j + l)
         if (currentBlockState()) {              // in multiline comment
-            if ((j = endComm.indexIn(text, i)) == -1) {
+            if ((j = text.indexOf(endComm, i, &matchComm)) == -1) {
                 setFormat(i, text.length() - i, fmt[Comm]);
                 break;
             }
             setFormat(i, j - i + (l = 2), fmt[Comm]);
             setCurrentBlockState(0);
         } else {
-            if ((j = tokens.indexIn(text, i)) == -1)
+            if ((j = text.indexOf(tokens, i, &matchToken)) == -1)
                 break;
-            QStringList ml = tokens.capturedTexts();
+            QStringList ml = matchToken.capturedTexts();
             Q_ASSERT(ml.length() == 5+1);
             if ((l = ml[1].length())) {         // begin multiline comment
                 setFormat(j, l, fmt[Comm]);

@@ -184,8 +184,13 @@ void SvgView::paintEvent(QPaintEvent *event)
 
 void SvgView::wheelEvent(QWheelEvent *event)
 {
+    /*
     qreal factor = qPow(1.2, event->delta() / 240.0);
     scale(factor, factor);
+    */
+    auto p = event->angleDelta();
+    scale(p.rx(), p.ry());
+
     event->accept();
 }
 

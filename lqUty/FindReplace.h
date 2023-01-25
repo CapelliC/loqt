@@ -32,7 +32,7 @@
 #include "EditInterface.h"
 
 /** find/replace in a QPlainTextEdit/QTextEdit buffer
- *  put Qt text framework and QRegExp to work
+ *  put Qt text framework and QRegularExpression to work
  */
 class LQUTYSHARED_EXPORT FindReplace : public QDialog
 {

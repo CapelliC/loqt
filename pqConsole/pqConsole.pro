@@ -30,17 +30,15 @@ DEFINES += PQCONSOLE_LIBRARY
 # enable dependency tracking
 CONFIG += create_prl
 
-unix: {
+unix {
     # because SWI-Prolog is built from source
     CONFIG += link_pkgconfig
     PKGCONFIG += swipl
 }
 
 INCLUDEPATH += $$PWD/../lqUty
-DEPENDPATH += $$PWD/../lqUty
-
-# moved where the class is defined
-# DEFINES += PQCONSOLE_BROWSER
+DEPENDPATH += $$PWD/../lqUty/debug
+LIBS += -L$$OUT_PWD/../lqUty/debug -llqUty
 
 SOURCES += \
     pqConsole.cpp \

@@ -408,7 +408,7 @@ predicate1(current_module)
 
 inline QString file2string(QFile &f) {
     QTextStream ts(&f);
-    ts.setCodec("UTF-8");
+    //ts.setCodec("UTF-8");
     return ts.readAll();
 }
 

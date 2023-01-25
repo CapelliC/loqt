@@ -26,3 +26,9 @@ CONFIG += C++11
 
 # switch to QWebEngine instead of QWebKit
 QT += core gui widgets webenginewidgets statemachine
+
+windows {
+    SwiPl = "C:\Program Files\swipl"
+    INCLUDEPATH += $$SwiPl\include
+    LIBS += -L$$SwiPl\bin -llibswipl
+}

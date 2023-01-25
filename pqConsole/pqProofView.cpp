@@ -48,8 +48,11 @@ pqProofView::~pqProofView()
  */
 void pqProofView::wheelEvent(QWheelEvent *event)
 {
+    Q_ASSERT(false);
+    /*
     qreal factor = qPow(1.2, event->delta() / 240.0);
     scale(factor, factor);
+    */
     event->accept();
 }
 
@@ -61,7 +64,7 @@ void pqProofView::wheelEvent(QWheelEvent *event)
  */
 void pqProofView::scale_view(qreal scaleFactor)
 {
-    qreal f = sqrt(matrix().determinant());
+    qreal f = sqrt(transform().determinant());
 
     if (scaleFactor * f > 8.0)
         scaleFactor = 8.0 / f;

@@ -35,7 +35,7 @@
 
 #include <QUrl>
 #include <QTime>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QtDebug>
 #include <QAction>
 #include <QToolTip>
@@ -245,7 +245,7 @@ void ConsoleEdit::keyPressEvent(QKeyEvent *event) {
             setTextCursor(c);
             return;
         }
-    [[clang::fallthrough]];
+    //[[clang::fallthrough]];
     case Key_End:
     case Key_Left:
     case Key_Right:
@@ -485,7 +485,7 @@ void ConsoleEdit::compinit2(QTextCursor c) {
             foreach (auto d, p.value()) {
                 QStringList la;
                 for (int n = 0; n < d.first; ++n)
-                    la.append(QString('A' + n));
+                    la.append(QString(QChar('A' + n)));
                 if (!la.isEmpty())
                     lpreds.append(QString("%1(%2) | %3").arg(a).arg(la.join(", ")).arg(d.second));
                 else
@@ -565,11 +565,12 @@ void ConsoleEdit::user_output(QString text) {
         static QRegularExpression eseq("\x1B\\[(?:(3([0-7]);([01])m)|(0m)|(1m;)|1;3([0-7])m|(1m)|(?:3([0-7])m))");
 
         forever {
-            int pos1 = eseq.indexIn(text, pos);
+            QRegularExpressionMatch match;
+            int pos1 = text.indexOf(eseq, pos, &match);
             if (pos1 == -1)
                 break;
 
-            QStringList lcap = eseq.capturedTexts();
+            QStringList lcap = match.capturedTexts();
             Q_ASSERT(lcap.length() == 9); // match captures in eseq, 0 seems unrelated to paren
 
             // put 'out-of-band' text with current attribute, before changing it
@@ -666,9 +667,10 @@ void ConsoleEdit::linkto_message_source() {
         QString text = block.text();
         ++parsedStart;
 
-        static QRegExp jmsg("(ERROR|Warning):[ \t]*(([a-zA-Z]:)?[^:]+):([0-9]+)(:([0-9]+))?.*", Qt::CaseSensitive, QRegExp::RegExp2);
-        if (jmsg.exactMatch(text)) {
-            QStringList parts = jmsg.capturedTexts();
+        static QRegularExpression jmsg("(ERROR|Warning):[ \t]*(([a-zA-Z]:)?[^:]+):([0-9]+)(:([0-9]+))?.*");
+        auto match = jmsg.match(text);
+        if (match.hasMatch()) {
+            QStringList parts = match.capturedTexts();
             QString path = parts[2].trimmed();
             int opb = path.indexOf('['), clb = int();
             if (opb >= 0 && (clb = path.indexOf(']', opb+1)) > opb)
@@ -683,7 +685,7 @@ void ConsoleEdit::linkto_message_source() {
 
             // make the source reference clickable
             to_replace << to_replace_pos {
-                block.position() + pos, path.length(),
+                block.position() + pos, static_cast<int>(path.length()),
                 QString("<a href=\"system:edit(%1)\">%2</a>").arg(edit, path)};
         }
     }
@@ -844,8 +846,8 @@ void ConsoleEdit::clickable_message_line(QTextCursor c, bool highlight) {
     c.movePosition(c.EndOfLine, c.KeepAnchor);
 
     QString line = c.selectedText();
-    static QRegExp msg("(ERROR|Warning):[ \t]*(([a-zA-Z]:)?[^:]+):([0-9]+)(:([0-9]+))?.*",
-               Qt::CaseSensitive, QRegExp::RegExp2);
+    static QRegularExpression msg("(ERROR|Warning):[ \t]*(([a-zA-Z]:)?[^:]+):([0-9]+)(:([0-9]+))?.*",
+               Qt::CaseSensitive);
     if ( msg.exactMatch(line) ) {
         QStringList parts = msg.capturedTexts();
      // qDebug() << "file" << parts[2] << "line" << parts[4] << "char" << parts[6];

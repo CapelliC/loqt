@@ -80,7 +80,9 @@ static QVariant C2V(PlTerm pl, int match) {
                 match == qMetaTypeId<QWidget*>() ||
                 match >= QMetaType::User) {
                     VP p = pl;
-                    return QVariant(match, &p);
+                    Q_ASSERT(false);
+                    return QVariant();
+                    //return QVariant(match, &p);
                 }
         }
         return QVariant(qlonglong(long(pl)));
@@ -270,7 +272,7 @@ PREDICATE(invoke, 4) {
 
                         // optional return value
                         int trv = m.returnType();
-                        QVariant rv(trv, 0);
+                        QVariant rv(trv);
                         QGenericReturnArgument ra(rv.typeName(), rv.data());
 
                         if (trv == QMetaType::Void)
@@ -281,7 +283,7 @@ PREDICATE(invoke, 4) {
 
                             // fill missing arguments (instead of commented exception above)
                             for ( ; ipar < pl.size(); ipar++)
-                                vl << QVariant(m.parameterType(ipar), 0);
+                                vl << QVariant(m.parameterType(ipar));
 
                             QList<QGenericArgument> va;
                             for (auto &v: vl)

@@ -25,7 +25,7 @@
 
 #include "pqConsole_global.h"
 #include <QSyntaxHighlighter>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QElapsedTimer>
 #include <QPlainTextEdit>
 
@@ -65,7 +65,7 @@ private:
         Unknown
     };
     QTextCharFormat fmt[Unknown+1];
-    QRegExp tokens;
+    QRegularExpression tokens;
 
     void setup();
     QElapsedTimer startToEnd;

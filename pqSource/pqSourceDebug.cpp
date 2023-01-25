@@ -346,7 +346,7 @@ void pqSource::toggleBP()
         pqSyntaxData::itcs l = hl->position_path(p);
         if (!l.isEmpty()) {
             const pqSyntaxData::cat &r = *l.back();
-            if (QRegExp("goal\\(\\.+\\)").exactMatch(r.desc)) {
+            if (QRegularExpression("goal\\(\\.+\\)").match(r.desc).hasMatch()) {
                 toggle t(skip_changes);
                 int q = bkps.indexOf(r);
                 if (q >= 0) {

@@ -26,6 +26,7 @@
 #define PL_ARITY_AS_SIZE
 #define PL_SAFE_ARG_MACROS
 
+#include <SWI-Stream.h>
 #include <SWI-cpp.h>
 
 #endif // SWI_H

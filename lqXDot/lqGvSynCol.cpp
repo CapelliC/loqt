@@ -227,18 +227,18 @@ void lqGvSynCol::setup()
   */
 void lqGvSynCol::highlightBlock(const QString &text)
 {
-    QString begComm("/\\*");
-    QString number("\\d+(?:\\.\\d+)?");
-    QString symbol("\\w+");
-    QString quoted("\"[^\"]*\"");
-    QString edges("--|->");
-
-    QRegularExpression
-            tokens(QString("(%1)|(%2)|(%3)|(%4)|(%5)|#").arg(begComm, number, symbol, quoted, edges)),
-            endComm("\\*/");
+    static QString
+        begComm("/\\*"),
+        number("\\d+(?:\\.\\d+)?"),
+        symbol("\\w+"),
+        quoted("\"[^\"]*\""),
+        edges("--|->");
+    static QRegularExpression
+        tokens(QString("(%1)|(%2)|(%3)|(%4)|(%5)|#").arg(begComm, number, symbol, quoted, edges)),
+        endComm("\\*/");
     QRegularExpressionMatch
-            matchToken,
-            matchComm;
+        matchToken,
+        matchComm;
 
     // simple state machine
     if (currentBlock().blockNumber() > 0)
@@ -257,23 +257,24 @@ void lqGvSynCol::highlightBlock(const QString &text)
         } else {
             if ((j = text.indexOf(tokens, i, &matchToken)) == -1)
                 break;
-            QStringList ml = matchToken.capturedTexts();
-            Q_ASSERT(ml.length() == 5+1);
-            if ((l = ml[1].length())) {         // begin multiline comment
+            l = matchToken.capturedLength();
+            auto cap = matchToken.captured();
+            if (matchToken.hasCaptured(1)) {
+                // begin multiline comment
                 setFormat(j, l, fmt[Comm]);
                 setCurrentBlockState(1);
-            } else if ((l = ml[2].length())) {  // number
+            } else if (matchToken.hasCaptured(2)) {  // number
                 setFormat(j, l, fmt[Number]);
-            } else if ((l = ml[3].length())) {  // symbol
-                if (keyws.contains(ml[3]))
+            } else if (matchToken.hasCaptured(3)) {  // symbol
+                if (keyws.contains(cap))
                     setFormat(j, l, fmt[Keyw]);
-                else if (attrs.contains(ml[3]))
+                else if (attrs.contains(cap))
                     setFormat(j, l, fmt[Attr]);
                 else
                     setFormat(j, l, fmt[Unknown]);
-            } else if ((l = ml[4].length())) {  // quoted
+            } else if (matchToken.hasCaptured(4)) {  // quoted
                 setFormat(j, l, fmt[Quoted]);
-            } else if ((l = ml[5].length())) {  // edge
+            } else if (matchToken.hasCaptured(5)) {  // edge
                 setFormat(j, l, fmt[Edge]);
             } else {                            // single line comment
                 setFormat(j, text.length() - i, fmt[Comm]);

@@ -194,7 +194,7 @@ void MainWindow::saveFileAs() {
     fd.setAcceptMode(fd.AcceptSave);
     fd.setDefaultSuffix("gv");
     if (fd.exec())
-        saveViewDot(fd.selectedFiles()[0], source()->toPlainText(), tr("cannot save Dot Script"));
+        saveViewDot(fd.selectedFiles().constFirst(), source()->toPlainText(), tr("cannot save Dot Script"));
 }
 
 /** refresh graph display from (possibly) dirty script
@@ -213,7 +213,7 @@ void MainWindow::newFile() {
     fd.setAcceptMode(fd.AcceptSave);
     fd.setDefaultSuffix("gv");
     if (fd.exec()) {
-        QString newPath = fd.selectedFiles()[0];
+        QString newPath = fd.selectedFiles().constFirst();
         saveViewDot(newPath,
                     tr("/* script file %1\n"
                        " * created at %2\n"

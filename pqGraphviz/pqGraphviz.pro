@@ -4,7 +4,7 @@
 # interface SWI-Prolog and lqXDot
 #--------------------------------------------------
 # Author       : Carlo Capelli
-# Copyright (C): 2013,2014,2015,2016,2017,2018,2019
+# Copyright @ 2023
 
 #    This library is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser General Public

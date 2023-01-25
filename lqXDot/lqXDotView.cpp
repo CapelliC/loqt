@@ -22,6 +22,7 @@
 
 #include "lqXDotView.h"
 #include "lqAobj.h"
+#include "file2string.h"
 
 #include <qmath.h>
 #include <QDebug>
@@ -82,17 +83,17 @@ bool lqXDotView::render_file(QString source, QString algo)
 {
     return cg->run_with_error_report([&]() {
         QString err;
-        if (FILE* fp = fopen(source.toUtf8().constData(), "r")) {
-            if (cg->parse(fp)) {
+        try {
+            auto script = file2string(source);
+            if (cg->parse(script)) {
                 setLayoutKind(algo);
                 if (render_layout(err))
                     render_graph();
             } else
-                err = tr("agread() failed: %1").arg(source);
-            fclose(fp);
+                throw std::runtime_error("agread() failed: " + source.toStdString());
+        } catch(std::exception &ex) {
+            err = ex.what();
         }
-        else
-            err = tr("cannot open file: %1").arg(source);
         return err;
     });
 }

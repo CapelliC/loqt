@@ -166,7 +166,7 @@ public:
     bool freeLayout();
 
     //! serial input - from FILE
-    bool parse(FILE *f);
+    // bool parse(FILE *f);
 
     //! serial input - from string
     bool parse(QString f);

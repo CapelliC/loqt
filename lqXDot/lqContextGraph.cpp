@@ -182,10 +182,10 @@ bool lqContextGraph::freeLayout() {
 }
 
 /** read from file
- */
 bool lqContextGraph::parse(FILE *fp) {
     return (graph = agread(fp, 0)) ? true : false;
 }
+*/
 
 /** read from string
  */

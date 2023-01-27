@@ -32,6 +32,7 @@ DEFINES += LQUTY_LIBRARY
 CONFIG += create_prl
 
 SOURCES += \
+    ansi_esc_seq.cpp \
     lqUty.cpp \
     ParenMatching.cpp \
     MruHelper.cpp \
@@ -51,6 +52,7 @@ SOURCES += \
     foldingQTextEdit.cpp
 
 HEADERS += \
+    ansi_esc_seq.h \
     lqUty.h \
     lqUty_global.h \
     ParenMatching.h \

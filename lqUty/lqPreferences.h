@@ -50,6 +50,18 @@ public:
 
     void save();
 
+    /** assign colors by indexes */
+    static QList<QColor> ANSI_sequences;
+
+    /** peek color by index */
+    static QColor ANSI2col(int c, bool highlight = false);
+
+    /** indices into colors' list */
+    static int console_out_fore;
+    static int console_out_back;
+    static int console_inp_fore;
+    static int console_inp_back;
+
 signals:
     
 public slots:

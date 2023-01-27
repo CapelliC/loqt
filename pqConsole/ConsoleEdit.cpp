@@ -30,8 +30,9 @@
 #include "pqMainWindow.h"
 #include "pqConsole.h"
 #include "blockSig.h"
+#include "ansi_esc_seq.h"
 
-#include <signal.h>
+#include <csignal>
 
 #include <QUrl>
 #include <QTime>
@@ -268,7 +269,7 @@ void ConsoleEdit::keyPressEvent(QKeyEvent *event) {
     case Key_Up:
         down = false;
         // fall throu
-    [[clang::fallthrough]];
+    //[[clang::fallthrough]];
     case Key_Down:
         if (ctrl) { //if (!ctrl) {
             // naive history handler
@@ -330,7 +331,7 @@ void ConsoleEdit::keyPressEvent(QKeyEvent *event) {
             PL_thread_raise(thids[0], SIGINT);
             return;
         }
-        [[clang::fallthrough]];
+        //[[clang::fallthrough]];
 
     default:
 
@@ -557,6 +558,13 @@ void ConsoleEdit::user_output(QString text) {
         }
     };
 
+    ANSI_ESC_SEQ filter(text, output_text_fmt);
+    if (filter)
+        while (filter)
+            instext(filter.next());
+    else
+        instext(text);
+#if 0
     // filter and apply (some) ANSI sequence
     int pos = text.indexOf('\x1B');
     if (pos >= 0) {
@@ -614,7 +622,7 @@ void ConsoleEdit::user_output(QString text) {
     }
     else
         instext(text);
-
+#endif
     linkto_message_source();
 }
 

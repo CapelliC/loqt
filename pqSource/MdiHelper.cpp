@@ -112,7 +112,7 @@ void MdiHelper::updateWindowMenu() {
 void MdiHelper::createActions() {
     auto png = [](const char* i) { return QIcon(QString(":/images/%1.png").arg(i)); };
 
-    auto cmd = [png](QObject *target, QPointer<QAction> &a, QString name, const char *slot, QKeySequence ks = QKeySequence(), const char* ico = 0, QString tip = "") {
+    auto cmd = [&,png](QObject *target, QPointer<QAction> &a, QString name, const char *slot, QKeySequence ks = QKeySequence(), const char* ico = 0, QString tip = "") {
         if (ico) {
             a = new QAction(png(ico), name, target);
             a->setIconVisibleInMenu(true);
@@ -127,59 +127,59 @@ void MdiHelper::createActions() {
     };
     typedef QKeySequence __;
 
-    cmd(this,   newAct,     tr("&New"),        SLOT(newFile()),         __::New,    "new",  tr("Create a new file"));
-    cmd(this,   openAct,    tr("&Open..."),    SLOT(openFile()),        __::Open,   "open", tr("Open an existing file"));
-    cmd(this,   saveAct,    tr("&Save"),       SLOT(saveFile()),        __::Save,   "save", tr("Save the document file to disk"));
-    cmd(this,   saveAsAct,  tr("Save &As..."), SLOT(saveFileAs()),      __::SaveAs, 0,      tr("Save the document file under a new name"));
-    cmd(qApp,   exitAct,    tr("E&xit"),       SLOT(closeAllWindows()), __::Quit,   0,      tr("Exit the application"));
+    cmd(this,   newAct,                     tr("&New"),                     SLOT(newFile()),                    __::New,            "new",  tr("Create a new file"));
+    cmd(this,   openAct,                    tr("&Open..."),                 SLOT(openFile()),                   __::Open,           "open", tr("Open an existing file"));
+    cmd(this,   saveAct,                    tr("&Save"),                    SLOT(saveFile()),                   __::Save,           "save", tr("Save the document file to disk"));
+    cmd(this,   saveAsAct,                  tr("Save &As..."),              SLOT(saveFileAs()),                 __::SaveAs,         0,      tr("Save the document file under a new name"));
+    cmd(qApp,   exitAct,                    tr("E&xit"),                    SLOT(closeAllWindows()),            __::Quit,           0,      tr("Exit the application"));
 
-    cmd(this,   cutAct,     tr("Cu&t"),     SLOT(cut()),    __::Cut,    "cut",      tr("Cut the current selection's contents to the clipboard"));
-    cmd(this,   copyAct,    tr("&Copy"),    SLOT(copy()),   __::Copy,   "copy",     tr("Copy the current selection's contents to the clipboard"));
-    cmd(this,   pasteAct,   tr("&Paste"),   SLOT(paste()),  __::Paste,  "paste",    tr("Paste the clipboard's contents into the current selection"));
+    cmd(this,   cutAct,                     tr("Cu&t"),                     SLOT(cut()),                        __::Cut,            "cut",      tr("Cut the current selection's contents to the clipboard"));
+    cmd(this,   copyAct,                    tr("&Copy"),                    SLOT(copy()),                       __::Copy,           "copy",     tr("Copy the current selection's contents to the clipboard"));
+    cmd(this,   pasteAct,                   tr("&Paste"),                   SLOT(paste()),                      __::Paste,          "paste",    tr("Paste the clipboard's contents into the current selection"));
 
-    cmd(this,   renderViewAct,      tr("Render &View"),     SLOT(renderView()),     __(),    0,      tr("Render View"));
-    cmd(this,   renderClauseAct,    tr("Render &Clause"),   SLOT(renderClause()),   __(),    0,      tr("Render Clause"));
-    cmd(this,   renderPredicateAct, tr("Render &Predicate"),SLOT(renderPredicate()),__(),    0,      tr("Render Predicate"));
+    cmd(this,   renderViewAct,              tr("Render &View"),             SLOT(renderView()),                 __(),               0,      tr("Render View"));
+    cmd(this,   renderClauseAct,            tr("Render &Clause"),           SLOT(renderClause()),               __(),               0,      tr("Render Clause"));
+    cmd(this,   renderPredicateAct,         tr("Render &Predicate"),        SLOT(renderPredicate()),            __(),               0,      tr("Render Predicate"));
 
-    cmd(this,   foldClauseAct,      tr("&Fold Clause"),     SLOT(onFoldClause()),   __(),    "folder",      tr("Fold Clause"));
-    cmd(this,   unfoldClauseAct,    tr("Unfold &Clause"),   SLOT(onUnfoldClause()), __(),    "folder-open", tr("Unfold Clause"));
-    cmd(this,   foldAllAct,         tr("Fold &All"),        SLOT(onFoldAll()),      __(),    "folders",     tr("Fold All"));
-    cmd(this,   unfoldAllAct,       tr("&Unfold All"),      SLOT(onUnfoldAll()),    __(),    "folder-tree", tr("Unfold All"));
+    cmd(this,   foldClauseAct,              tr("&Fold Clause"),             SLOT(onFoldClause()),               __(),               "folder",      tr("Fold Clause"));
+    cmd(this,   unfoldClauseAct,            tr("Unfold &Clause"),           SLOT(onUnfoldClause()),             __(),               "folder-open", tr("Unfold Clause"));
+    cmd(this,   foldAllAct,                 tr("Fold &All"),                SLOT(onFoldAll()),                  __(),               "folders",     tr("Fold All"));
+    cmd(this,   unfoldAllAct,               tr("&Unfold All"),              SLOT(onUnfoldAll()),                __(),               "folder-tree", tr("Unfold All"));
 
-    cmd(this,   findAct,        tr("&Find..."),         SLOT(find()),           __::Find,           "edit-find-3",          tr("Select text and search in current document"));
-    cmd(this,   findNextAct,    tr("Find &Next"),       SLOT(findNext()),       __::FindNext,       0,                      tr("Search the next occurrence of text"));
-    cmd(this,   findPreviousAct,tr("Find &Previous"),   SLOT(findPrevious()),   __::FindPrevious,   0,                      tr("Search the previous occurrence of text"));
-    cmd(this,   replaceAct,     tr("&Replace..."),      SLOT(replace()),        __::Replace,        "edit-find-and-replace",tr("Select text to search and replace"));
+    cmd(this,   findAct,                    tr("&Find..."),                 SLOT(find()),                       __::Find,           "edit-find-3",          tr("Select text and search in current document"));
+    cmd(this,   findNextAct,                tr("Find &Next"),               SLOT(findNext()),                   __::FindNext,       0,                      tr("Search the next occurrence of text"));
+    cmd(this,   findPreviousAct,            tr("Find &Previous"),           SLOT(findPrevious()),               __::FindPrevious,   0,                      tr("Search the previous occurrence of text"));
+    cmd(this,   replaceAct,                 tr("&Replace..."),              SLOT(replace()),                    __::Replace,        "edit-find-and-replace",tr("Select text to search and replace"));
 
-    cmd(this,   viewSWIPrologPrefAct,   tr("SWI-Prolog &Preferences"),  SLOT(viewSWIPrologPref()),  __(), 0, tr("Edit SWI-Prolog global preferences (restart this application to see changes)"));
-    cmd(this,   selectColorsAct,        tr("Select &Colors..."),        SLOT(selectColors()),       __(), 0, tr("Choose the color palette used for text rendering"));
-    cmd(this,   selectFontAct,          tr("Select &Font..."),          SLOT(selectFont()),         __(), 0, tr("Choose the font used to display text"));
-    cmd(this,   incFontAct,             tr("&Increase Font Size"),      SLOT(incFont()),    __("Ctrl++"), 0, tr("Make characters bigger (Increase Font size)"));
-    cmd(this,   decFontAct,             tr("&Decrease Font Size"),      SLOT(decFont()),    __("Ctrl+-"), 0, tr("Make characters smaller (Decrease Font Size)"));
-    cmd(this,   incTabsAct,             tr("&Increase Tabs Size"),      SLOT(incTabs()),    __("Ctrl+Shift++"), 0, tr("Make Tabs width bigger (Increase TAB size)"));
-    cmd(this,   decTabsAct,             tr("&Decrease Tabs Size"),      SLOT(decTabs()),    __("Ctrl+Shift+-"), 0, tr("Make Tabs smaller (Decrease TAB Size)"));
+    cmd(this,   viewSWIPrologPrefAct,       tr("SWI-Prolog &Preferences"),  SLOT(viewSWIPrologPref()),          __(),               0, tr("Edit SWI-Prolog global preferences (restart this application to see changes)"));
+    cmd(this,   selectColorsAct,            tr("Select &Colors..."),        SLOT(selectColors()),               __(),               0, tr("Choose the color palette used for text rendering"));
+    cmd(this,   selectFontAct,              tr("Select &Font..."),          SLOT(selectFont()),                 __(),               0, tr("Choose the font used to display text"));
+    cmd(this,   incFontAct,                 tr("&Increase Font Size"),      SLOT(incFont()),                    __("Ctrl++"),       0, tr("Make characters bigger (Increase Font size)"));
+    cmd(this,   decFontAct,                 tr("&Decrease Font Size"),      SLOT(decFont()),                    __("Ctrl+-"),       0, tr("Make characters smaller (Decrease Font Size)"));
+    cmd(this,   incTabsAct,                 tr("&Increase Tabs Size"),      SLOT(incTabs()),                    __("Ctrl+Shift++"), 0, tr("Make Tabs width bigger (Increase TAB size)"));
+    cmd(this,   decTabsAct,                 tr("&Decrease Tabs Size"),      SLOT(decTabs()),                    __("Ctrl+Shift+-"), 0, tr("Make Tabs smaller (Decrease TAB Size)"));
 
     QMdiArea *mdiArea = this->mdiArea();
-    cmd(mdiArea, closeAct,                  tr("Cl&ose"),           SLOT(closeActiveSubWindow()),       __(),               0, tr("Close the active window"));
-    cmd(mdiArea, tileAct,                   tr("&Tile"),            SLOT(tileSubWindows()),             __("Ctrl+T"),       0, tr("Tile the windows"));
-    cmd(mdiArea, cascadeAct,                tr("&Cascade"),         SLOT(cascadeSubWindows()),          __(),               0, tr("Cascade the windows"));
-    cmd(this,    switchLayoutDirectionAct,  tr("Layout &Direction"),SLOT(switchLayoutDirection()),      __(),               0, tr("Switch layout direction"));
-    cmd(this,    switchViewModeAct,         tr("&View Mode"),       SLOT(switchViewMode()),             __(),               0, tr("Switch SubWindow/Tabbed view mode"));
-    cmd(mdiArea, nextAct,                   tr("Ne&xt"),            SLOT(activateNextSubWindow()),      __::NextChild,      0, tr("Move the focus to the next window"));
-    cmd(mdiArea, previousAct,               tr("Pre&vious"),        SLOT(activatePreviousSubWindow()),  __::PreviousChild,  0, tr("Move the focus to the previous window"));
+    cmd(mdiArea, closeAct,                  tr("Cl&ose"),                   SLOT(closeActiveSubWindow()),       __(),               0, tr("Close the active window"));
+    cmd(mdiArea, tileAct,                   tr("&Tile"),                    SLOT(tileSubWindows()),             __("Ctrl+T"),       0, tr("Tile the windows"));
+    cmd(mdiArea, cascadeAct,                tr("&Cascade"),                 SLOT(cascadeSubWindows()),          __(),               0, tr("Cascade the windows"));
+    cmd(this,    switchLayoutDirectionAct,  tr("Layout &Direction"),        SLOT(switchLayoutDirection()),      __(),               0, tr("Switch layout direction"));
+    cmd(this,    switchViewModeAct,         tr("&View Mode"),               SLOT(switchViewMode()),             __(),               0, tr("Switch SubWindow/Tabbed view mode"));
+    cmd(mdiArea, nextAct,                   tr("Ne&xt"),                    SLOT(activateNextSubWindow()),      __::NextChild,      0, tr("Move the focus to the next window"));
+    cmd(mdiArea, previousAct,               tr("Pre&vious"),                SLOT(activatePreviousSubWindow()),  __::PreviousChild,  0, tr("Move the focus to the previous window"));
 
     separatorAct = new QAction(this);
     separatorAct->setSeparator(true);
 
     // help
-    cmd(this, helpStartAct,     tr("Help..."),                  SLOT(helpStart()),      __::HelpContents,   0, tr("Start PlDoc server and display documentation"));
-    cmd(this, helpDocAct,       tr("Preview &Documentation"),   SLOT(helpDoc()),        __(),               0, tr("Show the PlDoc HTML for the script"));
-    cmd(this, viewGraphAct,     tr("View G&raph"),              SLOT(viewGraph()),      __("Ctrl+R"),       0, tr("Display the XREF graph of current source"));
-    cmd(this, viewGraphIncl,    tr("View &Inclusions"),         SLOT(viewInclusions()), __("Ctrl+I"),       0, tr("Display the XREF inclusions graph of current source"));
-    cmd(this, commentClauseAct, tr("Comment &Predicate"),       SLOT(commentClause()),  __("Ctrl+P"),       0, tr("Write a structured plDoc comment for current predicate head"));
-    cmd(this, aboutAct,         tr("&About"),                   SLOT(about()),          __(),               0, tr("Show the application's About box"));
-    cmd(qApp, aboutQtAct,       tr("About &Qt"),                SLOT(aboutQt()),        __(),               0, tr("Show the Qt library's About box"));
-    cmd(this, newPublicPredAct, tr("Add P&ublic..."),           SLOT(newPublicPred()),  __("Ctrl+Shift+P"), 0, tr("Ask functor/arity and publish in module public declaration"));
+    cmd(this, helpStartAct,                 tr("Help..."),                  SLOT(helpStart()),      __::HelpContents,   0, tr("Start PlDoc server and display documentation"));
+    cmd(this, helpDocAct,                   tr("Preview &Documentation"),   SLOT(helpDoc()),        __(),               0, tr("Show the PlDoc HTML for the script"));
+    cmd(this, viewGraphAct,                 tr("View G&raph"),              SLOT(viewGraph()),      __("Ctrl+R"),       0, tr("Display the XREF graph of current source"));
+    cmd(this, viewGraphIncl,                tr("View &Inclusions"),         SLOT(viewInclusions()), __("Ctrl+I"),       0, tr("Display the XREF inclusions graph of current source"));
+    cmd(this, commentClauseAct,             tr("Comment &Predicate"),       SLOT(commentClause()),  __("Ctrl+P"),       0, tr("Write a structured plDoc comment for current predicate head"));
+    cmd(this, aboutAct,                     tr("&About"),                   SLOT(about()),          __(),               0, tr("Show the application's About box"));
+    cmd(qApp, aboutQtAct,                   tr("About &Qt"),                SLOT(aboutQt()),        __(),               0, tr("Show the Qt library's About box"));
+    cmd(this, newPublicPredAct,             tr("Add P&ublic..."),           SLOT(newPublicPred()),  __("Ctrl+Shift+P"), 0, tr("Ask functor/arity and publish in module public declaration"));
 
     // debugger
     /*

@@ -72,7 +72,6 @@ SOURCES += \
     symclass.cpp \
     pqSourceMainWindow.cpp \
     MdiChildWithCheck.cpp \
-    pqWebScript.cpp \
     proofGraph.cpp
 
 HEADERS += \
@@ -86,7 +85,6 @@ HEADERS += \
     pqSyntaxData.h \
     symclass.h \
     MdiChildWithCheck.h \
-    pqWebScript.h \
     proofGraph.h
 
 RESOURCES += \

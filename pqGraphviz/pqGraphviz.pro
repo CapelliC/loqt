@@ -56,13 +56,11 @@ DEPENDPATH += $$PWD/../pqConsole/debug
 LIBS += -L$$OUT_PWD/../pqConsole/debug -lpqConsole
 
 SOURCES += \
-    pqGraphviz.cpp \
-    pqDocView.cpp
+    pqGraphviz.cpp
 
 HEADERS += \
     pqGraphviz.h \
-    pqGraphviz_global.h \
-    pqDocView.h
+    pqGraphviz_global.h
 
 OTHER_FILES += \
     prolog/gv_uty.pl \

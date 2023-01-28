@@ -24,8 +24,7 @@
 # please, an up-to-date compiler
 CONFIG += C++11
 
-# switch to QWebEngine instead of QWebKit
-QT += core gui widgets webenginewidgets statemachine
+QT += core gui widgets statemachine
 
 windows {
     SwiPl = "C:\Program Files\swipl"

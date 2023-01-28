@@ -593,18 +593,6 @@ void pqSource::keyPressEvent(QKeyEvent *e)
         }
     }
 
-    if (e->key() == Key_Help || e->key() == Key_F1) {
-        QString topic;
-        if (hl->sem_info_avail())
-            topic = hl->get_predicate_indicator(c);
-        if (topic == "") {
-            c.select(c.WordUnderCursor);
-            topic = c.selectedText();
-        }
-        if (!topic.isEmpty())
-            emit requestHelp(topic);
-    }
-
     pqSourceBaseClass::keyPressEvent(e);
 }
 

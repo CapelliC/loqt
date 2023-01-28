@@ -33,7 +33,7 @@ MruHelper::MruHelper(QString key, QString entry)
 /** load the menu and initialize actions
  */
 void MruHelper::loadMru(QSettings &s, QObject *parent, const char *slot) {
-    QObject::connect(cmdMapper, SIGNAL(mapped(int)), parent, slot);
+    QObject::connect(cmdMapper, SIGNAL(mappedInt(int)), parent, slot);
     files = s.value(key).toStringList();
     max_files = s.value("max_files_" + key, 16).toInt();
     fillMru(parent);

@@ -177,8 +177,6 @@ signals:
     void reportError(QString error);
     void setCallSig(long from, long stop);
 
-    void requestHelp(QString cursorWord);
-
 protected slots:
 
     void cursorPositionChanged();

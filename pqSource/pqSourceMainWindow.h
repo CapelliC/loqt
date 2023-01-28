@@ -32,7 +32,6 @@
 #include "KeyboardMacros.h"
 
 class pqSource;
-class pqDocView;
 class FindReplace;
 class proofGraph;
 
@@ -79,8 +78,6 @@ protected:
     QFile reportFile;
     void reportToFile(QString msg);
 
-    pqDocView *helpView();
-
     QPointer<KeyboardMacros> macs;
 
     // only an engine at time, please
@@ -113,7 +110,6 @@ public slots:
 
     void commentClause();
     void newPublicPred();
-    void requestHelp(QString cursorWord);
 
     void viewSWIPrologPref();
     void selectColors();

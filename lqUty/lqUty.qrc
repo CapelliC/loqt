@@ -41,6 +41,5 @@
         <file>codemirror/theme/vibrant-ink.css</file>
         <file>codemirror/theme/xq-dark.css</file>
         <file>codemirror/theme/xq-light.css</file>
-        <file>CodeMirror.html</file>
     </qresource>
 </RCC>

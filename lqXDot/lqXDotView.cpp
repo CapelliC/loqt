@@ -28,7 +28,6 @@
 #include <QDebug>
 #include <QKeyEvent>
 #include <QWheelEvent>
-#include <QMessageBox>
 #include <QGraphicsSceneMouseEvent>
 #include <QTextBlockFormat>
 #include <QTextCursor>

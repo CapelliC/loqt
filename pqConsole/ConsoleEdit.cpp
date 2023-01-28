@@ -685,7 +685,7 @@ void ConsoleEdit::linkto_message_source() {
                 path = path.mid(clb + 1).trimmed();
 
             auto edit = QString("'%1':%2").arg(path).arg(parts[4].trimmed());
-            if (!parts[6].isEmpty())
+            if (parts.length() >= 7 && parts[6].length() > 0)
                 edit += ":" + parts[6];
 
             int pos = text.indexOf(path);

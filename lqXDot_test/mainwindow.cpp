@@ -82,7 +82,11 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
         fileDot = argv[1];
 
     if (fileDot.length())
-        viewDot();
+        try {
+            viewDot();
+        } catch(const std::exception& ex)  {
+            errbox(ex.what(), QObject::tr("exception"));
+        }
 
     connect(&monitorScript, SIGNAL(fileChanged(QString)), this, SLOT(scriptChanged(QString)));
 

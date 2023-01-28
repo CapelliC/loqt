@@ -42,7 +42,7 @@ void MdiHelper::setupMdi() {
     connect(mdiArea(), SIGNAL(subWindowActivated(QMdiSubWindow*)), this, SLOT(updateMenus()));
     connect(mdiArea(), SIGNAL(subWindowActivated(QMdiSubWindow*)), this, SLOT(subWindowActivated(QMdiSubWindow*)));
 
-    connect(cmdMapper, SIGNAL(mapped(QWidget*)), this, SLOT(setActiveSubWindow(QWidget*)));
+    connect(cmdMapper, SIGNAL(mappedObject(QWidget*)), this, SLOT(setActiveSubWindow(QWidget*)));
 
     createActions();
     createMenus();

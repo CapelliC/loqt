@@ -29,12 +29,10 @@
 #include "do_events.h"
 #include "pqGraphviz.h"
 #include "file2string.h"
-#include "pqDocView.h"
 #include "MdiChildWithCheck.h"
 #include "FindReplace.h"
 #include "lqXDotView.h"
 #include "maplist.h"
-#include "pqWebScript.h"
 #include "pqXmlView.h"
 #include "proofGraph.h"
 
@@ -92,10 +90,8 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     auto e = new ConsoleEdit(argc, argv);
     connect(e, SIGNAL(engine_ready()), this, SLOT(engine_ready()));
     connect(e, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
-    connect(e, SIGNAL(request_help(QString)), SLOT(requestHelp(QString)));
     //e->setLineWrapMode(e->NoWrap);
 
-    //mdiArea()->addSubWindow(e)->setWindowTitle("Console");
     //! added a class as required to veto closing a console
     MdiChildWithCheck *mcc = new MdiChildWithCheck;
     mcc->setWidget(e);
@@ -313,7 +309,6 @@ void pqSourceMainWindow::openFile(QString absp, QByteArray geometry, int line, i
             connect(e, SIGNAL(reportError(QString)), SLOT(reportError(QString)));
 
             connect(e, SIGNAL(cursorPositionChanged()), SLOT(cursorPositionChanged()));
-            connect(e, SIGNAL(requestHelp(QString)), SLOT(requestHelp(QString)));
 
             // play macros on editor
             macs->manage(e);
@@ -472,29 +467,6 @@ struct pldocBrowser : QTextBrowser {
 void pqSourceMainWindow::helpDoc()
 {
     if (auto s = activeChild<pqSource>()) {
-        /*
-        T html, options, anvar;
-        L options_(options); options_.append(::files(anvar)); options_.close();
-
-        try {
-            if (use_module(library(A("pldoc/doc_html"))) &&
-                    with_output_to(atom(html), doc_for_file(A(s->file), options))) {
-                QTextBrowser *b = new pldocBrowser;
-                b->setHtml(t2w(html));
-                mdiArea()->addSubWindow(b);
-                b->show();
-            }
-        }
-        catch(PlException e) {
-            QMessageBox b(this);
-            b.setText(tr("PlException running doc_for_file/2"));
-            b.setInformativeText(t2w(e));
-            b.setIcon(b.Critical);
-            b.exec();
-        }
-        */
-        pqDocView *dv = helpView();
-        dv->helpFile(s->file);
     }
 }
 
@@ -699,32 +671,6 @@ void pqSourceMainWindow::reportError(QString msg) {
     e.exec();
 }
 
-/** find or build the help view
- */
-pqDocView *pqSourceMainWindow::helpView() {
-    pqDocView *v;
-
-    auto l = typedSubWindows<pqDocView>();
-    if (l.count() >= 1) {
-        mdiArea()->setActiveSubWindow(qobject_cast<QMdiSubWindow *>((v = l.at(0))->parentWidget()));
-        return v;
-    }
-
-    v = new pqDocView(this);
-    v->addFeedback(helpToolBar, statusBar());
-    v->startPlDoc();
-
-    QMdiSubWindow *w = mdiArea()->addSubWindow(v);
-    w->show();
-
-    return v;
-}
-
-void pqSourceMainWindow::requestHelp(QString topic) {
-    if (pqDocView *h = helpView())
-        h->helpTopic(topic);
-}
-
 void pqSourceMainWindow::viewSWIPrologPref()
 {
     openFile("~/.swiplrc");
@@ -808,8 +754,6 @@ void pqSourceMainWindow::markCursor(QTextCursor c)
 }
 
 void pqSourceMainWindow::helpStart() {
-    if (helpView())
-        emit reportInfoSig(tr("doc_server started at port %1").arg(pqDocView::helpDocPort));
 }
 
 #undef PROLOG_MODULE
@@ -824,7 +768,6 @@ PREDICATE(help_hook, 1) {
     bool rc = false;
     if (auto w = pqSourceMainWindow::hostEngines())
         pqConsole::gui_run([&]() {
-            w->requestHelp(topic);
             rc = true;
         });
 
@@ -927,6 +870,7 @@ void pqSourceMainWindow::viewInclusions() {
  */
 void pqSourceMainWindow::onWebScript() {
     qDebug() << "onWebScript";
+#if 0
     if (auto s = activeChild<pqSource>()) {
         for (auto ws: typedSubWindows<pqWebScript>()) {
             if (ws->server == s) {
@@ -939,6 +883,7 @@ void pqSourceMainWindow::onWebScript() {
         ws->server = s;
         ws->show();
     }
+#endif
 }
 
 void pqSourceMainWindow::renderView() {

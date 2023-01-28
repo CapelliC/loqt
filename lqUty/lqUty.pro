@@ -42,8 +42,6 @@ SOURCES += \
     FindReplace.cpp \
     lqLogger.cpp \
     lqAniMachine.cpp \
-    CodeMirrorFile.cpp \
-    CodeMirror.cpp \
     XmlSyntaxHighlighter.cpp \
     KeyboardMacros.cpp \
     JSSyntax.cpp \
@@ -66,8 +64,6 @@ HEADERS += \
     FindReplace.h \
     lqLogger.h \
     lqAniMachine.h \
-    CodeMirrorFile.h \
-    CodeMirror.h \
     CenterWidgets.h \
     XmlSyntaxHighlighter.h \
     EditInterface.h \
@@ -90,7 +86,6 @@ OTHER_FILES += \
     codemirror/addon/edit/matchbrackets.js \
     codemirror/mode/prolog/prolog.js \
     codemirror/mode/prolog/index.html \
-    CodeMirror.html \
     codemirror/LICENSE
 
 RESOURCES += \

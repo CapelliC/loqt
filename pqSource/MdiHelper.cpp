@@ -42,7 +42,7 @@ void MdiHelper::setupMdi() {
     connect(mdiArea(), SIGNAL(subWindowActivated(QMdiSubWindow*)), this, SLOT(updateMenus()));
     connect(mdiArea(), SIGNAL(subWindowActivated(QMdiSubWindow*)), this, SLOT(subWindowActivated(QMdiSubWindow*)));
 
-    connect(cmdMapper, SIGNAL(mappedObject(QWidget*)), this, SLOT(setActiveSubWindow(QWidget*)));
+    connect(cmdMapper, SIGNAL(mappedObject(QObject*)), this, SLOT(setActiveSubWindow(QWidget*)));
 
     createActions();
     createMenus();
@@ -284,12 +284,12 @@ void MdiHelper::createMenus() {
 }
 
 void MdiHelper::createToolBars() {
-    fileToolBar = addToolBar(tr("File"));
+    (fileToolBar = addToolBar(tr("File")))->setObjectName("fileToolBar");
     fileToolBar->addAction(newAct);
     fileToolBar->addAction(openAct);
     fileToolBar->addAction(saveAct);
 
-    editToolBar = addToolBar(tr("Edit"));
+    (editToolBar = addToolBar(tr("Edit")))->setObjectName("editToolBar");
     editToolBar->addAction(cutAct);
     editToolBar->addAction(copyAct);
     editToolBar->addAction(pasteAct);
@@ -302,7 +302,7 @@ void MdiHelper::createToolBars() {
     editToolBar->addAction(foldAllAct);
     editToolBar->addAction(unfoldAllAct);
 
-    debugToolBar = addToolBar(tr("Debug"));
+    (debugToolBar = addToolBar(tr("Debug")))->setObjectName("debugToolBar");
     /*
     debugToolBar->addAction(makeAct);
     debugToolBar->addAction(consultAct);
@@ -324,7 +324,7 @@ void MdiHelper::createToolBars() {
     queriesBox->setStatusTip(tr("Debugger will start with this query. <editor> refers to 'scriptname'."));
     debugToolBar->addWidget(queriesBox);
 
-    helpToolBar = addToolBar(tr("Help"));
+    (helpToolBar = addToolBar(tr("Help")))->setObjectName("debugToolBar");
 }
 
 void MdiHelper::createStatusBar() {

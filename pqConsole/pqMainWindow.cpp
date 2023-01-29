@@ -23,8 +23,6 @@
 #include "pqMainWindow.h"
 #include "ConsoleEdit.h"
 #include "Preferences.h"
-#include "PREDICATE.h"
-#include "do_events.h"
 
 #include <QMenu>
 #include <QDebug>

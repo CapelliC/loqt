@@ -43,7 +43,6 @@
 #include <QApplication>
 #include <QMenuBar>
 #include <QTime>
-#include <QTimer>
 #include <QMessageBox>
 #include <QComboBox>
 #include <QWidgetAction>
@@ -75,7 +74,7 @@ predicate2(with_output_to)
  *  needed by Qt widgets hierarchy
  */
 pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
-    : MdiHelper(parent), gui_thread_engine(0) /*, debugStatus(ds_idle)*/
+    : MdiHelper(parent), gui_thread_engine(0)
 {
     qDebug() << "pqSourceMainWindow" << QCT;
 
@@ -90,7 +89,6 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     auto e = new ConsoleEdit(argc, argv);
     connect(e, SIGNAL(engine_ready()), this, SLOT(engine_ready()));
     connect(e, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
-    //e->setLineWrapMode(e->NoWrap);
 
     //! added a class as required to veto closing a console
     MdiChildWithCheck *mcc = new MdiChildWithCheck;
@@ -108,7 +106,6 @@ pqSourceMainWindow::pqSourceMainWindow(int argc, char **argv, QWidget *parent)
     findReplace = new FindReplace(this);
     connect(findReplace, SIGNAL(outcome(QString)), statusBar(), SLOT(showMessage(QString)));
 
-    //QTimer::singleShot(0, this, SLOT(fixGeometry()));
     if (false && debugMenu) {
         debugMenu->addSeparator();
         pqWebScriptAct = new QAction("&Web Script", this);
@@ -142,7 +139,6 @@ void pqSourceMainWindow::engine_ready() {
         qDebug() << m << rc;
     }
 
-    //QTimer::singleShot(10, this, SLOT(fixGeometry()));
     fixGeometry();
 
     // does break initialization ?
@@ -203,6 +199,13 @@ void pqSourceMainWindow::fixGeometry() {
 void pqSourceMainWindow::closeEvent(QCloseEvent *e) {
     Q_UNUSED(e)
 
+qDebug() << "closeEvent " << inCloseEvent << " at " << QTime::currentTime();
+if (inCloseEvent) {
+    e->ignore();
+    return;
+}
+inCloseEvent = true;
+
     {   Preferences p;
         storeMru(p);
 
@@ -238,6 +241,7 @@ void pqSourceMainWindow::closeEvent(QCloseEvent *e) {
         mdiArea()->closeAllSubWindows();
         if (mdiArea()->currentSubWindow()) {
             e->ignore();
+inCloseEvent = false;
             return;
         }
 
@@ -254,8 +258,12 @@ void pqSourceMainWindow::closeEvent(QCloseEvent *e) {
             p.setValue("queries", l);
         }
     }
-    if (!SwiPrologEngine::quit_request())
+    if (!SwiPrologEngine::quit_request()) {
         e->ignore();
+    } else {
+        inCloseEvent = false;
+        e->accept();
+    }
 }
 
 void pqSourceMainWindow::customEvent(QEvent *event) {

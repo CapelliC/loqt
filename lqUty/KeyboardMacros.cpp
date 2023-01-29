@@ -35,9 +35,9 @@ KeyboardMacros::KeyboardMacros(QObject *parent) :
     mapPlay(new QSignalMapper(this)),
     status(idle)
 {
-    connect(mapStart, SIGNAL(mappedObject(QWidget*)), this, SLOT(startRecording(QWidget*)));
-    connect(mapStop, SIGNAL(mappedObject(QWidget*)), this, SLOT(stopRecording(QWidget*)));
-    connect(mapPlay, SIGNAL(mappedObject(QWidget*)), this, SLOT(Playback(QWidget*)));
+    connect(mapStart, SIGNAL(mappedObject(QObject*)), this, SLOT(startRecording(QWidget*)));
+    connect(mapStop, SIGNAL(mappedObject(QObject*)), this, SLOT(stopRecording(QWidget*)));
+    connect(mapPlay, SIGNAL(mappedObject(QObject*)), this, SLOT(Playback(QWidget*)));
 
     lqPreferences p;
 #if 0

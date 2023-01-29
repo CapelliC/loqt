@@ -83,6 +83,9 @@ protected:
     // only an engine at time, please
     proofGraph* proof = 0;
 
+    // avoid multiple closeEvent()
+    bool inCloseEvent = false;
+
 public slots:
 
     void openFile(QString p, QByteArray g = QByteArray(), int line = 0, int linepos = 0);

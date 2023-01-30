@@ -21,6 +21,8 @@
 */
 
 #include "KeyboardMacros.h"
+#include "lqPreferences.h"
+
 #include <QCoreApplication>
 #include <QDebug>
 
@@ -30,34 +32,28 @@ static const char* k_strokes = "strokes";
 
 KeyboardMacros::KeyboardMacros(QObject *parent) :
     QObject(parent),
-    mapStart(new QSignalMapper(this)),
-    mapStop(new QSignalMapper(this)),
-    mapPlay(new QSignalMapper(this)),
     status(idle)
 {
-    connect(mapStart, SIGNAL(mappedObject(QObject*)), this, SLOT(startRecording(QWidget*)));
-    connect(mapStop, SIGNAL(mappedObject(QObject*)), this, SLOT(stopRecording(QWidget*)));
-    connect(mapPlay, SIGNAL(mappedObject(QObject*)), this, SLOT(Playback(QWidget*)));
-
     lqPreferences p;
-#if 0
+
     int n = p.beginReadArray(k_macros);
     for (int i = 0; i < n; ++i) {
         p.setArrayIndex(i);
         QString name = p.value(k_name).toString();
         QStringList strokes = p.value(k_strokes).toStringList();
         macro m;
+        /*
         foreach(QString s, strokes)
             m << s2e(s);
+        */
         macros[name] = m;
     }
-#endif
+
     p.endArray();
 }
 
 KeyboardMacros::~KeyboardMacros()
 {
-#if 0
     lqPreferences p;
 
     p.beginWriteArray(k_macros);
@@ -68,12 +64,13 @@ KeyboardMacros::~KeyboardMacros()
             p.setValue(k_name, name);
 
             QStringList s;
+#if 0
             foreach (const QKeyEvent &e, macros[name])
                 s << e2s(e);
+#endif
             p.setValue(k_strokes, s);
         }
     p.endArray();
-#endif
 }
 
 QKeySequence KeyboardMacros::start() { return QKeySequence("Ctrl+Shift+R"); }
@@ -91,30 +88,24 @@ void KeyboardMacros::manage(QWidget *w)
     qDebug() << "manage" << w;
 
     if (macroStartRegAct) {
-        mapStart->setMapping(macroStartRegAct, w);
-        connect(macroStartRegAct, SIGNAL(triggered()), mapStart, SLOT(map()));
+        connect(macroStartRegAct, &QAction::triggered, [w, this]{ startRecording(w); });
     } else {
         auto s = start_(w);
-        mapStart->setMapping(s, w);
-        connect(s, SIGNAL(activated()), mapStart, SLOT(map()));
+        connect(s, &QShortcut::activated, [w, this]{ startRecording(w); });
     }
 
     if (macroStopRegAct) {
-        mapStop->setMapping(macroStopRegAct, w);
-        connect(macroStopRegAct, SIGNAL(triggered()), mapStop, SLOT(map()));
+        connect(macroStopRegAct, &QAction::triggered, [w, this]{ stopRecording(w); });
     } else {
         auto s = stop_(w);
-        mapStop->setMapping(s, w);
-        connect(s, SIGNAL(activated()), mapStop, SLOT(map()));
+        connect(s, &QShortcut::activated, [w, this]{ stopRecording(w); });
     }
 
     if (macroPlaybackAct) {
-        mapPlay->setMapping(macroPlaybackAct, w);
-        connect(macroPlaybackAct, SIGNAL(triggered()), mapPlay, SLOT(map()));
+        connect(macroPlaybackAct, &QAction::triggered, [w, this]{ Playback(w); });
     } else {
         auto s = play_(w);
-        mapPlay->setMapping(s, w);
-        connect(s, SIGNAL(activated()), mapPlay, SLOT(map()));
+        connect(s, &QShortcut::activated, [w, this]{ Playback(w); });
     }
 }
 

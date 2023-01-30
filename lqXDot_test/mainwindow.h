@@ -37,6 +37,7 @@
 #include "SvgView.h"
 #include "RowColIndicators.h"
 #include "ParenMatching.h"
+#include "KeyboardMacros.h"
 
 /** display a single graph (dot file)
   * - lqXDotView main viewer
@@ -69,28 +70,38 @@ private:
     //enum t_kind { t_view, t_svgv, t_source, t_svgxml };
     enum t_kind { t_dot, t_svg };
     QPointer<QTabWidget> tabs;
+    QSplitter *tab(t_kind kind) const { return qobject_cast<QSplitter*>(tabs->widget(kind)); }
 
     typedef ParenMatching::range range;
     range paren;
 
-    //QSplitter* tab(t_kind t) const { return qobject_cast<V*>(tabs->widget(t)); }
-    //template <class V> V* tab(t_kind t) const { return qobject_cast<V*>(tabs->widget(t)); }
-
+//    lqXDotView *view() const {
+//        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_dot));
+//        return qobject_cast<lqXDotView*>(s->widget(0));
+//    }
+//    QTextEdit *source() const {
+//        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_dot));
+//        return qobject_cast<QTextEdit*>(s->widget(1));
+//    }
+//    SvgView *svgv() const {
+//        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_svg));
+//        return qobject_cast<SvgView*>(s->widget(0));
+//    }
+//    QTextEdit *svgxml() const {
+//        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_svg));
+//        return qobject_cast<QTextEdit*>(s->widget(1));
+//    }
     lqXDotView *view() const {
-        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_dot));
-        return qobject_cast<lqXDotView*>(s->widget(0));
+        return qobject_cast<lqXDotView*>(tab(t_dot)->widget(0));
     }
     QTextEdit *source() const {
-        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_dot));
-        return qobject_cast<QTextEdit*>(s->widget(1));
+        return qobject_cast<QTextEdit*>(tab(t_dot)->widget(1));
     }
     SvgView *svgv() const {
-        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_svg));
-        return qobject_cast<SvgView*>(s->widget(0));
+        return qobject_cast<SvgView*>(tab(t_svg)->widget(0));
     }
     QTextEdit *svgxml() const {
-        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_svg));
-        return qobject_cast<QTextEdit*>(s->widget(1));
+        return qobject_cast<QTextEdit*>(tab(t_svg)->widget(1));
     }
 
     enum { highlighting, editing } mode;
@@ -106,6 +117,9 @@ private:
     QFileSystemWatcher monitorScript;
 
     QPointer<lqGvSynCol> gvsyn;
+
+    QPointer<KeyboardMacros> gvmacros;
+    QPointer<QMenu> mnmacros;
 
 public slots:
 

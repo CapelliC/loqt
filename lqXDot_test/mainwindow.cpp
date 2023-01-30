@@ -57,6 +57,7 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     m->addAction(tr("Open..."), QKeySequence::Open, this, &MainWindow::openFile);
     m->addMenu(mruMenu = new QMenu("Recent &Files..."));
     loadMru(p, this);
+
     m->addSeparator();
     m->addAction(tr("&Save"), QKeySequence::Save, this, &MainWindow::saveFile);
     m->addAction(tr("Save &As..."), QKeySequence::SaveAs, this, &MainWindow::saveFileAs);
@@ -64,13 +65,11 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
 
     // layouts algorithm by name
     m->addSeparator();
-
     QString mode = lastMode;
     if (argc == 3)
         mode = argv[2];
-
     foreach (QString layout, QString("dot neato fdp sfdp twopi circo").split(' ')) {
-        auto a = m->addAction(layout, this, SLOT(changeLayout()));
+        auto a = m->addAction(layout, this, &MainWindow::changeLayout);
         a->setCheckable(true);
         a->setChecked(layout == mode);
     }
@@ -88,7 +87,7 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
             errbox(ex.what(), QObject::tr("exception"));
         }
 
-    connect(&monitorScript, SIGNAL(fileChanged(QString)), this, SLOT(scriptChanged(QString)));
+    connect(&monitorScript, &QFileSystemWatcher::fileChanged, this, &MainWindow::scriptChanged);
 
     qApp->setWindowIcon(QIcon(":/app.png"));
 }
@@ -296,6 +295,14 @@ void MainWindow::viewDot() {
 
         // get notified on file changes
         monitorScript.addPath(fileDot);
+
+        // connect macros
+        delete gvmacros;
+        delete mnmacros;
+        mnmacros = menuBar()->addMenu(tr("&KbMacros"));
+        gvmacros = new KeyboardMacros(this);
+        gvmacros->setupMenu(mnmacros);
+        gvmacros->manage(source());
     }
     else {
         errbox(tr("Cannot read %1").arg(f), tr("open file failed"));

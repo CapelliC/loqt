@@ -23,15 +23,13 @@
 #ifndef KEYBOARDMACROS_H
 #define KEYBOARDMACROS_H
 
-#include "EditInterface.h"
-#include "lqPreferences.h"
+#include "lqUty_global.h"
 
 #include <QMenu>
 #include <QPointer>
 #include <QKeyEvent>
 #include <QShortcut>
 #include <QStatusBar>
-#include <QSignalMapper>
 
 /** helper class to record and playback macros
  */
@@ -54,7 +52,7 @@ public:
     static QShortcut *stop_(QWidget *parent) { return new QShortcut(stop(), parent); }
     static QShortcut *play_(QWidget *parent) { return new QShortcut(play(), parent); }
 
-    void manage(QWidget*);
+    void manage(QWidget *keybHost);
 
     /// TBD provide named macros with fast startup
     void storeEvent(QKeyEvent *e);
@@ -86,16 +84,14 @@ public slots:
     void Playback(QWidget*);
 
 private:
-#if 0
+
     //! restrict to keyboard events by now
     typedef QList<QKeyEvent> macro;
     QMap<QString, macro> macros;
-#endif
 
     //! TBD allows to reference macros by name
     QString lastRecorded;
 
-    QPointer<QSignalMapper> mapStart, mapStop, mapPlay;
     enum { idle, onRecord, onPlayback } status;
 
     QPointer<QAction>

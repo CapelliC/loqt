@@ -84,10 +84,6 @@ public:
 
     void setFoldedScene(lqXDotScene *s, QPointF nodeOffset);
 
-signals:
-
-    void report_error(QString) const;
-
 protected:
 
     // allocation factories

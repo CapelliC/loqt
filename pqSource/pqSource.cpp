@@ -23,7 +23,6 @@
 #include "Preferences.h"
 #include "pqSource.h"
 #include "PREDICATE.h"
-#include "pqSourceMainWindow.h"
 //#include "pqTrace.h"
 #include "pqTextAttributes.h"
 #include "do_events.h"

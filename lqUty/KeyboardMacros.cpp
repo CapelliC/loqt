@@ -23,12 +23,67 @@
 #include "KeyboardMacros.h"
 #include "lqPreferences.h"
 
+#include <QRegularExpression>
 #include <QCoreApplication>
+#include <QTextStream>
 #include <QDebug>
 
 static const char* k_macros = "KeyboardMacros";
 static const char* k_name = "name";
 static const char* k_strokes = "strokes";
+
+KeyboardMacros::keystroke KeyboardMacros::e2k(const QKeyEvent &e) {
+    keystroke k;
+    k.type = e.type();
+    k.key = e.key();
+    k.modifiers = e.modifiers();
+    k.text = e.text();
+    k.autorep = e.isAutoRepeat();
+    k.count = e.count();
+    return k;
+}
+QKeyEvent KeyboardMacros::k2e(const KeyboardMacros::keystroke& k) {
+    return QKeyEvent(
+        k.type,
+        k.key,
+        k.modifiers,
+        k.text,
+        k.autorep,
+        k.count);
+}
+
+KeyboardMacros::keystroke KeyboardMacros::s2k(const QString &s) {
+    keystroke k;
+    /*
+    #define cI "(\\d+)"
+    #define cS "([^,]*)"
+    QRegularExpression e(cI "," cI "," cI "," cS "," cI "," cI);
+    auto m = e.match(s);
+    if (m.hasMatch()) {
+        k.type      = static_cast<QKeyEvent::Type>(m.captured(1).toUInt());
+        k.key       = m.captured(2).toInt();
+        k.modifiers = static_cast<Qt::KeyboardModifiers>(m.captured(3).toUInt());
+        k.text      = m.captured(4);
+        k.autorep   = m.captured(5).toUInt();
+        k.count     = m.captured(6).toUInt();
+    }
+    */
+    QString t(s);
+    QTextStream S(&t);
+    quint32 type, modifiers, autorep;
+    S >> type >> k.key >> modifiers >> k.text >> autorep >> k.count;
+    k.type      = static_cast<QKeyEvent::Type>(type);
+    k.modifiers = static_cast<Qt::KeyboardModifiers>(modifiers);
+    k.autorep   = autorep;
+    return k;
+}
+QString KeyboardMacros::k2s(const KeyboardMacros::keystroke& k) {
+    QString s;
+    {   QTextStream S(&s);
+        S << k.type << ' ' << k.key << ' ' << k.modifiers << ' ' << k.text << ' ' << k.autorep << ' ' << k.count;
+    }
+    return s;
+}
 
 KeyboardMacros::KeyboardMacros(QObject *parent) :
     QObject(parent),
@@ -42,10 +97,8 @@ KeyboardMacros::KeyboardMacros(QObject *parent) :
         QString name = p.value(k_name).toString();
         QStringList strokes = p.value(k_strokes).toStringList();
         macro m;
-        /*
         foreach(QString s, strokes)
-            m << s2e(s);
-        */
+            m << s2k(s);
         macros[name] = m;
     }
 
@@ -58,18 +111,16 @@ KeyboardMacros::~KeyboardMacros()
 
     p.beginWriteArray(k_macros);
     int i = 0;
-    foreach(QString name, macros.keys())
-        { //if (name != defaultName()) {
-            p.setArrayIndex(i);
-            p.setValue(k_name, name);
+    foreach(QString name, macros.keys()) {
+        p.setArrayIndex(i);
+        p.setValue(k_name, name);
 
-            QStringList s;
-#if 0
-            foreach (const QKeyEvent &e, macros[name])
-                s << e2s(e);
-#endif
-            p.setValue(k_strokes, s);
-        }
+        QStringList s;
+        foreach (const keystroke &k, macros[name])
+            s << k2s(k);
+
+        p.setValue(k_strokes, s);
+    }
     p.endArray();
 }
 
@@ -90,6 +141,7 @@ void KeyboardMacros::manage(QWidget *w)
     if (macroStartRegAct) {
         connect(macroStartRegAct, &QAction::triggered, [w, this]{ startRecording(w); });
     } else {
+        Q_ASSERT(false);
         auto s = start_(w);
         connect(s, &QShortcut::activated, [w, this]{ startRecording(w); });
     }
@@ -97,6 +149,7 @@ void KeyboardMacros::manage(QWidget *w)
     if (macroStopRegAct) {
         connect(macroStopRegAct, &QAction::triggered, [w, this]{ stopRecording(w); });
     } else {
+        Q_ASSERT(false);
         auto s = stop_(w);
         connect(s, &QShortcut::activated, [w, this]{ stopRecording(w); });
     }
@@ -104,36 +157,36 @@ void KeyboardMacros::manage(QWidget *w)
     if (macroPlaybackAct) {
         connect(macroPlaybackAct, &QAction::triggered, [w, this]{ Playback(w); });
     } else {
+        Q_ASSERT(false);
         auto s = play_(w);
         connect(s, &QShortcut::activated, [w, this]{ Playback(w); });
     }
 }
 
-void KeyboardMacros::setupMenu(QMenu *menu)
+void KeyboardMacros::setupMenu(QMenu *menu, bool sepBefore)
 {
     qDebug() << "setupMenu" << menu;
 
     macroStartRegAct = new QAction(tr("Macro Start Recording"), this);
     macroStartRegAct->setShortcut(start());
     macroStartRegAct->setStatusTip(tr("Keyboard Macro: Start Recording"));
-    //connect(macroStartRegAct, SIGNAL(triggered()), this, SLOT(macroStartReg()));
 
     macroStopRegAct = new QAction(tr("Macro Stop Recording"), this);
     macroStopRegAct->setShortcut(stop());
     macroStopRegAct->setStatusTip(tr("Keyboard Macro: Stop Recording"));
-    //connect(macroStopRegAct, SIGNAL(triggered()), this, SLOT(macroStopReg()));
 
     macroPlaybackAct = new QAction(tr("Macro Playback"), this);
     macroPlaybackAct->setShortcut(play());
     macroPlaybackAct->setStatusTip(tr("Keyboard Macro: Run Last Recorded"));
-    //connect(macroPlaybackAct, SIGNAL(triggered()), this, SLOT(macroPlayback()));
+
     /*
     macroSelectAct = new QAction(tr("Macro Select"), this);
     macroSelectAct->setStatusTip(tr("Select and run a Keyboard Macro Registered"));
     connect(macroSelectAct, SIGNAL(triggered()), this, SLOT(macroSelect()));
     */
 
-    menu->addSeparator();
+    if (sepBefore)
+        menu->addSeparator();
     menu->addAction(macroStartRegAct);
     menu->addAction(macroStopRegAct);
     menu->addAction(macroPlaybackAct);
@@ -144,9 +197,7 @@ void KeyboardMacros::storeEvent(QKeyEvent *e)
 {
     if (!lastRecorded.isEmpty()) {
         qDebug() << "storeEvent" << e;
-#if 0
-        macros[lastRecorded].append(*e);
-#endif
+        macros[lastRecorded].append(e2k(*e));
     }
 }
 void KeyboardMacros::setLastRecordedName(QString name)
@@ -158,25 +209,17 @@ void KeyboardMacros::setLastRecordedName(QString name)
     lastRecorded = name;
 }
 
-QStringList KeyboardMacros::e2l(const QKeyEvent &e)
-{
-    QStringList l;
-    l << QString::number(e.type()) << QString::number(e.key()) << QString::number(e.modifiers());
-    return l;
-}
-
-QKeyEvent KeyboardMacros::l2e(const QStringList &l)
-{
-    int type = l[0].toInt(), key = l[1].toInt(), modif = l[2].toInt();
-    return QKeyEvent(QEvent::Type(type), key, Qt::KeyboardModifier(modif));
-}
-
 bool KeyboardMacros::eventFilter(QObject *obj, QEvent *event)
 {
     qDebug() << "KeyboardMacros::eventFilter" << obj << event;
-    if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        storeEvent(keyEvent);
+    switch (event->type()) {
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+    case QEvent::ShortcutOverride:
+        storeEvent(static_cast<QKeyEvent *>(event));
+        break;
+    default:
+        break;
     }
     // standard event processing
     return QObject::eventFilter(obj, event);
@@ -188,14 +231,14 @@ void KeyboardMacros::startRecording(QWidget *ed)
     if (status == idle) {
         status = onRecord;
         lastRecorded = defaultName();
-#if 0
+
         macros[lastRecorded].clear();
         ed->installEventFilter(this);
-#endif
+
         emit feedback(tr("Keyboard Macro: Start registering '%1'").arg(currName()));
     }
     else
-        emit feedback(tr("Keyboard Macro: Already registering unnamed "));
+        emit feedback(tr("Keyboard Macro: Already registering"));
 }
 
 void KeyboardMacros::stopRecording(QWidget *ed)
@@ -225,10 +268,12 @@ void KeyboardMacros::Playback(QWidget *ed)
     if (status == idle) {
         status = onPlayback;
         emit feedback(tr("Keyboard Macro: Playback '%1'").arg(currName()));
-#if 0
-        for (const QKeyEvent& e: macros[defaultName()])
-            QCoreApplication::postEvent(ed, new QKeyEvent(e.type(), e.key(), e.modifiers(), e.text()));
-#endif
+
+        for (const keystroke& k: macros[defaultName()]) {
+            auto e = k2e(k);
+            QCoreApplication::sendEvent(ed, &e);
+        }
+
         status = idle;
         emit playbackCompleted();
     }

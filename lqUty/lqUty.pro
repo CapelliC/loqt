@@ -32,9 +32,9 @@ DEFINES += LQUTY_LIBRARY
 CONFIG += create_prl
 
 SOURCES += \
-    EditHelper.cpp \
-    ansi_esc_seq.cpp \
     lqUty.cpp \
+    UIHelper.cpp \
+    ansi_esc_seq.cpp \
     ParenMatching.cpp \
     MruHelper.cpp \
     RowColIndicators.cpp \
@@ -45,16 +45,15 @@ SOURCES += \
     lqAniMachine.cpp \
     XmlSyntaxHighlighter.cpp \
     KeyboardMacros.cpp \
-    JSSyntax.cpp \
     framedTextAttr.cpp \
     foldedTextAttr.cpp \
     foldingQTextEdit.cpp
 
 HEADERS += \
-    EditHelper.h \
-    ansi_esc_seq.h \
     lqUty.h \
     lqUty_global.h \
+    UIHelper.h \
+    ansi_esc_seq.h \
     ParenMatching.h \
     do_events.h \
     MruHelper.h \
@@ -73,7 +72,6 @@ HEADERS += \
     maplist.h \
     KeyboardMacros.h \
     Tabbler.h \
-    JSSyntax.h \
     framedTextAttr.h \
     foldedTextAttr.h \
     foldingQTextEdit.h

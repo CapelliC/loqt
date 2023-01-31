@@ -1,5 +1,5 @@
 /*
-    pqSource     : interfacing SWI-Prolog source files and Qt
+    lqUty        : loqt utilities
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
@@ -20,23 +20,31 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef EDITHELPER_H
-#define EDITHELPER_H
+#ifndef UIHELPER_H
+#define UIHELPER_H
 
 #include "lqUty_global.h"
-#include <QPointer>
-#include <QMenu>
-#include <QToolBar>
 
-class LQUTYSHARED_EXPORT EditHelper
+#include <QMenu>
+#include <QWidget>
+#include <QPointer>
+#include <QToolBar>
+#include <QActionGroup>
+
+class LQUTYSHARED_EXPORT UIHelper
 {
 public:
-    EditHelper(QWidget *host = nullptr);
+    UIHelper(QWidget *host = nullptr);
 
-    QPointer<QMenu> editMenu;
-    QPointer<QToolBar> editToolBar;
+    struct Actions {
+        QPointer<QMenu> menu;
+        QPointer<QToolBar> toolBar;
+        QPointer<QActionGroup> actionGroup;
+    };
 
+    Actions macro;
+    Actions &setupMacro(QWidget* stage);
 
 };
 
-#endif // EDITHELPER_H
+#endif // UIHELPER_H

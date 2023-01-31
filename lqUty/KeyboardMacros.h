@@ -42,7 +42,7 @@ public:
     ~KeyboardMacros();
 
     /// connect to typical QMainWindow environment
-    void setupMenu(QMenu *menu);
+    void setupMenu(QMenu *menu, bool sepBefore = false);
 
     /// resonable defaults for GUI bindings hotkeys
     static QKeySequence start();
@@ -59,12 +59,6 @@ public:
     static QString defaultName() { return "<macro>"; }
     QString currName() const { return defaultName(); }
     void setLastRecordedName(QString name);
-
-    /// serializing to store in preferences
-    static QStringList e2l(const QKeyEvent &e);
-    static QKeyEvent l2e(const QStringList &l);
-    static QString e2s(const QKeyEvent &e) { return e2l(e).join(","); }
-    static QKeyEvent s2e(const QString &s) { return l2e(s.split(",")); }
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -86,8 +80,34 @@ public slots:
 private:
 
     //! restrict to keyboard events by now
-    typedef QList<QKeyEvent> macro;
+    struct keystroke {
+        QEvent::Type type;
+        int key;
+        Qt::KeyboardModifiers modifiers;
+        QString text;
+        bool autorep;
+        quint16 count;
+    };
+
+    static keystroke e2k(const QKeyEvent &e);
+    static QKeyEvent k2e(const keystroke& k);
+
+    static keystroke s2k(const QString &s);
+    static QString k2s(const keystroke& k);
+
+    /*// serializing to store in preferences
+    static QStringList e2l(const QKeyEvent &e);
+    static QKeyEvent l2e(const QStringList &l);
+    static QString e2s(const QKeyEvent &e);
+//{ return e2l(e).join(","); }
+    static QKeyEvent s2e(const QString &s);
+//{ return l2e(s.split(",")); }
+*/
+
+
+    typedef QList<keystroke> macro;
     QMap<QString, macro> macros;
+
 
     //! TBD allows to reference macros by name
     QString lastRecorded;

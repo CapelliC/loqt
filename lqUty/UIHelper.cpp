@@ -1,5 +1,5 @@
 /*
-    pqSource     : interfacing SWI-Prolog source files and Qt
+    lqUty        : loqt utilities
 
     Author       : Carlo Capelli
     E-mail       : cc.carlo.cap@gmail.com
@@ -20,9 +20,15 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "EditHelper.h"
+#include "UIHelper.h"
 
-EditHelper::EditHelper(QWidget *host)
+UIHelper::UIHelper(QWidget *host)
 {
+    Q_UNUSED(host);
+}
 
+UIHelper::Actions &UIHelper::setupMacro(QWidget *stage)
+{
+    Q_UNUSED(stage);
+    return macro;
 }

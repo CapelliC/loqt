@@ -303,6 +303,11 @@ void MainWindow::viewDot() {
         gvmacros = new KeyboardMacros(this);
         gvmacros->setupMenu(mnmacros);
         gvmacros->manage(source());
+
+        //connect(gvmacros, &KeyboardMacros::feedback, statusBar(), &QStatusBar::showMessage);
+        connect(gvmacros, &KeyboardMacros::feedback, this, [this](const QString &s){ statusBar()->showMessage(s); });
+        //connect(gvmacros, &KeyboardMacros::playbackCompleted, statusBar(), &QStatusBar::showMessage);
+        //connect(gvmacros, &KeyboardMacros::registerCompleted, statusBar(), &QStatusBar::showMessage);
     }
     else {
         errbox(tr("Cannot read %1").arg(f), tr("open file failed"));

@@ -34,7 +34,8 @@
 #ifndef ANSI_ESC_SEQ_H
 #define ANSI_ESC_SEQ_H
 
-#include "lqUty.h"
+// adapting into lqUty
+#include "lqUty_global.h"
 
 #include <QTextCharFormat>
 

@@ -27,6 +27,7 @@
 #include <QFile>
 #include <QTextStream>
 
+#if 0
 struct Bin : C { Bin(CCP op, T Left, T Right) : C(op, V(Left, Right)) {} };
 struct Uni : C { Uni(CCP op, T arg) : C(op, arg) {} };
 
@@ -36,9 +37,11 @@ struct neg : Uni { neg(T pred) : Uni("\\+", pred) {} };
 struct join : Bin { join(T Left, T Right) : Bin(",", Left, Right) {} };
 struct arith : Bin { arith(T Pred, T Num) : Bin("/", Pred, Num) {} };
 
+
 #define zero long(0)
 #define one long(1)
 #define _V T()
+#endif
 
 /** context sensitive completion
  *  take current line, give list of completions (both atoms and files)
@@ -204,9 +207,9 @@ bool Completion::helpidx() {
 QString Completion::pred_tip(QTextCursor c) {
     if (helpidx_status == available) {
         c.select(c.WordUnderCursor);
-        QString w =  c.selectedText();
+        auto w =  c.selectedText();
         auto p = pred_docs.constFind(w);
-        if (p != pred_docs.end()) {
+        if (p != pred_docs.constEnd()) {
             QStringList l;
             foreach(auto x, p.value())
                 l.append(QString("%1/%2:%3").arg(w).arg(x.first).arg(x.second));

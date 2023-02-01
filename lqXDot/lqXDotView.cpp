@@ -41,7 +41,7 @@
 lqXDotView::lqXDotView(QWidget* parent)
     : QGraphicsView(parent)
 {
-    setup();
+    //setup();
 }
 
 /** required by scripting
@@ -50,7 +50,7 @@ lqXDotView::lqXDotView(const lqXDotView &v)
     : QGraphicsView()
 {
     Q_UNUSED(v)
-    setup();
+    //setup();
 }
 
 /** set default settings, for high quality display
@@ -68,6 +68,15 @@ void lqXDotView::setup()
     setTransformationAnchor(AnchorUnderMouse);
     setResizeAnchor(AnchorUnderMouse);
     setDragMode(ScrollHandDrag);
+
+    /* useless attempt to solve misalignment in left tab
+    auto r = frameRect();
+    r.moveTop(10);
+    //r.moveTopLeft(QPoint(1,1));
+    setFrameRect(r);
+    setFrameStyle(QFrame::Panel | QFrame::Raised);
+    setLineWidth(2);
+    */
 }
 
 lqXDotView::~lqXDotView()
@@ -80,6 +89,8 @@ lqXDotView::~lqXDotView()
  */
 bool lqXDotView::render_file(QString source, QString algo)
 {
+    if (!cg)
+        setup();
     return cg->run_with_error_report([&]() {
         QString err;
         try {
@@ -101,6 +112,8 @@ bool lqXDotView::render_file(QString source, QString algo)
  */
 bool lqXDotView::render_script(QString script, QString algo)
 {
+    if (!cg)
+        setup();
     return cg->run_with_error_report([&]() {
         QString err;
         if (cg->parse(script)) {
@@ -161,11 +174,13 @@ void lqXDotView::keyPressEvent(QKeyEvent* event)
  */
 void lqXDotView::wheelEvent(QWheelEvent* event)
 {
-    //qreal factor = qPow(1.2, event->pixelDelta() / 240.0);
-    //scale(factor, factor);
-    auto delta = event->pixelDelta();
-    scale(delta.rx(), delta.ry());
-    event->accept();
+    auto delta = event->angleDelta().y();
+    auto factor = 1 + float(delta) / 720;
+    scale(factor, factor);
+/*
+    auto delta = event->angleDelta().y();
+    scale_view(1 + float(delta) / 350);
+*/
 }
 
 void lqXDotView::mousePressEvent(QMouseEvent *event)
@@ -313,7 +328,7 @@ void lqXDotView::exportAs(QString fmt)
         fd.setDirectory(lastExportDir);
     if (fd.exec()) {
         cg->clearXDotAttrs();
-        QString n = fd.selectedFiles()[0];
+        QString n = fd.selectedFiles().constFirst();
         qDebug() << "exporting to" << n;
         lastExportDir = fd.directory().path();
         cg->run_with_error_report([&]() {

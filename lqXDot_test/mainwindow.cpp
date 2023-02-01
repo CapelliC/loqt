@@ -257,17 +257,13 @@ void MainWindow::viewDot() {
         s1->addWidget(new lqXDotView);
         s1->addWidget(new QTextEdit);
         tabs->addTab(s1, tr("&Dot view/source"));
+        s1->setHandleWidth(1);
 
         auto s2 = new QSplitter();
         s2->addWidget(new SvgView);
         s2->addWidget(new QTextEdit);
         tabs->addTab(s2, tr("&Svg view/source"));
-        /*
-        tabs->addTab(new lqXDotView,    tr("lq&XDot view"));
-        tabs->addTab(new SvgView,       tr("&Svg view"));
-        tabs->addTab(new QTextEdit,     tr("&Dot source"));
-        tabs->addTab(new QTextEdit,     tr("Svg Xml sourc&e"));
-        */
+        s2->setHandleWidth(1);
 
         lqPreferences p;
         //source()->setFont(p.console_font);
@@ -299,7 +295,7 @@ void MainWindow::viewDot() {
         // connect macros
         delete gvmacros;
         delete mnmacros;
-        mnmacros = menuBar()->addMenu(tr("&KbMacros"));
+        mnmacros = menuBar()->addMenu(tr("&Keyb Macros"));
         gvmacros = new KeyboardMacros(this);
         gvmacros->setupMenu(mnmacros);
         gvmacros->manage(source());

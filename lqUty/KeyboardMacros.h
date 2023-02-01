@@ -48,14 +48,10 @@ public:
     static QKeySequence start();
     static QKeySequence stop();
     static QKeySequence play();
-    static QShortcut *start_(QWidget *parent) { return new QShortcut(start(), parent); }
-    static QShortcut *stop_(QWidget *parent) { return new QShortcut(stop(), parent); }
-    static QShortcut *play_(QWidget *parent) { return new QShortcut(play(), parent); }
 
     void manage(QWidget *keybHost);
 
     /// TBD provide named macros with fast startup
-    void storeEvent(QKeyEvent *e);
     static QString defaultName() { return "<macro>"; }
     QString currName() const { return defaultName(); }
     void setLastRecordedName(QString name);
@@ -80,6 +76,8 @@ public slots:
 private:
 
     //! restrict to keyboard events by now
+
+    /// serializing to store in preferences
     struct keystroke {
         QEvent::Type type;
         int key;
@@ -95,19 +93,12 @@ private:
     static keystroke s2k(const QString &s);
     static QString k2s(const keystroke& k);
 
-    /*// serializing to store in preferences
     static QStringList e2l(const QKeyEvent &e);
     static QKeyEvent l2e(const QStringList &l);
     static QString e2s(const QKeyEvent &e);
-//{ return e2l(e).join(","); }
-    static QKeyEvent s2e(const QString &s);
-//{ return l2e(s.split(",")); }
-*/
-
 
     typedef QList<keystroke> macro;
     QMap<QString, macro> macros;
-
 
     //! TBD allows to reference macros by name
     QString lastRecorded;
@@ -115,10 +106,10 @@ private:
     enum { idle, onRecord, onPlayback } status;
 
     QPointer<QAction>
-        macroStartRegAct,
-        macroStopRegAct,
-        macroPlaybackAct,
-        macroSelectAct;
+        startRegAct,
+        stopRegAct,
+        playbackAct,
+        selectAct;
 };
 
 #endif // KEYBOARDMACROS_H

@@ -22,7 +22,7 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 # please, an up-to-date compiler
-CONFIG += C++11
+CONFIG += C++20
 
 QT += core gui widgets statemachine
 

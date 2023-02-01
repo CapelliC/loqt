@@ -40,16 +40,14 @@
 #include "KeyboardMacros.h"
 
 /** display a single graph (dot file)
-  * - lqXDotView main viewer
-  * - the SVG rendering of the same
-  * - DOT source file
-  * - SVG source file
-  */
+ * tab 1: lqXDotView main viewer | DOT source file
+ * tab 2: SVG rendering of the same| SVG source file
+ */
 class MainWindow : public QMainWindow, MruHelper
 {
     Q_OBJECT
-    
 public:
+
     MainWindow(int argc, char *argv[], QWidget *parent = 0);
     ~MainWindow();
 
@@ -67,7 +65,6 @@ private:
     QString lastDir;
     QString lastMode;
 
-    //enum t_kind { t_view, t_svgv, t_source, t_svgxml };
     enum t_kind { t_dot, t_svg };
     QPointer<QTabWidget> tabs;
     QSplitter *tab(t_kind kind) const { return qobject_cast<QSplitter*>(tabs->widget(kind)); }
@@ -75,22 +72,6 @@ private:
     typedef ParenMatching::range range;
     range paren;
 
-//    lqXDotView *view() const {
-//        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_dot));
-//        return qobject_cast<lqXDotView*>(s->widget(0));
-//    }
-//    QTextEdit *source() const {
-//        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_dot));
-//        return qobject_cast<QTextEdit*>(s->widget(1));
-//    }
-//    SvgView *svgv() const {
-//        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_svg));
-//        return qobject_cast<SvgView*>(s->widget(0));
-//    }
-//    QTextEdit *svgxml() const {
-//        QSplitter *s = qobject_cast<QSplitter*>(tabs->widget(t_svg));
-//        return qobject_cast<QTextEdit*>(s->widget(1));
-//    }
     lqXDotView *view() const {
         return qobject_cast<lqXDotView*>(tab(t_dot)->widget(0));
     }

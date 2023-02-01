@@ -117,6 +117,7 @@ bool pqSource::Trace_(const T &Port, const T &Frame, const T &Choice, T &Action)
     T goal = frame_attr(Frame, "goal");
     QString s_goal = t2w(goal);
 
+    //emit reportInfo(QString("(%1) %2 %3").arg(level_curr, port, s_goal));
     emit reportInfo(QString("(%1) %2 %3").arg(level_curr).arg(port).arg(s_goal));
 
     QString source;
